@@ -1,18 +1,16 @@
 import {
   Command,
-  CommandDialog,
   CommandEmpty,
   CommandGroup,
   CommandInput,
   CommandItem,
   CommandList,
-  CommandSeparator,
-  CommandShortcut,
 } from "@/components/ui/command"
 import { Checkbox } from "@/components/ui/checkbox";
 import { useRef, useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import type { DogSearchOption } from "@/models";
+import { Separator } from "../ui/separator";
 
 function DogSearchResult(props: {dog: DogSearchOption, onCheckedChange: (name: string) => void}) {
 
@@ -71,7 +69,6 @@ export default function MainSearch() {
   return (
     <Command ref={containerRef} className={cn(
       "rounded-lg border shadow-md md:min-w-[450px] transition-all duration-200",
-      // isFocused ? "h-max" : "h-9"
     )}>
       <CommandInput 
         placeholder="Search for a breed..." 
@@ -83,7 +80,7 @@ export default function MainSearch() {
         "transition-all duration-200 ease-in-out",
         isFocused ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2 pointer-events-none"
       )}>
-        <CommandList>
+        <CommandList className="h-min p-2">
           {selectedBreeds.length > 0 && (
             <CommandGroup heading="Selected Breeds">
               {selectedBreeds.map((breed) => (
@@ -93,7 +90,7 @@ export default function MainSearch() {
           )}
           {availableBreeds.length > 0 && (
             <>
-              <CommandSeparator />
+              <Separator className="my-2" />
               <CommandGroup heading="Available Breeds">
                 {availableBreeds.map((breed) => (
                   <DogSearchResult key={breed.name} dog={breed} onCheckedChange={changeBreedAvailability} />
