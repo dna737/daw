@@ -9,7 +9,9 @@ import {
   CommandSeparator,
   CommandShortcut,
 } from "@/components/ui/command"
+import { Checkbox } from "@/components/ui/checkbox";
 import { useRef, useState, useEffect } from "react";
+import { cn } from "@/lib/utils";
 
 export default function MainSearch() {
   const [isFocused, setIsFocused] = useState(false);
@@ -26,22 +28,46 @@ export default function MainSearch() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  const breedNames = ["Doberman", "Poodle", "Labrador", "Chihuahua", "Pitbull"]; //list of breeds
+  const breedData = breedNames.map((breed, i) => ({
+    name: breed,
+    available: i % 2 === 0,
+  }));
+  const [breeds, setBreeds] = useState(breedData);
+  
+  const changeBreedAvailability = (breed: string) => {
+    const udpatedBreedData = breeds.find(b => b.name === breed);
+    if (udpatedBreedData) {
+      udpatedBreedData.available = !udpatedBreedData.available;
+      setBreeds({...breeds, [breed]: udpatedBreedData});
+    }
+  };
+
   return (
     <Command ref={containerRef}>
       <CommandInput placeholder="Search for a breed..." onFocus={() => setIsFocused(true)} />
-      <div className={`transition-all duration-200 ease-in-out ${isFocused ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2 pointer-events-none'}`}>
+      <div className={cn(
+        "transition-all duration-200 ease-in-out",
+        isFocused ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2 pointer-events-none"
+      )}>
         <CommandList>
           <CommandEmpty>No results found.</CommandEmpty>
-          <CommandGroup heading="Suggestions">
-            <CommandItem>Calendar</CommandItem>
-            <CommandItem>Search Emoji</CommandItem>
-            <CommandItem>Calculator</CommandItem>
+          <CommandGroup heading="Selected Breeds">
+            {Object.entries(breeds).filter(([_, breed]) => breed.available).map(([name, breed]) => (
+              <div className="flex items-center space-x-2">
+                <Checkbox id={breed.name} checked={breed.available} onCheckedChange={() => changeBreedAvailability(breed.name)} />
+                <CommandItem key={breed.name}>{breed.name}</CommandItem>
+              </div>
+            ))}
           </CommandGroup>
           <CommandSeparator />
           <CommandGroup heading="Settings">
-            <CommandItem>Profile</CommandItem>
-            <CommandItem>Billing</CommandItem>
-            <CommandItem>Settings</CommandItem>
+            {breeds.filter(b => !b.available).map((breed) => (
+            <div className="flex items-center space-x-2">
+                <Checkbox id={breed.name} checked={breed.available} onCheckedChange={() => changeBreedAvailability(breed.name)} />
+                <CommandItem key={breed.name}>{breed.name}</CommandItem>
+              </div>
+            ))}
           </CommandGroup>
         </CommandList>
       </div>
