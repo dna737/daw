@@ -5,8 +5,9 @@ import { AppContextProvider } from "../../context/AppContext";
 import { Route } from "react-router";
 
 export default function Home() {
-    return (
-       <>
-       </> 
-    )
+  return (
+    <>
+      <h1>Home</h1>
+    </>
+  )
 }
