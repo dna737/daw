@@ -9,7 +9,7 @@ import { useAuth } from "../hooks";
 
 export default function Login() {
   const navigate = useNavigate();
-  const { handleLogin } = useAuth();
+  const { login } = useAuth();
 
   const formSchema = z.object({
   name: z.string().min(2, {
@@ -29,7 +29,7 @@ export default function Login() {
   })
  
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    if (await handleLogin(values.name, values.email)) {
+    if (await login(values.name, values.email)) {
       navigate("/home");
     }
   }

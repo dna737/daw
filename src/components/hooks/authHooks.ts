@@ -1,31 +1,28 @@
-import { useContext, useEffect } from "react";
+import { useContext } from "react";
 import { AppContext } from "@/context/AppContext";
-import { login as loginService } from "@/services/proxy";
-
+import { useStorage } from "./storageHooks";
+import { login as loginService } from "@/services";
 export const useAuth = () => {
-  const { login, logout, isLoggedIn } = useContext(AppContext) as {
-    login: () => void;
-    logout: () => void;
+  const { isLoggedIn, setIsLoggedIn } = useContext(AppContext) as {
     isLoggedIn: boolean;
+    setIsLoggedIn: (value: boolean) => void;
   };
+  const { setItem, removeItem } = useStorage();
 
-  // Returns true if login is successful, false otherwise
-  const handleLogin = async (name: string, email: string): Promise<boolean> => {
-    try {
-      const success = await loginService(name, email);
-      if (success) {
-        login();
-        return true;
-      }
-    } catch (error) {
-      console.error(error);
-    } 
+  const login = async (name: string, email: string) => {
+    const result = await loginService(name, email);
+    if (result) {
+      setIsLoggedIn(true);
+      setItem("isLoggedIn", true);
+      return true;
+    }
     return false;
   };
 
-  const handleLogout = () => {
-    logout();
+  const logout = () => {
+    setIsLoggedIn(false);
+    removeItem("isLoggedIn");
   };
 
-  return { isLoggedIn, handleLogin, handleLogout };
-}
+  return { isLoggedIn, login, logout };
+}; 
