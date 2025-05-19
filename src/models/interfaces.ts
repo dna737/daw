@@ -5,7 +5,7 @@ export interface User {
 
 export interface DogSearchOption {
   name: string;
-  available: boolean;
+  isSelected: boolean;
 }
 
 export interface StorageItem {

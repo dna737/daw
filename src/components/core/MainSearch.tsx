@@ -16,7 +16,7 @@ import type { DogSearchOption } from "@/models";
 
 function DogSearchResult(props: {dog: DogSearchOption, onCheckedChange: (name: string) => void}) {
 
-  const [checked, setChecked] = useState(props.dog.available);
+  const [checked, setChecked] = useState(props.dog.isSelected);
   const { name } = props.dog;
 
   return (
@@ -32,6 +32,7 @@ function DogSearchResult(props: {dog: DogSearchOption, onCheckedChange: (name: s
 export default function MainSearch() {
   const [isFocused, setIsFocused] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const [searchValue, setSearchValue] = useState("");
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -47,40 +48,62 @@ export default function MainSearch() {
   const breedNames = ["Doberman", "Poodle", "Labrador", "Chihuahua", "Pitbull"]; //list of breeds
   const breedData = breedNames.map((breed, i) => ({
     name: breed,
-    available: i % 2 === 0,
+    isSelected: i % 2 === 0,
   }));
-  console.log("breedData", breedData);
   const [breeds, setBreeds] = useState(breedData);
   
   const changeBreedAvailability = (breed: string) => {
     const remainingBreeds = breeds.filter(b => b.name !== breed);
     const udpatedBreedData = breeds.find(b => b.name === breed);
     if (udpatedBreedData) {
-      udpatedBreedData.available = !udpatedBreedData.available;
+      udpatedBreedData.isSelected = !udpatedBreedData.isSelected;
       setBreeds([...remainingBreeds, udpatedBreedData]);
     }
   };
 
+  const filteredBreeds = breeds.filter((b) => b.name.toLowerCase().includes(searchValue.toLowerCase()));
+  console.log("filteredBreeds", filteredBreeds);
+  const availableBreeds = filteredBreeds.filter((b) => !b.isSelected);
+  const selectedBreeds = filteredBreeds.filter((b) => b.isSelected);
+
+  console.log("availableBreeds", availableBreeds.length);
+
   return (
-    <Command ref={containerRef}>
-      <CommandInput placeholder="Search for a breed..." onFocus={() => setIsFocused(true)} />
+    <Command ref={containerRef} className={cn(
+      "rounded-lg border shadow-md md:min-w-[450px] transition-all duration-200",
+      // isFocused ? "h-max" : "h-9"
+    )}>
+      <CommandInput 
+        placeholder="Search for a breed..." 
+        onFocus={() => setIsFocused(true)} 
+        value={searchValue}
+        onValueChange={setSearchValue}
+      />
       <div className={cn(
         "transition-all duration-200 ease-in-out",
         isFocused ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2 pointer-events-none"
       )}>
         <CommandList>
-          <CommandEmpty>{"No results found."}</CommandEmpty>
-          <CommandGroup heading="Selected Breeds">
-            {breeds.filter((b) => b.available).map((breed) => (
-              <DogSearchResult key={breed.name} dog={breed} onCheckedChange={changeBreedAvailability} />
-            ))}
-          </CommandGroup>
-          <CommandSeparator />
-          <CommandGroup heading="Available Breeds">
-            {breeds.filter((b) => !b.available).map((breed) => (
-              <DogSearchResult key={breed.name} dog={breed} onCheckedChange={changeBreedAvailability} />
-            ))}
-          </CommandGroup>
+          {selectedBreeds.length > 0 && (
+            <CommandGroup heading="Selected Breeds">
+              {selectedBreeds.map((breed) => (
+                <DogSearchResult key={breed.name} dog={breed} onCheckedChange={changeBreedAvailability} />
+              ))}
+            </CommandGroup>
+          )}
+          {availableBreeds.length > 0 && (
+            <>
+              <CommandSeparator />
+              <CommandGroup heading="Available Breeds">
+                {availableBreeds.map((breed) => (
+                  <DogSearchResult key={breed.name} dog={breed} onCheckedChange={changeBreedAvailability} />
+                ))}
+              </CommandGroup>
+            </>
+          )}
+          {selectedBreeds.length === 0 && availableBreeds.length === 0 && (
+            <CommandEmpty>{"No breeds found."}</CommandEmpty>
+          )}
         </CommandList>
       </div>
     </Command>
