@@ -12,6 +12,22 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { useRef, useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
+import type { DogSearchOption } from "@/models";
+
+function DogSearchResult(props: {dog: DogSearchOption, onCheckedChange: (name: string) => void}) {
+
+  const [checked, setChecked] = useState(props.dog.available);
+  const { name } = props.dog;
+
+  return (
+    <div className="flex items-center space-x-2">
+      <Checkbox id={name} checked={checked} onCheckedChange={() => {props.onCheckedChange(name); setChecked(!checked)}} />
+      <label htmlFor={name} className="flex-1">
+        <CommandItem key={name} className="hover:bg-transparent data-[selected=true]:bg-transparent cursor-pointer">{name}</CommandItem>
+      </label>
+    </div>
+  )
+}
 
 export default function MainSearch() {
   const [isFocused, setIsFocused] = useState(false);
@@ -53,22 +69,16 @@ export default function MainSearch() {
         isFocused ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2 pointer-events-none"
       )}>
         <CommandList>
-          <CommandEmpty>No results found.</CommandEmpty>
+          <CommandEmpty>{"No results found."}</CommandEmpty>
           <CommandGroup heading="Selected Breeds">
-            {Object.entries(breeds).filter(([_, breed]) => breed.available).map(([name, breed]) => (
-              <div className="flex items-center space-x-2" key={name}>
-                <Checkbox id={breed.name} checked={breed.available} onCheckedChange={() => changeBreedAvailability(breed.name)} />
-                <CommandItem key={breed.name} className="hover:bg-transparent">{breed.name}</CommandItem>
-              </div>
+            {breeds.filter((b) => b.available).map((breed) => (
+              <DogSearchResult key={breed.name} dog={breed} onCheckedChange={changeBreedAvailability} />
             ))}
           </CommandGroup>
           <CommandSeparator />
-          <CommandGroup heading="Settings">
-            {Object.entries(breeds).filter(([_, breed]) => !breed.available).map(([name, breed]) => (
-            <div className="flex items-center space-x-2" key={name}>
-              <Checkbox id={breed.name} checked={breed.available} onCheckedChange={() => changeBreedAvailability(breed.name)} />
-              <CommandItem key={breed.name}>{breed.name}</CommandItem>
-            </div>
+          <CommandGroup heading="Available Breeds">
+            {breeds.filter((b) => !b.available).map((breed) => (
+              <DogSearchResult key={breed.name} dog={breed} onCheckedChange={changeBreedAvailability} />
             ))}
           </CommandGroup>
         </CommandList>

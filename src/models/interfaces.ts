@@ -3,6 +3,11 @@ export interface User {
   email: string;
 }
 
+export interface DogSearchOption {
+  name: string;
+  available: boolean;
+}
+
 export interface StorageItem {
   value: any;
   expiry: number;
