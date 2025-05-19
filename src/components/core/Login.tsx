@@ -1,14 +1,15 @@
-import { useState } from "react";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
-import {  FormDescription, FormLabel, FormField, FormMessage, FormControl, FormItem, Form } from "../ui/form";
+import { FormLabel, FormField, FormMessage, FormControl, FormItem, Form } from "../ui/form";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useNavigate } from "react-router";
+import { useAuth } from "../hooks";
 
 export default function Login() {
   const navigate = useNavigate();
+  const { handleLogin } = useAuth();
 
   const formSchema = z.object({
   name: z.string().min(2, {
@@ -28,7 +29,7 @@ export default function Login() {
   })
  
   function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values)
+    handleLogin(values.name, values.email);
   }
 
   return (
@@ -49,7 +50,6 @@ export default function Login() {
           )}
         />
 
-
         <FormField
           control={form.control}
           name="email"
@@ -63,7 +63,7 @@ export default function Login() {
             </FormItem>
           )}
         />
-        <Button type="submit">Submit</Button>
+        <Button type="submit" className="cursor-pointer">Submit</Button>
       </form>
     </Form>
   )
