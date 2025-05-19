@@ -17,7 +17,9 @@ export const AppContextProvider = ({ children }: { children: React.ReactNode }) 
     localStorage.removeItem("user");
   }
 
-  const value = { user, login, logout }
+  const isLoggedIn = user !== null;
+
+  const value = { user, login, logout, isLoggedIn }
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 };
