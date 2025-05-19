@@ -11,8 +11,16 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<Navigate to={isLoggedIn ? "/home" : "/login"} replace />} />
-      <Route path="/home" element={<Home />} />
-      <Route path="/login" element={<Login />} />
+      {isLoggedIn ?
+        <>
+          <Route path="/home" element={<Home />} />
+        </>
+        :
+        <>
+          <Route path="/login" element={<Login />} />
+        </>
+      }
+      <Route path="*" element={<h1>{"Sorry, the page you are looking for does not exist."}</h1>} />
     </Routes>
   );
 }
