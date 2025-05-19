@@ -28,8 +28,10 @@ export default function Login() {
     },
   })
  
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    handleLogin(values.name, values.email);
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    if (await handleLogin(values.name, values.email)) {
+      navigate("/home");
+    }
   }
 
   return (
