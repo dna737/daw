@@ -1,24 +1,31 @@
-import type { User } from "@/models";
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { AppContext } from "@/context/AppContext";
 import { login as loginService } from "@/services/proxy";
 
 export const useAuth = () => {
-  const { user, login, logout, isLoggedIn } = useContext(AppContext) as {
-    user: User | null;
-    login: (user: User) => void;
+  const { login, logout, isLoggedIn } = useContext(AppContext) as {
+    login: () => void;
     logout: () => void;
     isLoggedIn: boolean;
   };
 
-  const handleLogin = async (name: string, email: string) => {
-    const user = await loginService(name, email);
-    login(user);
+  // Returns true if login is successful, false otherwise
+  const handleLogin = async (name: string, email: string): Promise<boolean> => {
+    try {
+      const success = await loginService(name, email);
+      if (success) {
+        login();
+        return true;
+      }
+    } catch (error) {
+      console.error(error);
+    } 
+    return false;
   };
 
   const handleLogout = () => {
     logout();
   };
 
-  return { user, login, logout, isLoggedIn, handleLogin, handleLogout };
+  return { isLoggedIn, handleLogin, handleLogout };
 }

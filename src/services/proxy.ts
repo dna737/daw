@@ -2,7 +2,7 @@ import type { User } from "@/models";
 
 const API_URL = "https://frontend-take-home-service.fetch.com";
 
-export const login = async (name: string, email: string) => {
+export const login = async (name: string, email: string): Promise<boolean | null> => {
   const response = await fetch(`${API_URL}/auth/login`, {
     method: "POST",
     credentials: "include",
@@ -15,5 +15,6 @@ export const login = async (name: string, email: string) => {
   if (!response.ok) {
     throw new Error("Failed to login. Please try again.");
   }
-  return await response.json();
+
+  return true;
 };

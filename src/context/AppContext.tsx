@@ -5,21 +5,18 @@ export const AppContext = createContext({});
 
 export const AppContextProvider = ({ children }: { children: React.ReactNode }) => {
 
-  const [user, setUser] = useState<User | null>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+  console.log("isLoggedIn:", isLoggedIn);
 
-  const login = (userData: User) => {
-    setUser(userData);
-    localStorage.setItem("user", JSON.stringify(userData));
+  const login = () => {
+    setIsLoggedIn(true);
   }
 
   const logout = () => {
-    setUser(null);
-    localStorage.removeItem("user");
+    setIsLoggedIn(false);
   }
 
-  const isLoggedIn = user !== null;
-
-  const value = { user, login, logout, isLoggedIn }
+  const value = { isLoggedIn, login, logout }
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 };
