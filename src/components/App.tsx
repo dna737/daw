@@ -6,14 +6,22 @@ import { useAuth } from './hooks'
 import { AppContextProvider } from '../context/AppContext'
 
 function App() {
-  // const { user, isLoading, error } = useAuth();
+  // const { isLoggedIn } = useAuth();
+  const isLoggedIn = true;
 
   return (
     <>
       <AppContextProvider>
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="/" element={isLoggedIn ? <Home /> : <Navigate to="/login" replace />} />
+          {/* TODO: Use DelayedRedirect for routes later */}
+          {isLoggedIn ? (
+            <>
+            </>
+          ) : (
+            <>
+            </>
+          )}
         </Routes>
       </AppContextProvider>
     </>
