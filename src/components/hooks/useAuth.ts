@@ -1,10 +1,13 @@
 import type { User } from "@/models";
-import { useState } from "react";
+import { useContext } from "react";
+import { AppContext } from "@/context/AppContext";
 
 export const useAuth = () => {
-    const [user, setUser] = useState<User | null>(null);
-    const [isLoading, setIsLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string | null>(null);
+    const { user, login, logout } = useContext(AppContext) as {
+        user: User | null;
+        login: (user: User) => void;
+        logout: () => void;
+    };
 
-    return { user, isLoading, error };
+    return { user, login, logout };
 }
