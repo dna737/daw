@@ -33,13 +33,15 @@ export default function MainSearch() {
     name: breed,
     available: i % 2 === 0,
   }));
+  console.log("breedData", breedData);
   const [breeds, setBreeds] = useState(breedData);
   
   const changeBreedAvailability = (breed: string) => {
+    const remainingBreeds = breeds.filter(b => b.name !== breed);
     const udpatedBreedData = breeds.find(b => b.name === breed);
     if (udpatedBreedData) {
       udpatedBreedData.available = !udpatedBreedData.available;
-      setBreeds({...breeds, [breed]: udpatedBreedData});
+      setBreeds([...remainingBreeds, udpatedBreedData]);
     }
   };
 
@@ -54,19 +56,19 @@ export default function MainSearch() {
           <CommandEmpty>No results found.</CommandEmpty>
           <CommandGroup heading="Selected Breeds">
             {Object.entries(breeds).filter(([_, breed]) => breed.available).map(([name, breed]) => (
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-2" key={name}>
                 <Checkbox id={breed.name} checked={breed.available} onCheckedChange={() => changeBreedAvailability(breed.name)} />
-                <CommandItem key={breed.name}>{breed.name}</CommandItem>
+                <CommandItem key={breed.name} className="hover:bg-transparent">{breed.name}</CommandItem>
               </div>
             ))}
           </CommandGroup>
           <CommandSeparator />
           <CommandGroup heading="Settings">
-            {breeds.filter(b => !b.available).map((breed) => (
-            <div className="flex items-center space-x-2">
-                <Checkbox id={breed.name} checked={breed.available} onCheckedChange={() => changeBreedAvailability(breed.name)} />
-                <CommandItem key={breed.name}>{breed.name}</CommandItem>
-              </div>
+            {Object.entries(breeds).filter(([_, breed]) => !breed.available).map(([name, breed]) => (
+            <div className="flex items-center space-x-2" key={name}>
+              <Checkbox id={breed.name} checked={breed.available} onCheckedChange={() => changeBreedAvailability(breed.name)} />
+              <CommandItem key={breed.name}>{breed.name}</CommandItem>
+            </div>
             ))}
           </CommandGroup>
         </CommandList>
