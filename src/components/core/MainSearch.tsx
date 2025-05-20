@@ -9,9 +9,9 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { useRef, useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
-import type { DogSearchOption } from "@/models";
+import type { Dog, DogSearchOption } from "@/models";
 import { Separator } from "../ui/separator";
-import { getBreeds, getSearchResults } from "@/services/proxy";
+import { getBreeds, getDogs, getSearchResults } from "@/services/proxy";
 import { Button } from "../ui/button";
 
 function DogSearchResult(props: {dog: DogSearchOption, onCheckedChange: (name: string) => void}) {
@@ -33,6 +33,15 @@ export default function MainSearch() {
   const [isFocused, setIsFocused] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const [searchValue, setSearchValue] = useState("");
+  const [displayedIds, setDisplayedIds] = useState<string[]>([]); // To store the dog ids.
+  const [dogs, setDogs] = useState<Dog[]>([]);
+
+  useEffect(() => {
+    getDogs(displayedIds).then((dogs: Dog[]) => {
+      console.log("dogs", dogs);
+      setDogs(dogs);
+    });
+  }, [displayedIds]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -114,6 +123,7 @@ export default function MainSearch() {
         breeds: selectedBreeds.map(b => b.name),
       });
       console.log("result", result);
+      setDisplayedIds(result.resultIds);
     }}>Search</Button>
     </>
   )
