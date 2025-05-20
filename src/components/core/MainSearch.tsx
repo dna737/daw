@@ -11,7 +11,8 @@ import { useRef, useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import type { DogSearchOption } from "@/models";
 import { Separator } from "../ui/separator";
-import { getBreeds } from "@/services/proxy";
+import { getBreeds, getSearchResults } from "@/services/proxy";
+import { Button } from "../ui/button";
 
 function DogSearchResult(props: {dog: DogSearchOption, onCheckedChange: (name: string) => void}) {
 
@@ -70,6 +71,7 @@ export default function MainSearch() {
   // console.log("availableBreeds", availableBreeds.length);
 
   return (
+    <>
     <Command ref={containerRef} className={cn(
       "md:min-w-[450px] transition-all duration-200 border shadow-md rounded-lg",
     )}>
@@ -107,5 +109,12 @@ export default function MainSearch() {
         </CommandList>
       </div>
     </Command>
+    <Button onClick={async () => {
+      const result = await getSearchResults({
+        breeds: selectedBreeds.map(b => b.name),
+      });
+      console.log("result", result);
+    }}>Search</Button>
+    </>
   )
 }
