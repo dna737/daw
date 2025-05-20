@@ -12,3 +12,28 @@ export interface StorageItem {
   value: any;
   expiry: number;
 }
+
+export interface Result {
+  resultIds: string[];
+  total: number;
+  next: string;
+  prev: string;
+}
+
+export type SortDirection = 'asc' | 'desc';
+export type SortableField = 'breed' | 'name' | 'age';
+
+export interface SortConfig {
+  field: SortableField;
+  direction: SortDirection;
+}
+
+export interface DogSearchParams {
+  breeds?: string[];
+  zipCodes?: string[];
+  ageMin?: number;
+  ageMax?: number;
+  size?: number;
+  from?: string;
+  sort?: SortConfig;
+}
