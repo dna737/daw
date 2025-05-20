@@ -7,22 +7,22 @@ import {
   CommandList,
 } from "@/components/ui/command"
 import { Checkbox } from "@/components/ui/checkbox";
-import { useRef, useState, useEffect } from "react";
+import { forwardRef } from "react";
 import { cn } from "@/lib/utils";
-import type { DogSearchOption } from "@/models";
 import { Separator } from "../ui/separator";
-import { Button } from "../ui/button";
-import { useDog } from "../hooks/dogHooks";
-import { filterBreedSearchItems } from "../utils";
+import type { DogSearchOption } from "@/models";
 
-function DogSearchResult(props: {dog: DogSearchOption, onCheckedChange: (name: string) => void}) {
+interface DogSearchResultProps {
+  dog: DogSearchOption;
+  onCheckedChange: (name: string) => void;
+}
 
-  const [checked, setChecked] = useState(props.dog.isSelected);
-  const { name } = props.dog;
+function DogSearchResult({ dog, onCheckedChange }: DogSearchResultProps) {
+  const { name, isSelected } = dog;
 
   return (
     <div className="flex items-center space-x-2">
-      <Checkbox id={name} checked={checked} onCheckedChange={() => {props.onCheckedChange(name); setChecked(!checked)}} />
+      <Checkbox id={name} checked={isSelected} onCheckedChange={() => onCheckedChange(name)} />
       <label htmlFor={name} className="flex-1">
         <CommandItem key={name} className="hover:bg-transparent data-[selected=true]:bg-transparent cursor-pointer">{name}</CommandItem>
       </label>
@@ -30,45 +30,46 @@ function DogSearchResult(props: {dog: DogSearchOption, onCheckedChange: (name: s
   )
 }
 
-export default function MainSearch() {
-  const [isFocused, setIsFocused] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [searchValue, setSearchValue] = useState("");
-  const { handleSearch, changeBreedAvailability, breedSearchItems } = useDog();
-  const { availableBreeds, selectedBreeds } = filterBreedSearchItems(breedSearchItems, searchValue);
+interface MainSearchProps {
+  isFocused: boolean;
+  searchValue: string;
+  availableBreeds: DogSearchOption[];
+  selectedBreeds: DogSearchOption[];
+  onFocus: () => void;
+  onSearchValueChange: (value: string) => void;
+  onBreedSelection: (name: string) => void;
+}
 
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
-        setIsFocused(false);
-      }
-    }
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-
+// Using forwardRef here to know when the input is focused
+const MainSearch = forwardRef<HTMLDivElement, MainSearchProps>(({
+  isFocused,
+  searchValue,
+  availableBreeds,
+  selectedBreeds,
+  onFocus,
+  onSearchValueChange,
+  onBreedSelection
+}, ref) => {
   return (
-    <>
-    <Command ref={containerRef} className={cn(
+    <Command ref={ref} className={cn(
       "md:min-w-[450px] transition-all duration-200 border shadow-md rounded-lg",
+      isFocused ? "h-max" : "h-9"
     )}>
       <CommandInput 
         placeholder="Select the breeds you want to search for..." 
-        onFocus={() => setIsFocused(true)} 
+        onFocus={onFocus}
         value={searchValue}
-        onValueChange={setSearchValue}
+        onValueChange={onSearchValueChange}
       />
       <div className={cn(
         "transition-all duration-200 ease-in-out",
         isFocused ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2 pointer-events-none"
       )}>
-        <CommandList className="h-min p-2 rounded-lg ">
+        <CommandList className="h-min p-2 rounded-lg">
           {selectedBreeds.length > 0 && (
             <CommandGroup heading="Selected Breeds">
-              {selectedBreeds.map((breed: DogSearchOption) => (
-                <DogSearchResult key={breed.name} dog={breed} onCheckedChange={changeBreedAvailability} />
+              {selectedBreeds.map((breed) => (
+                <DogSearchResult key={breed.name} dog={breed} onCheckedChange={onBreedSelection} />
               ))}
             </CommandGroup>
           )}
@@ -76,8 +77,8 @@ export default function MainSearch() {
           {availableBreeds.length > 0 && (
             <>
               <CommandGroup heading="Available Breeds">
-                {availableBreeds.map((breed: DogSearchOption) => (
-                  <DogSearchResult key={breed.name} dog={breed} onCheckedChange={changeBreedAvailability} />
+                {availableBreeds.map((breed) => (
+                  <DogSearchResult key={breed.name} dog={breed} onCheckedChange={onBreedSelection} />
                 ))}
               </CommandGroup>
             </>
@@ -88,9 +89,7 @@ export default function MainSearch() {
         </CommandList>
       </div>
     </Command>
-    <Button onClick={() => {
-      handleSearch();
-    }}>Search</Button>
-    </>
-  )
-}
+  );
+});
+
+export default MainSearch;
