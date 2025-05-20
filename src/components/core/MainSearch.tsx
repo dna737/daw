@@ -9,10 +9,11 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { useRef, useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
-import type { Dog, DogSearchOption } from "@/models";
+import type { DogSearchOption } from "@/models";
 import { Separator } from "../ui/separator";
-import { getBreeds, getDogs, getSearchResults } from "@/services/proxy";
 import { Button } from "../ui/button";
+import { useDog } from "../hooks/dogHooks";
+import { filterBreedSearchItems } from "../utils";
 
 function DogSearchResult(props: {dog: DogSearchOption, onCheckedChange: (name: string) => void}) {
 
@@ -33,15 +34,8 @@ export default function MainSearch() {
   const [isFocused, setIsFocused] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const [searchValue, setSearchValue] = useState("");
-  const [displayedIds, setDisplayedIds] = useState<string[]>([]); // To store the dog ids.
-  const [dogs, setDogs] = useState<Dog[]>([]);
-
-  useEffect(() => {
-    getDogs(displayedIds).then((dogs: Dog[]) => {
-      console.log("dogs", dogs);
-      setDogs(dogs);
-    });
-  }, [displayedIds]);
+  const { handleSearch, changeBreedAvailability, breedSearchItems } = useDog();
+  const { availableBreeds, selectedBreeds } = filterBreedSearchItems(breedSearchItems, searchValue);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -54,30 +48,6 @@ export default function MainSearch() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const [breeds, setBreeds] = useState<DogSearchOption[]>([]);
-  // console.log("breeds", breeds);
-
-  useEffect(() => {
-    getBreeds().then(breeds => {
-      setBreeds(breeds.map(breed => ({ name: breed, isSelected: false })));
-    });
-  }, []);
-  
-  const changeBreedAvailability = (breed: string) => {
-    const remainingBreeds = breeds.filter(b => b.name !== breed);
-    const udpatedBreedData = breeds.find(b => b.name === breed);
-    if (udpatedBreedData) {
-      udpatedBreedData.isSelected = !udpatedBreedData.isSelected;
-      setBreeds([...remainingBreeds, udpatedBreedData]);
-    }
-  };
-
-  const filteredBreeds = breeds.filter((b) => b.name.toLowerCase().includes(searchValue.toLowerCase()));
-  // console.log("filteredBreeds", filteredBreeds);
-  const availableBreeds = filteredBreeds.filter((b) => !b.isSelected).sort((a, b) => a.name.localeCompare(b.name));
-  const selectedBreeds = filteredBreeds.filter((b) => b.isSelected).sort((a, b) => a.name.localeCompare(b.name));
-
-  // console.log("availableBreeds", availableBreeds.length);
 
   return (
     <>
@@ -97,7 +67,7 @@ export default function MainSearch() {
         <CommandList className="h-min p-2 rounded-lg ">
           {selectedBreeds.length > 0 && (
             <CommandGroup heading="Selected Breeds">
-              {selectedBreeds.map((breed) => (
+              {selectedBreeds.map((breed: DogSearchOption) => (
                 <DogSearchResult key={breed.name} dog={breed} onCheckedChange={changeBreedAvailability} />
               ))}
             </CommandGroup>
@@ -106,7 +76,7 @@ export default function MainSearch() {
           {availableBreeds.length > 0 && (
             <>
               <CommandGroup heading="Available Breeds">
-                {availableBreeds.map((breed) => (
+                {availableBreeds.map((breed: DogSearchOption) => (
                   <DogSearchResult key={breed.name} dog={breed} onCheckedChange={changeBreedAvailability} />
                 ))}
               </CommandGroup>
@@ -118,12 +88,8 @@ export default function MainSearch() {
         </CommandList>
       </div>
     </Command>
-    <Button onClick={async () => {
-      const result = await getSearchResults({
-        breeds: selectedBreeds.map(b => b.name),
-      });
-      console.log("result", result);
-      setDisplayedIds(result.resultIds);
+    <Button onClick={() => {
+      handleSearch();
     }}>Search</Button>
     </>
   )
