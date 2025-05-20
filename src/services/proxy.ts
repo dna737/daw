@@ -18,3 +18,10 @@ export const login = async (name: string, email: string): Promise<boolean | null
 
   return true;
 };
+
+export const getBreeds = async (): Promise<string[]> => {
+  const response = await fetch(`${API_URL}/dogs/breeds`, {
+    credentials: "include",
+  });
+  return response.json();
+};

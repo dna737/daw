@@ -11,6 +11,7 @@ import { useRef, useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import type { DogSearchOption } from "@/models";
 import { Separator } from "../ui/separator";
+import { getBreeds } from "@/services/proxy";
 
 function DogSearchResult(props: {dog: DogSearchOption, onCheckedChange: (name: string) => void}) {
 
@@ -43,12 +44,14 @@ export default function MainSearch() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const breedNames = ["Doberman", "Poodle", "Labrador", "Chihuahua", "Pitbull"]; //list of breeds
-  const breedData = breedNames.map((breed, i) => ({
-    name: breed,
-    isSelected: i % 2 === 0,
-  }));
-  const [breeds, setBreeds] = useState(breedData);
+  const [breeds, setBreeds] = useState<DogSearchOption[]>([]);
+  // console.log("breeds", breeds);
+
+  useEffect(() => {
+    getBreeds().then(breeds => {
+      setBreeds(breeds.map(breed => ({ name: breed, isSelected: false })));
+    });
+  }, []);
   
   const changeBreedAvailability = (breed: string) => {
     const remainingBreeds = breeds.filter(b => b.name !== breed);
@@ -60,18 +63,18 @@ export default function MainSearch() {
   };
 
   const filteredBreeds = breeds.filter((b) => b.name.toLowerCase().includes(searchValue.toLowerCase()));
-  console.log("filteredBreeds", filteredBreeds);
-  const availableBreeds = filteredBreeds.filter((b) => !b.isSelected);
-  const selectedBreeds = filteredBreeds.filter((b) => b.isSelected);
+  // console.log("filteredBreeds", filteredBreeds);
+  const availableBreeds = filteredBreeds.filter((b) => !b.isSelected).sort((a, b) => a.name.localeCompare(b.name));
+  const selectedBreeds = filteredBreeds.filter((b) => b.isSelected).sort((a, b) => a.name.localeCompare(b.name));
 
-  console.log("availableBreeds", availableBreeds.length);
+  // console.log("availableBreeds", availableBreeds.length);
 
   return (
     <Command ref={containerRef} className={cn(
-      "rounded-lg border shadow-md md:min-w-[450px] transition-all duration-200",
+      "md:min-w-[450px] transition-all duration-200 border shadow-md rounded-lg",
     )}>
       <CommandInput 
-        placeholder="Search for a breed..." 
+        placeholder="Select the breeds you want to search for..." 
         onFocus={() => setIsFocused(true)} 
         value={searchValue}
         onValueChange={setSearchValue}
@@ -80,7 +83,7 @@ export default function MainSearch() {
         "transition-all duration-200 ease-in-out",
         isFocused ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2 pointer-events-none"
       )}>
-        <CommandList className="h-min p-2">
+        <CommandList className="h-min p-2 rounded-lg ">
           {selectedBreeds.length > 0 && (
             <CommandGroup heading="Selected Breeds">
               {selectedBreeds.map((breed) => (
@@ -88,9 +91,9 @@ export default function MainSearch() {
               ))}
             </CommandGroup>
           )}
+          {selectedBreeds.length > 0 && availableBreeds.length > 0 && <Separator className="my-2" />}
           {availableBreeds.length > 0 && (
             <>
-              <Separator className="my-2" />
               <CommandGroup heading="Available Breeds">
                 {availableBreeds.map((breed) => (
                   <DogSearchResult key={breed.name} dog={breed} onCheckedChange={changeBreedAvailability} />
