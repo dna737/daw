@@ -14,7 +14,7 @@ function AppRoutes() {
         <>
           <Route path="/home" element={<Home />} />
           <Route path="/favorites" element={<Favorites />} />
-          <Route path="/matches" element={<Match />} />
+          <Route path="/match" element={<Match />} />
         </>
       :
         <>
