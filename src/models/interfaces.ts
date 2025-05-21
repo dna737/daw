@@ -46,3 +46,7 @@ export interface Dog {
   zip_code: string;
   breed: string;
 }
+
+export interface Match {
+  match: string;
+}

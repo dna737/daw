@@ -1,9 +1,8 @@
-import { useState } from 'react'
 import "../App.css"
 import { Routes, Route, Navigate } from 'react-router'
 import { useAuth } from './hooks'
 import { AppContextProvider } from '../context/AppContext'
-import { Login, Home, Favorites } from './core'
+import { Login, Home, Favorites, Match } from './core'
 
 function AppRoutes() {
   const { isLoggedIn } = useAuth();
@@ -15,8 +14,9 @@ function AppRoutes() {
         <>
           <Route path="/home" element={<Home />} />
           <Route path="/favorites" element={<Favorites />} />
+          <Route path="/matches" element={<Match />} />
         </>
-        :
+      :
         <>
           <Route path="/login" element={<Login />} />
         </>

@@ -1,4 +1,4 @@
-import type { Result, User, DogSearchParams, Dog } from "@/models";
+import type { Result, User, DogSearchParams, Dog, Match } from "@/models";
 
 const API_URL = "https://frontend-take-home-service.fetch.com";
 
@@ -7,6 +7,7 @@ const requests = {
   breeds: `${API_URL}/dogs/breeds`,
   search: `${API_URL}/dogs/search`,
   dogs: `${API_URL}/dogs`,
+  match: `${API_URL}/dogs/match`,
 };
 
 const generateQueryParams = (params?: unknown): string => {
@@ -90,3 +91,20 @@ export const getDogs = async (ids: string[]): Promise<Dog[]> => {
   console.log("data", data);
   return data;
 };
+
+export const getMatches = async (ids: string[]): Promise<Match> => {
+  const response = await fetch(requests.match, {
+    credentials: "include",
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(ids),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to get matches. Please try again.");
+  }
+
+  return response.json();
+}
