@@ -27,15 +27,17 @@ export default function Favorites() {
         {name: "Find a Match!", path: "/match", className: "bg-red-500 text-white"}
       ]} />
       {likedDogs.length === 0 ? (
-        <Alert className="w-full flex flex-col items-center gap-2">
+        <div className="flex flex-col items-center gap-2">
+        <Alert className="flex flex-col items-center gap-2">
           <AlertTitle className="flex items-center gap-2">
             <TriangleAlert className="h-4 w-4 stroke-red-600" />
             {"No favorite dogs yet!"}
           </AlertTitle>
           <AlertDescription>
-            Click the button below to head back to the home page and add some dogs to your favorites!
+            {"Click on the 🤍 icon on a dog's card to mark as a favorite. ❤"}
           </AlertDescription>
         </Alert>
+        </div>
       ) : (
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 w-full">
         {likedDogs.map((dogId) => {
