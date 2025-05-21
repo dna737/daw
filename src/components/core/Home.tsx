@@ -6,6 +6,8 @@ import { Button } from "../ui/button";
 import { useDog } from "../hooks/dogHooks";
 import { filterBreedSearchItems } from "../utils";
 import { DogCard } from ".";
+import { Link } from "react-router";
+import Header from "./Header";
 
 export default function Home() {
   const [isFocused, setIsFocused] = useState(false);
@@ -27,19 +29,27 @@ export default function Home() {
 
   return (
     <div className="flex flex-col items-center gap-4 p-4">
-      <h1 className="text-2xl font-bold">Dog Search</h1>
-      <div className="flex gap-2">
-        <MainSearch
-          ref={containerRef}
-          isFocused={isFocused}
-          searchValue={searchValue}
-          availableBreeds={availableBreeds}
-          selectedBreeds={selectedBreeds}
-          onFocus={() => setIsFocused(true)}
-          onSearchValueChange={setSearchValue}
-          onBreedSelection={changeBreedAvailability}
-        />
-        <Button onClick={handleSearch}>Search</Button>
+      <Header 
+        title="Home"
+        links={[
+          {name: "View Favorites", path: "/favorites", className: "bg-blue-500 text-white"},
+          {name: "Find a Match!", path: "/match", className: "bg-red-500 text-white"}
+        ]}
+      />
+      <div className="relative w-full max-w-[450px]">
+        <div className="flex gap-2">
+          <MainSearch
+            ref={containerRef}
+            isFocused={isFocused}
+            searchValue={searchValue}
+            availableBreeds={availableBreeds}
+            selectedBreeds={selectedBreeds}
+            onFocus={() => setIsFocused(true)}
+            onSearchValueChange={setSearchValue}
+            onBreedSelection={changeBreedAvailability}
+          />
+          <Button onClick={handleSearch}>Search</Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 w-full">
