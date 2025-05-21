@@ -3,7 +3,7 @@ import "../App.css"
 import { Routes, Route, Navigate } from 'react-router'
 import { useAuth } from './hooks'
 import { AppContextProvider } from '../context/AppContext'
-import { Login, Home } from './core'
+import { Login, Home, Favorites } from './core'
 
 function AppRoutes() {
   const { isLoggedIn } = useAuth();
@@ -14,6 +14,7 @@ function AppRoutes() {
       {isLoggedIn ?
         <>
           <Route path="/home" element={<Home />} />
+          <Route path="/favorites" element={<Favorites />} />
         </>
         :
         <>
