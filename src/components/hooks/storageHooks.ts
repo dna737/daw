@@ -21,7 +21,12 @@ export const useStorage = () => {
     try {
       const item = JSON.parse(itemStr) as StorageItem;
       if (Date.now() > item.expiry) {
-        localStorage.removeItem(key);
+        // If this is the login item and it's expired, remove everything
+        if (key === 'login') {
+          localStorage.clear();
+        } else {
+          localStorage.removeItem(key);
+        }
         return null;
       }
       return item.value;
