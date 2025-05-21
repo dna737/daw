@@ -1,7 +1,7 @@
 // Sets all the routes for the app.
 
 import { useState, useRef, useEffect } from "react";
-import MainSearch from "./MainSearch";
+import { MainSearch } from ".";
 import { Button } from "../ui/button";
 import { useDog } from "../hooks/dogHooks";
 import { filterBreedSearchItems } from "../utils";
@@ -25,10 +25,6 @@ export default function Home() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleBreedSelection = (breedName: string) => {
-    changeBreedAvailability(breedName);
-  };
-
   return (
     <div className="flex flex-col items-center gap-4 p-4">
       <h1 className="text-2xl font-bold">Dog Search</h1>
@@ -41,7 +37,7 @@ export default function Home() {
           selectedBreeds={selectedBreeds}
           onFocus={() => setIsFocused(true)}
           onSearchValueChange={setSearchValue}
-          onBreedSelection={handleBreedSelection}
+          onBreedSelection={changeBreedAvailability}
         />
         <Button onClick={handleSearch}>Search</Button>
       </div>

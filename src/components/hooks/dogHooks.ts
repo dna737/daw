@@ -57,7 +57,7 @@ export const useDog = () => {
     const udpatedBreedData = breedSearchItems.find(b => b.name === breed);
     if (udpatedBreedData) {
       udpatedBreedData.isSelected = !udpatedBreedData.isSelected;
-      setBreedSearchItems([...remainingBreeds, udpatedBreedData]);
+      setBreedSearchItems([...remainingBreeds, udpatedBreedData].sort((a, b) => a.name.localeCompare(b.name)));
     }
   };
 
