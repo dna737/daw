@@ -11,8 +11,13 @@ export default function Favorites() {
   console.log("likedDogs:", likedDogs);
 
   return (
-    <div className="flex flex-col items-center gap-4">
-      <Header title="Favorites" links={[{name: "Home", path: "/", className: "bg-black text-white"}]} />
+    <div className="flex flex-col items-center gap-4 p-4">
+      <Header 
+      title="Favorites"
+      links={[
+        {name: "Home", path: "/", className: "bg-black text-white"},
+        {name: "Find a Match!", path: "/matches", className: "bg-red-500 text-white"}
+      ]} />
       {likedDogs.length === 0 ? (
         <Alert className="w-full flex flex-col items-center gap-2">
           <AlertTitle className="flex items-center gap-2">
