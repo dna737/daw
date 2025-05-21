@@ -61,33 +61,32 @@ const MainSearch = forwardRef<HTMLDivElement, MainSearchProps>(({
         value={searchValue}
         onValueChange={onSearchValueChange}
       />
-      <div className={cn(
-        "transition-all duration-200 ease-in-out",
-        isFocused ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2 pointer-events-none"
-      )}>
-        <CommandList className="h-min p-2 rounded-lg">
-          {selectedBreeds.length > 0 && (
-            <CommandGroup heading="Selected Breeds">
-              {selectedBreeds.map((breed) => (
-                <DogSearchResult key={breed.name} dog={breed} onCheckedChange={onBreedSelection} />
-              ))}
-            </CommandGroup>
-          )}
-          {selectedBreeds.length > 0 && availableBreeds.length > 0 && <Separator className="my-2" />}
-          {availableBreeds.length > 0 && (
-            <>
-              <CommandGroup heading="Available Breeds">
-                {availableBreeds.map((breed) => (
+      {isFocused && (
+        <div className="absolute top-full left-0 right-0 mt-1 bg-white border rounded-md shadow-lg z-50">
+          <CommandList className="h-min p-2">
+            {selectedBreeds.length > 0 && (
+              <CommandGroup heading="Selected Breeds">
+                {selectedBreeds.map((breed) => (
                   <DogSearchResult key={breed.name} dog={breed} onCheckedChange={onBreedSelection} />
                 ))}
               </CommandGroup>
-            </>
-          )}
-          {selectedBreeds.length === 0 && availableBreeds.length === 0 && (
-            <CommandEmpty>{"No breeds found."}</CommandEmpty>
-          )}
-        </CommandList>
-      </div>
+            )}
+            {selectedBreeds.length > 0 && availableBreeds.length > 0 && <Separator className="my-2" />}
+            {availableBreeds.length > 0 && (
+              <>
+                <CommandGroup heading="Available Breeds">
+                  {availableBreeds.map((breed) => (
+                    <DogSearchResult key={breed.name} dog={breed} onCheckedChange={onBreedSelection} />
+                  ))}
+                </CommandGroup>
+              </>
+            )}
+            {selectedBreeds.length === 0 && availableBreeds.length === 0 && (
+              <CommandEmpty>{"No breeds found."}</CommandEmpty>
+            )}
+          </CommandList>
+        </div>
+      )}
     </Command>
   );
 });
