@@ -23,7 +23,13 @@ export default function DogCard(props: { dog: Dog; isLiked: boolean; handleLikeC
           </Button>
         </div>
         <CardDescription className="flex flex-col justify-center gap-2">
-          <img src={dog.img} alt={`Photo of ${dog.name}`} className="w-full h-48 object-cover rounded-md" />
+          <div className="w-full h-48 rounded-md flex items-center justify-center">
+            <img 
+              src={dog.img} 
+              alt={`Photo of ${dog.name}`} 
+              className="max-w-full max-h-full object-contain rounded-md"
+            />
+          </div>
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2">
               <MapPin className="w-4 h-4" />
