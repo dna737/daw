@@ -12,8 +12,8 @@ export default function Header(props: {title: string; links: {name: string, path
 
         <div className="flex gap-2">
           {links.map((link) => (
-            <Link to={link.path}>
-              <Button variant="outline" className={link.className}>
+            <Link to={link.path} key={link.name}>
+              <Button variant="outline" className={cn(link.className, "cursor-pointer")}>
                 {link.name}
               </Button>
             </Link>

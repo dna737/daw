@@ -21,8 +21,8 @@ function DogSearchResult({ dog, onCheckedChange }: DogSearchResultProps) {
   const { name, isSelected } = dog;
 
   return (
-    <div className="flex items-center space-x-2">
-      <Checkbox id={name} checked={isSelected} onCheckedChange={() => onCheckedChange(name)} />
+    <div className="flex items-center space-x-2 cursor-pointer" onClick={() => onCheckedChange(name)}>
+      <Checkbox id={name} checked={isSelected} className="cursor-pointer" />
       <label htmlFor={name} className="flex-1">
         <CommandItem key={name} className="hover:bg-transparent data-[selected=true]:bg-transparent cursor-pointer">{name}</CommandItem>
       </label>

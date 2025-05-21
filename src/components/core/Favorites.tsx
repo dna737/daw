@@ -1,4 +1,4 @@
-import { Terminal, TriangleAlert } from "lucide-react";
+import { TriangleAlert } from "lucide-react";
 import { DogCard } from ".";
 import { useDog } from "../hooks/dogHooks";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
@@ -12,7 +12,7 @@ export default function Favorites() {
 
   return (
     <div className="flex flex-col items-center gap-4">
-      <Header title="Favorites" links={[{name: "Home", path: "/", className: "bg-blue-500 text-white"}]} />
+      <Header title="Favorites" links={[{name: "Home", path: "/", className: "bg-black text-white"}]} />
       {likedDogs.length === 0 ? (
         <Alert className="w-full flex flex-col items-center gap-2">
           <AlertTitle className="flex items-center gap-2">
