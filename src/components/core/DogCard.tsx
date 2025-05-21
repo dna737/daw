@@ -3,7 +3,7 @@ import { Card, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import { Button } from "../ui/button";
 import { Calendar, MapPin, PawPrint } from "lucide-react";
 
-export default function DogCard(props: { dog: Dog; isLiked: boolean; handleLikeChange: (dogId: string) => void }) {
+export default function DogCard(props: { dog: Dog; isLiked?: boolean; handleLikeChange?: (dogId: string) => void }) {
   const { dog, isLiked, handleLikeChange } = props;
 
   return (
@@ -11,16 +11,18 @@ export default function DogCard(props: { dog: Dog; isLiked: boolean; handleLikeC
       <CardHeader>
         <div className="flex justify-between items-center">
           <CardTitle>{dog.name}</CardTitle>
-          <Button 
-            variant="ghost"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleLikeChange(dog.id);
-            }}
-            className="p-2 hover:bg-gray-100 rounded-full"
-          >
-            {isLiked ? '❤️' : '🤍'}
-          </Button>
+          {isLiked !== undefined && (
+            <Button 
+              variant="ghost"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleLikeChange?.(dog.id);
+              }}
+              className="p-2 hover:bg-gray-100 rounded-full"
+            >
+              {isLiked ? '❤️' : '🤍'}
+            </Button>
+          )}
         </div>
         <CardDescription className="flex flex-col justify-center gap-2">
           <div className="w-full h-48 rounded-md flex items-center justify-center">

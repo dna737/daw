@@ -26,7 +26,7 @@ export default function Matches() {
         {name: "Home", path: "/", className: "bg-black text-white"},
         {name: "Favorites", path: "/favorites", className: "bg-red-500 text-white"}
       ]} />
-      {matchDog && <DogCard dog={matchDog} isLiked={false} handleLikeChange={() => {}} />}
+      {matchDog && <DogCard dog={matchDog} />}
     </div>
   );
 }
