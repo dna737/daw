@@ -3,12 +3,20 @@ import { DogCard } from ".";
 import { useDog } from "../hooks/dogHooks";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 import Header from "./Header";
+import { useEffect, useState } from "react";
+import { getDogs } from "@/services/proxy";
+import type { Dog } from "@/models";
 
 export default function Favorites() {
 
-  const { likedDogs, dogs, handleLikeChange } = useDog();
+  const { likedDogs, handleLikeChange } = useDog();
+  const [dogs, setDogs] = useState<Dog[]>([]);
 
-  console.log("likedDogs:", likedDogs);
+  useEffect(() => {
+    getDogs(likedDogs).then((dogs: Dog[]) => {
+      setDogs(dogs);
+    });
+  }, [likedDogs]);
 
   return (
     <div className="flex flex-col items-center gap-4 p-4">
@@ -16,7 +24,7 @@ export default function Favorites() {
       title="Favorites"
       links={[
         {name: "Home", path: "/", className: "bg-black text-white"},
-        {name: "Find a Match!", path: "/matches", className: "bg-red-500 text-white"}
+        {name: "Find a Match!", path: "/match", className: "bg-red-500 text-white"}
       ]} />
       {likedDogs.length === 0 ? (
         <Alert className="w-full flex flex-col items-center gap-2">
