@@ -13,8 +13,6 @@ export const useSearch = () => {
 
   const totalPages = Math.ceil(results / pageSize);
   const [sortField, sortDirection] = sortBy.split(":");
-  console.log("sortField", sortField);
-  console.log("sortDirection", sortDirection);
 
   // TODO: Check if it's easier to pass the link directly instead of using the from and size query params.
   const handleSearch = () => {
@@ -37,27 +35,7 @@ export const useSearch = () => {
   // Responsible for initializing the breed search items.
   useEffect(() => {
     getBreeds().then(breeds => {
-      console.log('Raw breeds from API:', breeds);
-      
-      // Sort breeds alphabetically first, using case-insensitive comparison
-      const sortedBreedNames = [...breeds].sort((a, b) => {
-        // Convert both strings to lowercase for comparison
-        const aLower = a.toLowerCase().trim();
-        const bLower = b.toLowerCase().trim();
-        console.log(`Comparing: "${a}" (${aLower}) with "${b}" (${bLower})`);
-        return aLower.localeCompare(bLower);
-      });
-      
-      console.log('Sorted breed names:', sortedBreedNames);
-      
-      // Create search items maintaining the sorted order
-      const sortedSearchItems = sortedBreedNames.map(breed => ({
-        name: breed,
-        isSelected: false
-      }));
-      
-      console.log('Final sorted search items:', sortedSearchItems.map(item => item.name));
-      setBreedSearchItems(sortedSearchItems);
+      setBreedSearchItems(breeds.map(breed => ({ name: breed, isSelected: false })));
     }).catch(error => {
       console.error(error);
     });
@@ -74,16 +52,12 @@ export const useSearch = () => {
   }, [breedSearchItems, sortBy, pageSize]);
 
   const changeBreedAvailability = (breed: string) => {
-    console.log('Changing availability for breed:', breed);
-    console.log('Current items before change:', breedSearchItems.map(item => item.name));
-    
     setBreedSearchItems(prevItems => {
       const newItems = prevItems.map(item => 
         item.name === breed 
           ? { ...item, isSelected: !item.isSelected }
           : item
       );
-      console.log('Items after change:', newItems.map(item => item.name));
       return newItems;
     });
   };
@@ -100,5 +74,5 @@ export const useSearch = () => {
     }
   };
 
-  return { dogIds, breedSearchItems, handleSearch, changeBreedAvailability, pageSize, setPageSize, currentPage, setCurrentPage, totalPages, handleNextPage, handlePreviousPage, sortBy, setSortBy };
+  return { dogIds, breedSearchItems, handleSearch, changeBreedAvailability, pageSize, setPageSize, currentPage, setCurrentPage, totalPages, sortBy, setSortBy };
 };

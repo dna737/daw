@@ -2,7 +2,6 @@
 
 import { useState, useRef, useEffect } from "react";
 import { MainSearch, Header, DogCard, SortBy, Filters } from ".";
-import { Button } from "../ui/button";
 import { filterBreedSearchItems } from "../utils";
 import { useDog, useLikedDogs, useSearch } from "../hooks";
 import { PageControl } from "../Page";
