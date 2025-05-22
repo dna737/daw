@@ -71,7 +71,7 @@ export const useSearch = () => {
   // When a breed is selected, reset the page to 1 as the new results may have lesser results than before.
   useEffect(() => {
     setCurrentPage(1);
-  }, [breedSearchItems, sortBy]);
+  }, [breedSearchItems, sortBy, pageSize]);
 
   const changeBreedAvailability = (breed: string) => {
     console.log('Changing availability for breed:', breed);
@@ -100,5 +100,5 @@ export const useSearch = () => {
     }
   };
 
-  return { dogIds, breedSearchItems, handleSearch, changeBreedAvailability, setPageSize, currentPage, setCurrentPage, numPages, handleNextPage, handlePreviousPage, sortBy, setSortBy };
+  return { dogIds, breedSearchItems, handleSearch, changeBreedAvailability, pageSize, setPageSize, currentPage, setCurrentPage, numPages, handleNextPage, handlePreviousPage, sortBy, setSortBy };
 };
