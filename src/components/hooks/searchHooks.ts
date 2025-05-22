@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import type { DogSearchOption, SortableField, SortDirection } from "@/models";
+import type { DogSearchOption, FilterOptions, SortableField, SortDirection } from "@/models";
 import { getBreeds, getSearchResults } from "@/services";
 import { SortByOptions } from "@/models";
 
@@ -10,6 +10,7 @@ export const useSearch = () => {
   const [pageSize, setPageSize] = useState<number>(25); // Can be modified later.
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [sortBy, setSortBy] = useState<SortByOptions>(SortByOptions.BREED_ASC);
+  const [filters, setFilters] = useState<FilterOptions>({});
 
   const totalPages = Math.ceil(results / pageSize);
   const [sortField, sortDirection] = sortBy.split(":");
@@ -17,7 +18,7 @@ export const useSearch = () => {
   // TODO: Check if it's easier to pass the link directly instead of using the from and size query params.
   const handleSearch = () => {
     getSearchResults({
-      breeds: breedSearchItems.filter(item => item.isSelected).map(item => item.name),
+      ...filters,
       from: (currentPage - 1) * pageSize,
       size: pageSize,
       sort: {
@@ -62,5 +63,12 @@ export const useSearch = () => {
     });
   };
 
-  return { dogIds, breedSearchItems, handleSearch, changeBreedAvailability, pageSize, setPageSize, currentPage, setCurrentPage, totalPages, sortBy, setSortBy };
+  useEffect(() => {
+    setFilters({
+      ...filters,
+      breeds: breedSearchItems.filter(item => item.isSelected).map(item => item.name),
+    });
+  }, [breedSearchItems]);
+
+  return { dogIds, breedSearchItems, handleSearch, changeBreedAvailability, pageSize, setPageSize, currentPage, setCurrentPage, totalPages, sortBy, setSortBy, filters, setFilters };
 };
