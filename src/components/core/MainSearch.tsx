@@ -54,7 +54,8 @@ const MainSearch = forwardRef<HTMLDivElement, MainSearchProps>(({
   handleSearch
 }, ref) => {
   return (
-    <>
+    <div className="flex gap-2">
+
     <Command ref={ref} className={cn(
       "md:min-w-[450px] transition-all duration-200 border shadow-md rounded-lg",
       isFocused ? "h-max" : "h-9"
@@ -93,7 +94,7 @@ const MainSearch = forwardRef<HTMLDivElement, MainSearchProps>(({
       )}
     </Command>
     <Button onClick={handleSearch}>Search</Button>
-    </>
+    </div>
   );
 });
 
