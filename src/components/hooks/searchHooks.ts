@@ -45,7 +45,7 @@ export const useSearch = () => {
   // Responsible for updating results.
   useEffect(() => {
     handleSearch();
-  }, [breedSearchItems, currentPage, pageSize, sortBy]);
+  }, [breedSearchItems, currentPage, pageSize, sortBy, filters]);
 
   // When a breed is selected, reset the page to 1 as the new results may have lesser results than before.
   useEffect(() => {
@@ -63,6 +63,7 @@ export const useSearch = () => {
     });
   };
 
+  // Separately done for breeds as it's not with the rest of the filter options.
   useEffect(() => {
     setFilters({
       ...filters,
@@ -70,5 +71,12 @@ export const useSearch = () => {
     });
   }, [breedSearchItems]);
 
-  return { dogIds, breedSearchItems, handleSearch, changeBreedAvailability, pageSize, setPageSize, currentPage, setCurrentPage, totalPages, sortBy, setSortBy, filters, setFilters };
+  const handleFilterChange = (filter: FilterOptions) => {
+    setFilters(prevFilters => ({
+      ...prevFilters,
+      ...filter
+    }));
+  };
+
+  return { dogIds, breedSearchItems, handleSearch, changeBreedAvailability, pageSize, setPageSize, currentPage, setCurrentPage, totalPages, sortBy, setSortBy, filters, handleFilterChange };
 };

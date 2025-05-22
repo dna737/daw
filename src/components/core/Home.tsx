@@ -10,7 +10,7 @@ export default function Home() {
   const [isFocused, setIsFocused] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const [searchValue, setSearchValue] = useState("");
-  const { dogIds, breedSearchItems, handleSearch, changeBreedAvailability, currentPage, setCurrentPage, totalPages, sortBy, setSortBy, pageSize, setPageSize } = useSearch();
+  const { dogIds, breedSearchItems, handleSearch, changeBreedAvailability, currentPage, setCurrentPage, totalPages, sortBy, setSortBy, pageSize, setPageSize, handleFilterChange } = useSearch();
   // TODO: Create a usePage() hook that relies on num results from the search.
   const { dogs } = useDog(dogIds);
   const { likedDogs, handleLikeChange } = useLikedDogs();
@@ -54,11 +54,16 @@ export default function Home() {
             <SortBy currentValue={sortBy} setCurrentValue={setSortBy} />
           </div>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 w-full">
-          {dogs.map((dog) => (
-            <DogCard key={dog.id} dog={dog} handleLikeChange={handleLikeChange} isLiked={likedDogs.includes(dog.id)}/>
-          ))}
+
+        <div className="w-full flex justify-start gap-2">
+          <Filters handleFilterChange={handleFilterChange} />
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 w-full">
+            {dogs.map((dog) => (
+              <DogCard key={dog.id} dog={dog} handleLikeChange={handleLikeChange} isLiked={likedDogs.includes(dog.id)}/>
+            ))}
+          </div>
         </div>
+
       </div>
       <PageControl currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} pageSize={pageSize} setPageSize={setPageSize} />
     </>
