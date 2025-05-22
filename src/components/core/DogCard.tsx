@@ -1,10 +1,43 @@
 import type { Dog } from "@/models";
 import { Card, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import { Button } from "../ui/button";
-import { Calendar, MapPin, PawPrint } from "lucide-react";
+import { Calendar, InfoIcon, MapPin, PawPrint } from "lucide-react";
+import { useZipCodes } from "../hooks";
+import { Tooltip, TooltipTrigger, TooltipContent } from "../ui/tooltip";
+import type { DogLocation } from "@/models";
+
+function LocationTooltip(props: { location: DogLocation | undefined }) {
+
+  const { location } = props;
+
+  if (!location) {
+    return null;
+  }
+
+  return (
+    <Tooltip>
+      <TooltipTrigger>
+        <InfoIcon className="w-4 h-4" />
+      </TooltipTrigger>
+      <TooltipContent>
+        {
+          Object.entries(location).map(([key, value]) => {
+            const formattedKey = key.replace("_", " ");
+            const capitalizedKey = formattedKey.charAt(0).toUpperCase() + formattedKey.slice(1);
+            return (
+              <p key={key} className="text-left">{capitalizedKey}: {value}</p>
+            )
+          })
+        }
+      </TooltipContent>
+    </Tooltip>
+  )
+}
 
 export default function DogCard(props: { dog: Dog; isLiked?: boolean; handleLikeChange?: (dogId: string) => void }) {
   const { dog, isLiked, handleLikeChange } = props;
+  const { locations } = useZipCodes([dog.zip_code]);
+  const location = locations?.[0];
 
   const displayDogAge = () => {
     switch (dog.age) {
@@ -45,18 +78,21 @@ export default function DogCard(props: { dog: Dog; isLiked?: boolean; handleLike
           </div>
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2">
-              <MapPin className="w-4 h-4" />
-              <p>{dog.zip_code}</p>
+              <div className="flex items-center gap-2">
+                <MapPin className="w-4 h-4" />
+                <p className="text-left">{location?.city}, {location?.state}</p>
+              </div>
+              <LocationTooltip location={location} />
             </div>
 
             <div className="flex items-center gap-2">
               <PawPrint className="w-4 h-4" />
-              <p>{dog.breed}</p>
+              <p className="text-left">{dog.breed}</p>
             </div>
 
             <div className="flex items-center gap-2">
               <Calendar className="w-4 h-4" />
-              <p>{displayDogAge()}</p>
+              <p className="text-left">{displayDogAge()}</p>
             </div>
           </div>
         </CardDescription>

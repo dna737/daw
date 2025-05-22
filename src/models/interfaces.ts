@@ -66,3 +66,17 @@ export interface FilterOptions {
   ageMin?: number;
   ageMax?: number;
 }
+
+export interface DogLocation {
+  zip_code: string
+  latitude: number
+  longitude: number
+  city: string
+  state: string
+  county: string
+}
+
+export interface Coordinates {
+  lat: number;
+  lon: number;
+}
