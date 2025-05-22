@@ -12,7 +12,7 @@ export const useSearch = () => {
   const [sortBy, setSortBy] = useState<SortByOptions>(SortByOptions.BREED_ASC);
 
   const numPages = Math.ceil(results / pageSize);
-  const [sortField, sortDirection] = sortBy.split("-");
+  const [sortField, sortDirection] = sortBy.split(":");
   console.log("sortField", sortField);
   console.log("sortDirection", sortDirection);
 

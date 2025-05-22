@@ -52,10 +52,10 @@ export interface Match {
 }
 
 export enum SortByOptions {
-  BREED_ASC = "breed-asc",
-  BREED_DESC = "breed-desc",
-  NAME_ASC = "name-asc",
-  NAME_DESC = "name-desc",
-  AGE_ASC = "age-asc",
-  AGE_DESC = "age-desc",
+  BREED_ASC = "breed:asc",
+  BREED_DESC = "breed:desc",
+  NAME_ASC = "name:asc",
+  NAME_DESC = "name:desc",
+  AGE_ASC = "age:asc",
+  AGE_DESC = "age:desc",
 }
