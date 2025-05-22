@@ -15,8 +15,8 @@ export default function SortBy(props: {currentValue: SortByOptions, setCurrentVa
           <DropdownMenuRadioItem value={SortByOptions.BREED_DESC}>Breed Descending (Z-A)</DropdownMenuRadioItem>
           <DropdownMenuRadioItem value={SortByOptions.NAME_ASC}>Name Ascending (A-Z)</DropdownMenuRadioItem>
           <DropdownMenuRadioItem value={SortByOptions.NAME_DESC}>Name Descending (Z-A)</DropdownMenuRadioItem>
-          <DropdownMenuRadioItem value={SortByOptions.AGE_ASC}>Age Ascending (Oldest)</DropdownMenuRadioItem>
-          <DropdownMenuRadioItem value={SortByOptions.AGE_DESC}>Age Descending (Youngest)</DropdownMenuRadioItem>
+          <DropdownMenuRadioItem value={SortByOptions.AGE_ASC}>Age Ascending (Youngest)</DropdownMenuRadioItem>
+          <DropdownMenuRadioItem value={SortByOptions.AGE_DESC}>Age Descending (Oldest)</DropdownMenuRadioItem>
           </DropdownMenuRadioGroup>
         </DropdownMenuContent>
       </DropdownMenu>
