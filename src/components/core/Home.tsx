@@ -40,6 +40,7 @@ export default function Home() {
       />
       <div className="relative w-full max-w-[450px]">
         <div className="flex gap-2">
+          <SortBy currentValue={sortBy} setCurrentValue={setSortBy} />
           <MainSearch
             ref={containerRef}
             isFocused={isFocused}
@@ -49,10 +50,9 @@ export default function Home() {
             onFocus={() => setIsFocused(true)}
             onSearchValueChange={setSearchValue}
             onBreedSelection={changeBreedAvailability}
+            handleSearch={handleSearch}
           />
-          <Button onClick={handleSearch}>Search</Button>
-          <SortBy currentValue={sortBy} setCurrentValue={setSortBy} />
-          <Filters />
+          {/* <Filters filters={{onFilterChange: changeBreedAvailability}} /> */}
         </div>
       </div>
 

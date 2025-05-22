@@ -32,16 +32,17 @@ const filterSchema = z.object({
 type FilterFormValues = z.infer<typeof filterSchema>
 
 interface FiltersProps {
-  breeds: DogSearchOption[];
   onFilterChange: (filters: {
-    breeds: string[];
     zipCodes: string[];
     ageMin?: number;
     ageMax?: number;
   }) => void;
 }
 
-export default function Filters({ breeds, onFilterChange }: FiltersProps) {
+export default function Filters(props: {filters?: FiltersProps}) {
+
+  const { onFilterChange } = props.filters || {};
+
   const form = useForm<FilterFormValues>({
     resolver: zodResolver(filterSchema),
     defaultValues: {
@@ -52,8 +53,7 @@ export default function Filters({ breeds, onFilterChange }: FiltersProps) {
   })
 
   const onSubmit = (data: FilterFormValues) => {
-    onFilterChange({
-      breeds: breeds.filter(b => b.isSelected).map(b => b.name),
+    onFilterChange && onFilterChange({
       zipCodes: data.zipCodes ? data.zipCodes.split(",").map(z => z.trim()).filter(Boolean) : [],
       ageMin: data.ageMin ? data.ageMin : undefined,
       ageMax: data.ageMax ? data.ageMax : undefined

@@ -11,6 +11,7 @@ import { forwardRef } from "react";
 import { cn } from "@/lib/utils";
 import { Separator } from "../ui/separator";
 import type { DogSearchOption } from "@/models";
+import { Button } from "../ui/button";
 
 interface DogSearchResultProps {
   dog: DogSearchOption;
@@ -38,6 +39,7 @@ interface MainSearchProps {
   onFocus: () => void;
   onSearchValueChange: (value: string) => void;
   onBreedSelection: (name: string) => void;
+  handleSearch: () => void;
 }
 
 // Using forwardRef here to know when the input is focused
@@ -48,9 +50,11 @@ const MainSearch = forwardRef<HTMLDivElement, MainSearchProps>(({
   selectedBreeds,
   onFocus,
   onSearchValueChange,
-  onBreedSelection
+  onBreedSelection,
+  handleSearch
 }, ref) => {
   return (
+    <>
     <Command ref={ref} className={cn(
       "md:min-w-[450px] transition-all duration-200 border shadow-md rounded-lg",
       isFocused ? "h-max" : "h-9"
@@ -88,6 +92,8 @@ const MainSearch = forwardRef<HTMLDivElement, MainSearchProps>(({
         </div>
       )}
     </Command>
+    <Button onClick={handleSearch}>Search</Button>
+    </>
   );
 });
 
