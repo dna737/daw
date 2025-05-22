@@ -18,8 +18,8 @@ export default function DogCard(props: { dog: Dog; isLiked?: boolean; handleLike
   }
 
   return (
-    <Card className="w-full h-full">
-      <CardHeader>
+    <Card className="w-full h-full p-4">
+      <CardHeader className="p-0">
         <div className="flex justify-between items-center">
           <CardTitle>{dog.name}</CardTitle>
           {isLiked !== undefined && (
