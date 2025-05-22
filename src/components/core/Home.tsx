@@ -32,14 +32,13 @@ export default function Home() {
       <div className="flex flex-col items-center gap-4 p-4">
         <Header 
           title="Home"
-        links={[
-          {name: "View Favorites", path: "/favorites", className: "bg-blue-500 text-white"},
-          {name: "Find a Match!", path: "/match", className: "bg-red-500 text-white"}
-        ]}
-      />
-      <div className="relative w-full max-w-[450px]">
-        <div className="flex gap-2">
-          <SortBy currentValue={sortBy} setCurrentValue={setSortBy} />
+          links={[
+            {name: "View Favorites", path: "/favorites", className: "bg-blue-500 text-white"},
+            {name: "Find a Match!", path: "/match", className: "bg-red-500 text-white"}
+          ]}
+        />
+        <div className="flex w-full items-center">
+          <div className="flex-1" />
           <MainSearch
             ref={containerRef}
             isFocused={isFocused}
@@ -51,15 +50,15 @@ export default function Home() {
             onBreedSelection={changeBreedAvailability}
             handleSearch={handleSearch}
           />
-          {/* <Filters filters={{onFilterChange: changeBreedAvailability}} /> */}
+          <div className="flex-1 flex justify-end">
+            <SortBy currentValue={sortBy} setCurrentValue={setSortBy} />
+          </div>
         </div>
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 w-full">
-        {dogs.map((dog) => (
-          <DogCard key={dog.id} dog={dog} handleLikeChange={handleLikeChange} isLiked={likedDogs.includes(dog.id)}/>
-        ))}
-      </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 w-full">
+          {dogs.map((dog) => (
+            <DogCard key={dog.id} dog={dog} handleLikeChange={handleLikeChange} isLiked={likedDogs.includes(dog.id)}/>
+          ))}
+        </div>
       </div>
       <PageControl currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} pageSize={pageSize} setPageSize={setPageSize} />
     </>
