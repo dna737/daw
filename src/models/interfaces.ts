@@ -34,7 +34,7 @@ export interface DogSearchParams {
   ageMin?: number;
   ageMax?: number;
   size?: number;
-  from?: string;
+  from?: number;
   sort?: SortConfig;
 }
 
