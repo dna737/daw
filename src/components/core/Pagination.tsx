@@ -19,6 +19,7 @@ export default function Pagination(props: {currentPage: number, totalPages: numb
         <PaginationItem>
           {currentPage > 1 && (
             <PaginationPrevious 
+              className="cursor-pointer"
               onClick={() => currentPage > 1 && onPageChange(currentPage - 1)}
             />
           )}
@@ -30,6 +31,7 @@ export default function Pagination(props: {currentPage: number, totalPages: numb
               <PaginationEllipsis />
             ) : (
               <PaginationLink
+                className="cursor-pointer"
                 isActive={page === currentPage}
                 onClick={() => onPageChange(page)}
               >
@@ -41,6 +43,7 @@ export default function Pagination(props: {currentPage: number, totalPages: numb
         <PaginationItem>
           {currentPage < totalPages && (
             <PaginationNext 
+              className="cursor-pointer"
               onClick={() => currentPage < totalPages && onPageChange(currentPage + 1)}
             />
           )}
