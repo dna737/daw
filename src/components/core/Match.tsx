@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
-import { useDog } from "../hooks";
 import { getDogs, getMatches } from "@/services/proxy";
 import type { Dog } from "@/models";
 import Header from "./Header";
 import { DogCard } from ".";
+import { useLocation } from "react-router";
 
 export default function Matches() {
 
-  const { likedDogs } = useDog();
   const [matchDog, setMatchDog] = useState<Dog | null>(null);
+  const { likedDogs } = useLocation().state;
 
   useEffect(() => {
     getMatches(likedDogs).then((match) => {
