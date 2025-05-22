@@ -6,6 +6,17 @@ import { Calendar, MapPin, PawPrint } from "lucide-react";
 export default function DogCard(props: { dog: Dog; isLiked?: boolean; handleLikeChange?: (dogId: string) => void }) {
   const { dog, isLiked, handleLikeChange } = props;
 
+  const displayDogAge = () => {
+    switch (dog.age) {
+      case 0:
+        return "Less than a year old";
+      case 1:
+        return "1 year old";
+      default:
+        return `${dog.age} years old`;
+    }
+  }
+
   return (
     <Card className="w-full h-full">
       <CardHeader>
@@ -45,7 +56,7 @@ export default function DogCard(props: { dog: Dog; isLiked?: boolean; handleLike
 
             <div className="flex items-center gap-2">
               <Calendar className="w-4 h-4" />
-              <p>{`${dog.age} years old`}</p>
+              <p>{displayDogAge()}</p>
             </div>
           </div>
         </CardDescription>
