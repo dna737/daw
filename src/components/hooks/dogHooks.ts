@@ -4,27 +4,12 @@ import { useEffect, useState } from "react";
 import { useStorage } from ".";
 
 /*
-  Handles the following:
-
-  1. Dog objects
-  2. Liked dogs
+  Handles liked dogs state management
 */
-export const useDog = (ids: string[]) => {
-
-  const [dogs, setDogs] = useState<Dog[]>([]);
+export const useLikedDogs = () => {
   const { getItem, setItem } = useStorage();
   const [likedDogs, setLikedDogs] = useState<string[]>(getItem("likedDogs") || []);
 
-  // Responsible for fetching the dogs that show up as cards.
-  useEffect(() => {
-    getDogs(ids).then((dogs: Dog[]) => {
-      setDogs(dogs);
-    }).catch(error => {
-      console.error(error);
-    });
-  }, [JSON.stringify(ids)]);
-
-  // Save liked dogs to localStorage whenever they change
   useEffect(() => {
     setItem("likedDogs", likedDogs);
   }, [likedDogs, setItem]);
@@ -37,5 +22,23 @@ export const useDog = (ids: string[]) => {
     }
   };
 
-  return { dogs, likedDogs, handleLikeChange };
-}
+  return { likedDogs, handleLikeChange };
+};
+
+/*
+  Handles fetching and managing dog data
+*/
+export const useDog = (ids: string[]) => {
+  const [dogs, setDogs] = useState<Dog[]>([]);
+
+  // Responsible for fetching the dogs that show up as cards.
+  useEffect(() => {
+    getDogs(ids).then((dogs: Dog[]) => {
+      setDogs(dogs);
+    }).catch(error => {
+      console.error(error);
+    });
+  }, [JSON.stringify(ids)]);
+
+  return { dogs };
+};
