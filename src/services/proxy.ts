@@ -95,7 +95,7 @@ export const getDogs = async (ids: string[]): Promise<Dog[]> => {
   return data;
 };
 
-export const getMatches = async (ids: string[]): Promise<Match> => {
+export const getMatch = async (ids: string[]): Promise<Match> => {
   const response = await fetch(requests.match, {
     credentials: "include",
     method: "POST",

@@ -1,19 +1,19 @@
 import { useEffect, useState } from "react";
-import { getDogs, getMatches } from "@/services/proxy";
+import { getDogs, getMatch } from "@/services/proxy";
 import type { Dog } from "@/models";
 import Header from "./Header";
 import { DogCard } from ".";
-import { useLocation } from "react-router";
+import { useLikedDogs } from "../hooks";
 
 export default function Matches() {
 
   const [matchDog, setMatchDog] = useState<Dog | null>(null);
-  const { likedDogs } = useLocation().state;
+  const { likedDogs } = useLikedDogs();
 
   useEffect(() => {
-    getMatches(likedDogs).then((match) => {
+    getMatch(likedDogs).then((match) => {
       getDogs([match.match]).then((dogs) => {
-        setMatchDog(dogs[0]);
+        setMatchDog(dogs[0]); // getMatch only returns one dog.
       });
     });
   }, [likedDogs]);

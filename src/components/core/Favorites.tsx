@@ -1,22 +1,11 @@
 import { TriangleAlert } from "lucide-react";
-import { DogCard } from ".";
-import { useDog } from "../hooks/dogHooks";
+import { DogCard, Header  } from ".";
+import { useLikedDogs, useDog } from "../hooks";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
-import Header from "./Header";
-import { useEffect, useState } from "react";
-import { getDogs } from "@/services/proxy";
-import type { Dog } from "@/models";
 
 export default function Favorites() {
-
-  const { likedDogs, handleLikeChange } = useDog();
-  const [dogs, setDogs] = useState<Dog[]>([]);
-
-  useEffect(() => {
-    getDogs(likedDogs).then((dogs: Dog[]) => {
-      setDogs(dogs);
-    });
-  }, [likedDogs]);
+  const { likedDogs, handleLikeChange } = useLikedDogs();
+  const { dogs } = useDog(likedDogs);
 
   return (
     <div className="flex flex-col items-center gap-4 p-4">

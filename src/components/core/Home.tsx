@@ -1,19 +1,18 @@
 // Sets all the routes for the app.
 
 import { useState, useRef, useEffect } from "react";
-import { MainSearch, Pagination, Header } from ".";
+import { MainSearch, Pagination, Header, DogCard } from ".";
 import { Button } from "../ui/button";
 import { filterBreedSearchItems } from "../utils";
-import { DogCard } from ".";
-import { useDog } from "../hooks";
-import { useSearch } from "../hooks/searchHooks";
+import { useDog, useLikedDogs, useSearch } from "../hooks";
 
 export default function Home() {
   const [isFocused, setIsFocused] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const [searchValue, setSearchValue] = useState("");
   const { dogIds, breedSearchItems, handleSearch, changeBreedAvailability, currentPage, setCurrentPage, numPages } = useSearch();
-  const { dogs, likedDogs, handleLikeChange } = useDog(dogIds);
+  const { dogs } = useDog(dogIds);
+  const { likedDogs, handleLikeChange } = useLikedDogs();
   const { availableBreeds, selectedBreeds } = filterBreedSearchItems(breedSearchItems, searchValue);
 
   useEffect(() => {
@@ -33,8 +32,8 @@ export default function Home() {
         <Header 
           title="Home"
         links={[
-          {name: "View Favorites", path: "/favorites", className: "bg-blue-500 text-white", state: {likedDogs}},
-          {name: "Find a Match!", path: "/match", className: "bg-red-500 text-white", state: {likedDogs}}
+          {name: "View Favorites", path: "/favorites", className: "bg-blue-500 text-white"},
+          {name: "Find a Match!", path: "/match", className: "bg-red-500 text-white"}
         ]}
       />
       <div className="relative w-full max-w-[450px]">
