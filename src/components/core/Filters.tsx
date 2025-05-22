@@ -23,28 +23,65 @@ import {
 } from "@/components/ui/form"
 import type { DogSearchOption } from "@/models"
 
-const filterSchema = z.object({
+const formSchema = z.object({
   zipCodes: z.string().optional(),
-  ageMin: z.coerce.number().optional().unwrap().min(0),
-  ageMax: z.coerce.number().optional().unwrap().min(0)
-})
+  ageMin: z.coerce.number().min(0).optional(),
+  ageMax: z.coerce.number().min(0).optional()
+}).refine(
+  (data) => {
+    if (data.ageMin != null && data.ageMax != null) {
+      return data.ageMax >= data.ageMin;
+    }
+    return true;
+  },
+  {
+    message: "Maximum age must be greater than or equal to minimum age",
+    path: ["ageMax"]
+  }
+);
 
-type FilterFormValues = z.infer<typeof filterSchema>
+const filterSchema = z.object({
+  zipCodes: z.string()
+    .optional()
+    .transform(val => val ? val.split(",").map(z => z.trim()).filter(Boolean) : [])
+    .refine(
+      (codes) => codes.every(code => /^\d{5}(-\d{4})?$/.test(code)),
+      {
+        message: "Each zip code must be in format 12345 or 12345-6789",
+        path: ["zipCodes"]
+      }
+    ),
+  ageMin: z.coerce.number().min(0).optional(),
+  ageMax: z.coerce.number().min(0).optional()
+}).refine(
+  (data) => {
+    if (data.ageMin != null && data.ageMax != null) {
+      return data.ageMax >= data.ageMin;
+    }
+    return true;
+  },
+  {
+    message: "Maximum age must be greater than or equal to minimum age",
+    path: ["ageMax"]
+  }
+);
+
+type FormValues = z.infer<typeof formSchema>;
+type FilterValues = z.infer<typeof filterSchema>;
 
 interface FiltersProps {
+  breeds: DogSearchOption[];
   onFilterChange: (filters: {
+    breeds: string[];
     zipCodes: string[];
     ageMin?: number;
     ageMax?: number;
   }) => void;
 }
 
-export default function Filters(props: {filters?: FiltersProps}) {
-
-  const { onFilterChange } = props.filters || {};
-
-  const form = useForm<FilterFormValues>({
-    resolver: zodResolver(filterSchema),
+export default function Filters({ breeds, onFilterChange }: FiltersProps) {
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
     defaultValues: {
       zipCodes: "",
       ageMin: undefined,
@@ -52,11 +89,13 @@ export default function Filters(props: {filters?: FiltersProps}) {
     },
   })
 
-  const onSubmit = (data: FilterFormValues) => {
-    onFilterChange && onFilterChange({
-      zipCodes: data.zipCodes ? data.zipCodes.split(",").map(z => z.trim()).filter(Boolean) : [],
-      ageMin: data.ageMin ? data.ageMin : undefined,
-      ageMax: data.ageMax ? data.ageMax : undefined
+  const onSubmit = (data: FormValues) => {
+    const validatedData = filterSchema.parse(data);
+    onFilterChange({
+      breeds: breeds.filter(b => b.isSelected).map(b => b.name),
+      zipCodes: validatedData.zipCodes,
+      ageMin: validatedData.ageMin,
+      ageMax: validatedData.ageMax
     });
   }
 

@@ -59,3 +59,10 @@ export enum SortByOptions {
   AGE_ASC = "age:asc",
   AGE_DESC = "age:desc",
 }
+
+export interface FilterOptions {
+  breeds?: string[];
+  zipCodes?: string[];
+  ageMin?: number;
+  ageMax?: number;
+}
