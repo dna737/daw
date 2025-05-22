@@ -16,6 +16,9 @@ const generateQueryParams = (params?: unknown): string => {
     Object.entries(params).forEach(([key, value]) => {
       if (Array.isArray(value)) {
         value.forEach(item => queryParams.append(key, item));
+      } else if (typeof value === 'object' && value !== null) {
+        const valueArray = Object.values(value);
+        queryParams.append(key, valueArray.join(":")); // field:direction
       } else {
         queryParams.append(key, value);
       }

@@ -16,6 +16,10 @@ export const useSearch = () => {
       breeds: breedSearchItems.filter(item => item.isSelected).map(item => item.name),
       from: (currentPage - 1) * pageSize,
       size: pageSize,
+      sort: {
+        field: "breed",
+        direction: "asc"
+      }
     }).then(result => {
       setDogIds(result.resultIds);
       setResults(result.total);
@@ -27,7 +31,27 @@ export const useSearch = () => {
   // Responsible for initializing the breed search items.
   useEffect(() => {
     getBreeds().then(breeds => {
-      setBreedSearchItems(breeds.map(breed => ({ name: breed, isSelected: false })));
+      console.log('Raw breeds from API:', breeds);
+      
+      // Sort breeds alphabetically first, using case-insensitive comparison
+      const sortedBreedNames = [...breeds].sort((a, b) => {
+        // Convert both strings to lowercase for comparison
+        const aLower = a.toLowerCase().trim();
+        const bLower = b.toLowerCase().trim();
+        console.log(`Comparing: "${a}" (${aLower}) with "${b}" (${bLower})`);
+        return aLower.localeCompare(bLower);
+      });
+      
+      console.log('Sorted breed names:', sortedBreedNames);
+      
+      // Create search items maintaining the sorted order
+      const sortedSearchItems = sortedBreedNames.map(breed => ({
+        name: breed,
+        isSelected: false
+      }));
+      
+      console.log('Final sorted search items:', sortedSearchItems.map(item => item.name));
+      setBreedSearchItems(sortedSearchItems);
     }).catch(error => {
       console.error(error);
     });
@@ -44,12 +68,18 @@ export const useSearch = () => {
   }, [breedSearchItems]);
 
   const changeBreedAvailability = (breed: string) => {
-    const remainingBreeds = breedSearchItems.filter(b => b.name !== breed);
-    const udpatedBreedData = breedSearchItems.find(b => b.name === breed);
-    if (udpatedBreedData) {
-      udpatedBreedData.isSelected = !udpatedBreedData.isSelected;
-      setBreedSearchItems([...remainingBreeds, udpatedBreedData]);
-    }
+    console.log('Changing availability for breed:', breed);
+    console.log('Current items before change:', breedSearchItems.map(item => item.name));
+    
+    setBreedSearchItems(prevItems => {
+      const newItems = prevItems.map(item => 
+        item.name === breed 
+          ? { ...item, isSelected: !item.isSelected }
+          : item
+      );
+      console.log('Items after change:', newItems.map(item => item.name));
+      return newItems;
+    });
   };
 
   const handleNextPage = () => {
