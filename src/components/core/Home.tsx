@@ -11,7 +11,7 @@ export default function Home() {
   const [isFocused, setIsFocused] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const [searchValue, setSearchValue] = useState("");
-  const { dogIds, breedSearchItems, handleSearch, changeBreedAvailability, currentPage, setCurrentPage, numPages, sortBy, setSortBy, pageSize, setPageSize } = useSearch();
+  const { dogIds, breedSearchItems, handleSearch, changeBreedAvailability, currentPage, setCurrentPage, totalPages, sortBy, setSortBy, pageSize, setPageSize } = useSearch();
   const { dogs } = useDog(dogIds);
   const { likedDogs, handleLikeChange } = useLikedDogs();
   const { availableBreeds, selectedBreeds } = filterBreedSearchItems(breedSearchItems, searchValue);
@@ -60,7 +60,7 @@ export default function Home() {
         ))}
       </div>
       </div>
-      <PageControl currentPage={currentPage} totalPages={numPages} onPageChange={setCurrentPage} pageSize={pageSize} setPageSize={setPageSize} />
+      <PageControl currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} pageSize={pageSize} setPageSize={setPageSize} />
     </>
   );
 }

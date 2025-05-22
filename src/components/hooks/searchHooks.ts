@@ -11,7 +11,7 @@ export const useSearch = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [sortBy, setSortBy] = useState<SortByOptions>(SortByOptions.BREED_ASC);
 
-  const numPages = Math.ceil(results / pageSize);
+  const totalPages = Math.ceil(results / pageSize);
   const [sortField, sortDirection] = sortBy.split(":");
   console.log("sortField", sortField);
   console.log("sortDirection", sortDirection);
@@ -89,7 +89,7 @@ export const useSearch = () => {
   };
 
   const handleNextPage = () => {
-    if (currentPage < numPages) {
+    if (currentPage < totalPages) {
       setCurrentPage(currentPage + 1);
     }
   };
@@ -100,5 +100,5 @@ export const useSearch = () => {
     }
   };
 
-  return { dogIds, breedSearchItems, handleSearch, changeBreedAvailability, pageSize, setPageSize, currentPage, setCurrentPage, numPages, handleNextPage, handlePreviousPage, sortBy, setSortBy };
+  return { dogIds, breedSearchItems, handleSearch, changeBreedAvailability, pageSize, setPageSize, currentPage, setCurrentPage, totalPages, handleNextPage, handlePreviousPage, sortBy, setSortBy };
 };
