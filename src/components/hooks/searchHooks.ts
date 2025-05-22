@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import type { DogSearchOption } from "@/models";
+import type { DogSearchOption, SortableField, SortDirection } from "@/models";
 import { getBreeds, getSearchResults } from "@/services";
+import { SortByOptions } from "@/models";
 
 export const useSearch = () => {
   const [dogIds, setDogIds] = useState<string[]>([]); // To store the dog ids.
@@ -8,7 +9,12 @@ export const useSearch = () => {
   const [breedSearchItems, setBreedSearchItems] = useState<DogSearchOption[]>([]);
   const [pageSize, setPageSize] = useState<number>(25); // Can be modified later.
   const [currentPage, setCurrentPage] = useState<number>(1);
+  const [sortBy, setSortBy] = useState<SortByOptions>(SortByOptions.BREED_ASC);
+
   const numPages = Math.ceil(results / pageSize);
+  const [sortField, sortDirection] = sortBy.split("-");
+  console.log("sortField", sortField);
+  console.log("sortDirection", sortDirection);
 
   // TODO: Check if it's easier to pass the link directly instead of using the from and size query params.
   const handleSearch = () => {
@@ -16,7 +22,10 @@ export const useSearch = () => {
       breeds: breedSearchItems.filter(item => item.isSelected).map(item => item.name),
       from: (currentPage - 1) * pageSize,
       size: pageSize,
-      sort: { field: "breed", direction: "asc" } // TODO: Add state variable with this as the default value.
+      sort: {
+        field: sortField as SortableField,
+        direction: sortDirection as SortDirection
+      }
     }).then(result => {
       setDogIds(result.resultIds);
       setResults(result.total);
@@ -57,12 +66,12 @@ export const useSearch = () => {
   // Responsible for updating results.
   useEffect(() => {
     handleSearch();
-  }, [breedSearchItems, currentPage, pageSize]);
+  }, [breedSearchItems, currentPage, pageSize, sortBy]);
 
   // When a breed is selected, reset the page to 1 as the new results may have lesser results than before.
   useEffect(() => {
     setCurrentPage(1);
-  }, [breedSearchItems]);
+  }, [breedSearchItems, sortBy]);
 
   const changeBreedAvailability = (breed: string) => {
     console.log('Changing availability for breed:', breed);
@@ -91,5 +100,5 @@ export const useSearch = () => {
     }
   };
 
-  return { dogIds, breedSearchItems, handleSearch, changeBreedAvailability, setPageSize, currentPage, setCurrentPage, numPages, handleNextPage, handlePreviousPage };
+  return { dogIds, breedSearchItems, handleSearch, changeBreedAvailability, setPageSize, currentPage, setCurrentPage, numPages, handleNextPage, handlePreviousPage, sortBy, setSortBy };
 };

@@ -1,7 +1,7 @@
 // Sets all the routes for the app.
 
 import { useState, useRef, useEffect } from "react";
-import { MainSearch, Pagination, Header, DogCard } from ".";
+import { MainSearch, Pagination, Header, DogCard, SortBy } from ".";
 import { Button } from "../ui/button";
 import { filterBreedSearchItems } from "../utils";
 import { useDog, useLikedDogs, useSearch } from "../hooks";
@@ -10,7 +10,7 @@ export default function Home() {
   const [isFocused, setIsFocused] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const [searchValue, setSearchValue] = useState("");
-  const { dogIds, breedSearchItems, handleSearch, changeBreedAvailability, currentPage, setCurrentPage, numPages } = useSearch();
+  const { dogIds, breedSearchItems, handleSearch, changeBreedAvailability, currentPage, setCurrentPage, numPages, sortBy, setSortBy } = useSearch();
   const { dogs } = useDog(dogIds);
   const { likedDogs, handleLikeChange } = useLikedDogs();
   const { availableBreeds, selectedBreeds } = filterBreedSearchItems(breedSearchItems, searchValue);
@@ -49,6 +49,7 @@ export default function Home() {
             onBreedSelection={changeBreedAvailability}
           />
           <Button onClick={handleSearch}>Search</Button>
+          <SortBy currentValue={sortBy} setCurrentValue={setSortBy} />
         </div>
       </div>
 
