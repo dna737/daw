@@ -9,7 +9,10 @@ export default function SortBy(props: {currentValue: SortByOptions, setCurrentVa
       <DropdownMenuTrigger asChild>
         <Button variant="outline">Sort</Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent>
+      <DropdownMenuContent
+        side="bottom"
+        align="end"
+      >
         <DropdownMenuRadioGroup value={currentValue} onValueChange={(value) => setCurrentValue(value as SortByOptions)}>
           <DropdownMenuRadioItem value={SortByOptions.BREED_ASC}>Breed Ascending (A-Z)</DropdownMenuRadioItem>
           <DropdownMenuRadioItem value={SortByOptions.BREED_DESC}>Breed Descending (Z-A)</DropdownMenuRadioItem>
