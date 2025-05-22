@@ -1,7 +1,7 @@
 // Sets all the routes for the app.
 
 import { useState, useRef, useEffect } from "react";
-import { MainSearch, Header, DogCard, SortBy } from ".";
+import { MainSearch, Header, DogCard, SortBy, Filters } from ".";
 import { Button } from "../ui/button";
 import { filterBreedSearchItems } from "../utils";
 import { useDog, useLikedDogs, useSearch } from "../hooks";
@@ -52,6 +52,7 @@ export default function Home() {
           />
           <Button onClick={handleSearch}>Search</Button>
           <SortBy currentValue={sortBy} setCurrentValue={setSortBy} />
+          <Filters />
         </div>
       </div>
 
