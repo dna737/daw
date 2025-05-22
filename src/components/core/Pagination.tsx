@@ -94,7 +94,6 @@ export default function Pagination(props: {currentPage: number, totalPages: numb
                     {...field}
                   />
                 </FormControl>
-                <FormMessage />
               </FormItem>
             )}
           />
