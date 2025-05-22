@@ -5,6 +5,8 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { Button } from "../ui/button"
 import type { FilterOptions } from "@/models"
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip"
+import { InfoIcon } from "lucide-react"
 
 const formSchema = z.object({
   zipCodes: z.string().optional(),
@@ -21,6 +23,19 @@ const formSchema = z.object({
 });
 
 type FormValues = z.infer<typeof formSchema>;
+
+function ZipCodeTooltip() {
+  return (
+    <Tooltip>
+      <TooltipTrigger>
+        <InfoIcon className="w-4 h-4" />
+      </TooltipTrigger>
+      <TooltipContent>
+        <p>Enter zip codes separated by commas</p>
+      </TooltipContent>
+    </Tooltip>
+  )
+}
 
 export default function Filters(props: { handleFilterChange: (filter: FilterOptions) => void }) {
 
@@ -56,9 +71,12 @@ export default function Filters(props: { handleFilterChange: (filter: FilterOpti
             name="zipCodes"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Zip Codes</FormLabel>
+                <FormLabel>
+                  Zip Codes
+                  <ZipCodeTooltip />
+                </FormLabel>
                 <FormControl>
-                  <Input placeholder="Enter zip codes (comma-separated)" {...field} />
+                  <Input placeholder="06519, 06520, etc." {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
