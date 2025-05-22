@@ -1,10 +1,11 @@
 // Sets all the routes for the app.
 
 import { useState, useRef, useEffect } from "react";
-import { MainSearch, Pagination, Header, DogCard, SortBy } from ".";
+import { MainSearch, Header, DogCard, SortBy } from ".";
 import { Button } from "../ui/button";
 import { filterBreedSearchItems } from "../utils";
 import { useDog, useLikedDogs, useSearch } from "../hooks";
+import { PageControl } from "../Page";
 
 export default function Home() {
   const [isFocused, setIsFocused] = useState(false);
@@ -59,7 +60,7 @@ export default function Home() {
         ))}
       </div>
       </div>
-      <Pagination currentPage={currentPage} totalPages={numPages} onPageChange={setCurrentPage} pageSize={pageSize} setPageSize={setPageSize} />
+      <PageControl currentPage={currentPage} totalPages={numPages} onPageChange={setCurrentPage} pageSize={pageSize} setPageSize={setPageSize} />
     </>
   );
 }

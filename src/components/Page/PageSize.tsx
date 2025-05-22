@@ -11,7 +11,6 @@ const formSchema = z.object({
   pageSize: z.coerce.number()
     .min(1, "Page size must be at least 1")
     .max(MAX_PAGE_SIZE, `Page size must be less than or equal to ${MAX_PAGE_SIZE}`)
-    // .transform(val => isNaN(val) ? 25 : val)
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -44,6 +43,7 @@ export default function PageSize(props: {pageSize: number, setPageSize: (pageSiz
                 <FormLabel className="text-sm font-medium">Results per page</FormLabel>
                 <FormControl>
                   <Input 
+                    required
                     type="number" 
                     className="w-24" 
                     // placeholder="25"
