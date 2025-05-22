@@ -17,13 +17,13 @@ const generateQueryParams = (params?: unknown): string => {
       if (Array.isArray(value)) {
         value.forEach(item => queryParams.append(key, item));
       } else if (typeof value === 'object' && value !== null) {
-        const valueArray = Object.values(value);
-        queryParams.append(key, valueArray.join(":")); // field:direction
+        queryParams.append(key, Object.values(value).join(":"));  // Only used for sort thus far.
       } else {
         queryParams.append(key, value);
       }
     });
   }
+
   return queryParams.toString();
 }
 

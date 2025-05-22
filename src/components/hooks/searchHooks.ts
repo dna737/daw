@@ -16,10 +16,7 @@ export const useSearch = () => {
       breeds: breedSearchItems.filter(item => item.isSelected).map(item => item.name),
       from: (currentPage - 1) * pageSize,
       size: pageSize,
-      sort: {
-        field: "breed",
-        direction: "asc"
-      }
+      sort: { field: "breed", direction: "asc" } // TODO: Add state variable with this as the default value.
     }).then(result => {
       setDogIds(result.resultIds);
       setResults(result.total);
