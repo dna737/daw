@@ -11,11 +11,15 @@ import {
   FormMessage,
 } from "../ui/form"
 import { Input } from "../ui/input"
+import { StateSearch } from "./StateSearch"
+import { states, filterStateSearchItems } from "../utils"
+import { useState, useRef, useEffect } from "react"
+import type { ZipCodeSearchParams } from "@/models"
 
 const formSchema = z.object({
   ageMin: z.coerce.number().min(0).optional(),
   ageMax: z.coerce.number().min(0).optional(),
-  zipCodes: z.string().optional(),
+  states: z.array(z.string()).optional(),
 }).refine((data) => {
   if (data.ageMin === undefined || data.ageMax === undefined) return true;
   return data.ageMax >= data.ageMin;
@@ -27,33 +31,61 @@ const formSchema = z.object({
 type FilterFormValues = z.infer<typeof formSchema>;
 
 interface FiltersProps {
-  handleFilterChange: (filter: { ageMin?: number; ageMax?: number; zipCodes?: string[]; }) => void;
+  handleFilterChange: (filter: { ageMin?: number; ageMax?: number; }) => void;
+  handleLocationChange: (location: ZipCodeSearchParams) => void;
 }
 
-export default function Filters({ handleFilterChange }: FiltersProps) {
+export default function Filters({ handleFilterChange, handleLocationChange }: FiltersProps) {
+  const [isFocused, setIsFocused] = useState(false);
+  const [searchValue, setSearchValue] = useState("");
+  const [stateOptions, setStateOptions] = useState(states);
+  const containerRef = useRef<HTMLDivElement>(null);
+
   const form = useForm<FilterFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       ageMin: undefined,
       ageMax: undefined,
-      zipCodes: "",
+      states: [],
     },
   });
 
-  const onSubmit = (data: FilterFormValues) => {
-    const parsedData = formSchema.parse(data);
-    const zipCodes = parsedData.zipCodes ? parsedData.zipCodes.split(",").map(zip => zip.trim()).filter(Boolean) : undefined;
-    
-    if (zipCodes && !zipCodes.every(zip => /^\d{5}$/.test(zip))) {
-      form.setError("zipCodes", { message: "Each zip code must be 5 digits" });
-      return;
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsFocused(false);
+      }
     }
 
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const { availableStates, selectedStates } = filterStateSearchItems(stateOptions, searchValue);
+
+  const onSubmit = (data: FilterFormValues) => {
+    const parsedData = formSchema.parse(data);
+    
+    // Handle age filters
     handleFilterChange({
       ageMin: parsedData.ageMin,
       ageMax: parsedData.ageMax,
-      zipCodes,
     });
+
+    // Handle location filters
+    handleLocationChange({
+      states: selectedStates.map(state => state.code)
+    });
+  };
+
+  const handleStateSelection = (code: string) => {
+    setStateOptions(prevOptions => 
+      prevOptions.map(state => 
+        state.code === code 
+          ? { ...state, isSelected: !state.isSelected }
+          : state
+      )
+    );
   };
 
   return (
@@ -61,19 +93,18 @@ export default function Filters({ handleFilterChange }: FiltersProps) {
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
-            <FormLabel>Zip Codes</FormLabel>
-            <FormField
-              control={form.control}
-              name="zipCodes"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <Input placeholder="00000, 00001, etc." {...field} className="text-sm" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <FormLabel>States</FormLabel>
+            <div ref={containerRef} className="relative">
+              <StateSearch
+                isFocused={isFocused}
+                searchValue={searchValue}
+                availableStates={availableStates}
+                selectedStates={selectedStates}
+                onFocus={() => setIsFocused(true)}
+                onSearchValueChange={setSearchValue}
+                onStateSelection={handleStateSelection}
+              />
+            </div>
           </div>
 
           <div className="space-y-2">

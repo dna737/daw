@@ -33,8 +33,6 @@ export const useDog = (ids: string[], locations?: DogLocation[]) => {
   const [isLoading, setIsLoading] = useState(true);
   const zipCodes = locations?.map(location => location.zip_code);
 
-  console.log("zipCodes 36", zipCodes);
-
   // Responsible for fetching the dogs that show up as cards.
   useEffect(() => {
     setIsLoading(true);
