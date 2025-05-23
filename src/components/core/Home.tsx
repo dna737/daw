@@ -11,7 +11,7 @@ export default function Home() {
   const [isFocused, setIsFocused] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const [searchValue, setSearchValue] = useState("");
-  const { dogIds, breedSearchItems, handleSearch, changeBreedAvailability, currentPage, setCurrentPage, totalPages, sortBy, setSortBy, pageSize, setPageSize, handleFilterChange, handleLocationFilterChange, message } = useSearch();
+  const { dogIds, breedSearchItems, handleSearch, changeBreedAvailability, currentPage, setCurrentPage, totalPages, sortBy, setSortBy, pageSize, setPageSize, handleFilterChange, handleLocationFilterChange, dogResultsMessage, zipCodeResultsMessage } = useSearch();
 
   const { dogs, isLoading } = useDog(dogIds);
   const { likedDogs, handleLikeChange } = useLikedDogs();
@@ -56,7 +56,8 @@ export default function Home() {
           </div>
         </div>
 
-        {message && <div className="text-gray-500 text-center">{message}</div>}
+        {dogResultsMessage && <div className="text-gray-500 text-center">{dogResultsMessage}</div>}
+        {zipCodeResultsMessage && <div className="text-gray-500 text-center">{zipCodeResultsMessage}</div>}
 
         <div className="w-full flex justify-start gap-2">
           <div className="flex flex-col gap-2">
