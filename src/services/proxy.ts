@@ -17,7 +17,7 @@ const generateQueryParams = (params?: unknown): string => {
   if (params) {
     Object.entries(params).forEach(([key, value]) => {
       console.log("key", key, "value", value);
-      if(value === undefined) {
+      if(value === undefined || value === "") {
         return;
       } else if (Array.isArray(value)) {
         value.forEach(item => queryParams.append(key, item));
@@ -135,7 +135,6 @@ export const getLocations = async (zipCodes: string[]): Promise<DogLocation[]> =
 }
 
 export const getFilteredLocations = async (locationFilters: ZipCodeSearchParams): Promise<FilteredLocations> => {
-
   const response = await fetch(requests.zipCodes, {
     credentials: "include",
     method: "POST",
@@ -149,5 +148,7 @@ export const getFilteredLocations = async (locationFilters: ZipCodeSearchParams)
     throw new Error("Failed to get zip codes. Please try again.");
   }
 
-  return response.json();
+  const data = await response.json();
+
+  return data;
 };

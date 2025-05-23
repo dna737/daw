@@ -20,6 +20,7 @@ const formSchema = z.object({
   ageMin: z.coerce.number().min(0).optional(),
   ageMax: z.coerce.number().min(0).optional(),
   states: z.array(z.string()).optional(),
+  city: z.string().optional(),
 }).refine((data) => {
   if (data.ageMin === undefined || data.ageMax === undefined) return true;
   return data.ageMax >= data.ageMin;
@@ -47,6 +48,7 @@ export default function Filters({ handleFilterChange, handleLocationChange }: Fi
       ageMin: undefined,
       ageMax: undefined,
       states: [],
+      city: "",
     },
   });
 
@@ -73,9 +75,15 @@ export default function Filters({ handleFilterChange, handleLocationChange }: Fi
     });
 
     // Handle location filters
-    handleLocationChange({
-      states: selectedStates.map(state => state.code)
-    });
+    const locationData: ZipCodeSearchParams = {};
+    if(parsedData.city) {
+      locationData.city = parsedData.city;
+    }
+    if(selectedStates.length > 0) {
+      locationData.states = selectedStates.map(state => state.code);
+    }
+
+    handleLocationChange(locationData);
   };
 
   const handleStateSelection = (code: string) => {
@@ -92,6 +100,22 @@ export default function Filters({ handleFilterChange, handleLocationChange }: Fi
     <div className="flex flex-col gap-4 p-4 border rounded-lg shadow-sm">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <div className="space-y-2">
+            <FormLabel>City</FormLabel>
+            <FormField
+              control={form.control}
+              name="city"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <Input placeholder="Enter city name" {...field} className="text-sm" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
           <div className="space-y-2">
             <FormLabel>States</FormLabel>
             <div ref={containerRef} className="relative">

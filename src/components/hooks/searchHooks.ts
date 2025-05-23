@@ -38,10 +38,6 @@ export const useSearch = () => {
     });
   };
 
-  useEffect(() => {
-    console.log("results 36", results);
-  }, [results]);
-
   // Responsible for initializing the breed search items.
   useEffect(() => {
     getBreeds().then(breeds => {
@@ -88,6 +84,12 @@ export const useSearch = () => {
     }
   }, [filters.zipCodes]);
 
+  useEffect(() => {
+    if(results.zipCodes > 0) {
+      setZipCodeResultsMessage(`Showing ${(currentPage - 1) * zipCodeSize + 1} - ${Math.min(currentPage * zipCodeSize, results.zipCodes)} of ${results.zipCodes} zip codes`);
+    }
+  }, [currentPage, zipCodeSize, results.zipCodes]);
+
   // Separately done for breeds as it's not with the rest of the filter options.
   useEffect(() => {
     setFilters({
@@ -108,11 +110,10 @@ export const useSearch = () => {
       const locations = await getFilteredLocations(
         {
           ...location,
-          from: (currentPage - 1) * zipCodeSize,
-          size: zipCodeSize
+          // from: (currentPage - 1) * zipCodeSize,
+          // size: zipCodeSize
         }
       );
-      console.log("locations 108", locations);
       
       // Update the main filters with the zip codes from the filtered locations
       setFilters(prevFilters => ({
@@ -120,11 +121,10 @@ export const useSearch = () => {
         zipCodes: locations.results.map(loc => loc.zip_code)
       }));
       setResults({ ...results, zipCodes: locations.total });
-      setZipCodeResultsMessage(`Showing ${(currentPage - 1) * zipCodeSize + 1} - ${Math.min(currentPage * zipCodeSize, results.zipCodes)} of ${results.zipCodes} zip codes`);
     } catch (error) {
       console.error("Error fetching filtered locations:", error);
     }
   };
 
-  return { dogIds, breedSearchItems, handleSearch, changeBreedAvailability, pageSize, setPageSize, currentPage, setCurrentPage, totalPages, sortBy, setSortBy, filters, handleFilterChange, handleLocationFilterChange, dogResultsMessage, zipCodeResultsMessage };
+  return { dogIds, breedSearchItems, handleSearch, changeBreedAvailability, pageSize, setPageSize, currentPage, setCurrentPage, totalPages, sortBy, setSortBy, filters, handleFilterChange, handleLocationFilterChange, dogResultsMessage, zipCodeResultsMessage, zipCodeSize, results };
 };
