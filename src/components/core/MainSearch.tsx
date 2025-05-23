@@ -54,7 +54,7 @@ const MainSearch = forwardRef<HTMLDivElement, MainSearchProps>(({
   handleSearch
 }, ref) => {
   return (
-    <div className="flex gap-2">
+    <div className="flex gap-2 relative">
 
     <Command ref={ref} className={cn(
       "md:min-w-[450px] transition-all duration-200 border shadow-md rounded-lg",
