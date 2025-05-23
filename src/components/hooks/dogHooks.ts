@@ -38,12 +38,10 @@ export const useDog = (ids: string[], locations?: DogLocation[]) => {
     setIsLoading(true);
     getDogs(ids).then((dogs: Dog[]) => {
 
-      if (zipCodes) {
+      if (Array.isArray(zipCodes) && zipCodes.length > 0) {
         const filteredDogs = dogs.filter(dog => zipCodes.includes(dog.zip_code));
-        console.log("dogs 43", filteredDogs, zipCodes);
         setDogs(filteredDogs);
       } else {
-        console.log("dogs 48", zipCodes);
         setDogs(dogs);
       }
       setIsLoading(false);
