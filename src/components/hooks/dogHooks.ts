@@ -30,15 +30,19 @@ export const useLikedDogs = () => {
 */
 export const useDog = (ids: string[]) => {
   const [dogs, setDogs] = useState<Dog[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Responsible for fetching the dogs that show up as cards.
   useEffect(() => {
+    setIsLoading(true);
     getDogs(ids).then((dogs: Dog[]) => {
       setDogs(dogs);
+      setIsLoading(false);
     }).catch(error => {
       console.error(error);
+      setIsLoading(false);
     });
   }, [JSON.stringify(ids)]);
 
-  return { dogs };
+  return { dogs, isLoading };
 };
