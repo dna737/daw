@@ -1,20 +1,22 @@
 import { useEffect, useState } from "react";
-import type { DogSearchOption, FilterOptions, ZipCodeSearchParams, SortableField, SortDirection, FilteredLocations } from "@/models";
+import type { DogSearchOption, FilterOptions, ZipCodeSearchParams, SortableField, SortDirection, SearchResults } from "@/models";
 import { getBreeds, getSearchResults, getFilteredLocations } from "@/services";
 import { SortByOptions } from "@/models";
 
+const MAX_DOGS = 10000;
+
 export const useSearch = () => {
   const [dogIds, setDogIds] = useState<string[]>([]); // To store the dog ids.
-  const [results, setResults] = useState<number>(0);
+  const [results, setResults] = useState<SearchResults>({ dogs: 0, zipCodes: 0 });
   const [breedSearchItems, setBreedSearchItems] = useState<DogSearchOption[]>([]);
   const [pageSize, setPageSize] = useState<number>(25); // Can be modified later.
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [sortBy, setSortBy] = useState<SortByOptions>(SortByOptions.BREED_ASC);
   const [filters, setFilters] = useState<FilterOptions>({});
-  const [filteredLocations, setFilteredLocations] = useState<FilteredLocations | undefined>(undefined);
 
-  const totalPages = Math.ceil(results / pageSize);
+  const totalPages = Math.ceil(results.dogs / pageSize);
   const [sortField, sortDirection] = sortBy.split(":");
+  const [message, setMessage] = useState<string>("");
 
   // TODO: Check if it's easier to pass the link directly instead of using the from and size query params.
   const handleSearch = () => {
@@ -28,11 +30,15 @@ export const useSearch = () => {
       }
     }).then(result => {
       setDogIds(result.resultIds);
-      setResults(result.total);
+      setResults({ ...results, dogs: result.total });
     }).catch(error => {
       console.error(error);
     });
   };
+
+  useEffect(() => {
+    console.log("results 36", results);
+  }, [results]);
 
   // Responsible for initializing the breed search items.
   useEffect(() => {
@@ -47,6 +53,10 @@ export const useSearch = () => {
   useEffect(() => {
     handleSearch();
   }, [breedSearchItems, currentPage, pageSize, sortBy, filters]);
+
+  useEffect(() => {
+    setMessage(`Showing ${(currentPage - 1) * pageSize + 1} - ${Math.min(currentPage * pageSize, results.dogs)} of ${results.dogs} dogs`);
+  }, [currentPage, pageSize, results.dogs]);
 
   // When a breed is selected, reset the page to 1 as the new results may have lesser results than before.
   useEffect(() => {
@@ -82,17 +92,17 @@ export const useSearch = () => {
   const handleLocationFilterChange = async (location: ZipCodeSearchParams) => {
     try {
       const locations = await getFilteredLocations(location);
-      setFilteredLocations(locations);
       
       // Update the main filters with the zip codes from the filtered locations
       setFilters(prevFilters => ({
         ...prevFilters,
         zipCodes: locations.results.map(loc => loc.zip_code)
       }));
+      setResults({ ...results, zipCodes: locations.total });
     } catch (error) {
       console.error("Error fetching filtered locations:", error);
     }
   };
 
-  return { dogIds, breedSearchItems, handleSearch, changeBreedAvailability, pageSize, setPageSize, currentPage, setCurrentPage, totalPages, sortBy, setSortBy, filters, handleFilterChange, filteredLocations, handleLocationFilterChange };
+  return { dogIds, breedSearchItems, handleSearch, changeBreedAvailability, pageSize, setPageSize, currentPage, setCurrentPage, totalPages, sortBy, setSortBy, filters, handleFilterChange, handleLocationFilterChange, message };
 };

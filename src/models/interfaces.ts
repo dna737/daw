@@ -175,3 +175,8 @@ export enum State {
   WISCONSIN = "WI",
   WYOMING = "WY"
 }
+
+export interface SearchResults {
+  dogs: number;
+  zipCodes: number;
+}

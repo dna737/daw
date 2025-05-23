@@ -11,8 +11,9 @@ export default function Home() {
   const [isFocused, setIsFocused] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const [searchValue, setSearchValue] = useState("");
-  const { dogIds, breedSearchItems, handleSearch, changeBreedAvailability, currentPage, setCurrentPage, totalPages, sortBy, setSortBy, pageSize, setPageSize, handleFilterChange, handleLocationFilterChange, filteredLocations } = useSearch();
-  const { dogs, isLoading } = useDog(dogIds, filteredLocations?.results);
+  const { dogIds, breedSearchItems, handleSearch, changeBreedAvailability, currentPage, setCurrentPage, totalPages, sortBy, setSortBy, pageSize, setPageSize, handleFilterChange, handleLocationFilterChange, message } = useSearch();
+
+  const { dogs, isLoading } = useDog(dogIds);
   const { likedDogs, handleLikeChange } = useLikedDogs();
   const { availableBreeds, selectedBreeds } = filterBreedSearchItems(breedSearchItems, searchValue);
 
@@ -54,6 +55,8 @@ export default function Home() {
             <SortBy currentValue={sortBy} setCurrentValue={setSortBy} />
           </div>
         </div>
+
+        {message && <div className="text-gray-500 text-center">{message}</div>}
 
         <div className="w-full flex justify-start gap-2">
           <div className="flex flex-col gap-2">

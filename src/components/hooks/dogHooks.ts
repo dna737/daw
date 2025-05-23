@@ -28,28 +28,21 @@ export const useLikedDogs = () => {
 /*
   Handles fetching and managing dog data
 */
-export const useDog = (ids: string[], locations?: DogLocation[]) => {
+export const useDog = (ids: string[]) => {
   const [dogs, setDogs] = useState<Dog[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const zipCodes = locations?.map(location => location.zip_code);
 
   // Responsible for fetching the dogs that show up as cards.
   useEffect(() => {
     setIsLoading(true);
     getDogs(ids).then((dogs: Dog[]) => {
-
-      if (Array.isArray(zipCodes) && zipCodes.length > 0) {
-        const filteredDogs = dogs.filter(dog => zipCodes.includes(dog.zip_code));
-        setDogs(filteredDogs);
-      } else {
-        setDogs(dogs);
-      }
+      setDogs(dogs);
       setIsLoading(false);
     }).catch(error => {
       console.error(error);
       setIsLoading(false);
     });
-  }, [JSON.stringify(ids), JSON.stringify(locations)]);
+  }, [JSON.stringify(ids)]);
 
   return { dogs, isLoading };
 };
