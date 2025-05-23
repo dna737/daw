@@ -80,3 +80,9 @@ export interface Coordinates {
   lat: number;
   lon: number;
 }
+
+export interface StateOption {
+  name: string;
+  code: string;
+  isSelected: boolean;
+}
