@@ -12,9 +12,9 @@ import {
 } from "../ui/form"
 import { Input } from "../ui/input"
 import { StateSearch } from "./StateSearch"
-import { states, filterStateSearchItems } from "../utils"
 import { useState, useRef, useEffect } from "react"
 import type { ZipCodeSearchParams } from "@/models"
+import { filterStateSearchItems, getStateOptions } from "../utils"
 
 const formSchema = z.object({
   ageMin: z.coerce.number().min(0).optional(),
@@ -38,7 +38,7 @@ interface FiltersProps {
 export default function Filters({ handleFilterChange, handleLocationChange }: FiltersProps) {
   const [isFocused, setIsFocused] = useState(false);
   const [searchValue, setSearchValue] = useState("");
-  const [stateOptions, setStateOptions] = useState(states);
+  const [stateOptions, setStateOptions] = useState(getStateOptions());
   const containerRef = useRef<HTMLDivElement>(null);
 
   const form = useForm<FilterFormValues>({

@@ -5,6 +5,7 @@ import { Calendar, InfoIcon, MapPin, PawPrint } from "lucide-react";
 import { useZipCodes } from "../hooks";
 import { Tooltip, TooltipTrigger, TooltipContent } from "../ui/tooltip";
 import type { DogLocation } from "@/models";
+import { getStateName } from "../utils";
 
 function LocationTooltip(props: { location: DogLocation | undefined }) {
 
@@ -24,6 +25,13 @@ function LocationTooltip(props: { location: DogLocation | undefined }) {
           Object.entries(location).map(([key, value]) => {
             const formattedKey = key.replace("_", " ");
             const capitalizedKey = formattedKey.charAt(0).toUpperCase() + formattedKey.slice(1);
+
+            if (key === "state") {
+              return (
+                <p key={key} className="text-left">{capitalizedKey}: {`${value} (${getStateName(value as string)})`}</p>
+              )
+            }
+
             return (
               <p key={key} className="text-left">{capitalizedKey}: {value}</p>
             )
