@@ -54,7 +54,7 @@ const StateSearch = forwardRef<HTMLDivElement, StateSearchProps>(({
 }, ref) => {
   return (
     <Command ref={ref} className={cn(
-      "md:min-w-[450px] transition-all duration-200 border shadow-md rounded-lg",
+      "transition-all duration-200 border rounded-lg",
       isFocused ? "h-max" : "h-9"
     )}>
       <CommandInput 

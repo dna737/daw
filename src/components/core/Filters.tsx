@@ -11,14 +11,11 @@ import {
   FormMessage,
 } from "../ui/form"
 import { Input } from "../ui/input"
-import { useState, useRef, useEffect } from "react"
-import { StateSearch } from "./StateSearch"
-import { states, filterStateSearchItems } from "../utils"
 
 const formSchema = z.object({
-  zipCodes: z.string(),
   ageMin: z.coerce.number().min(0).optional(),
   ageMax: z.coerce.number().min(0).optional(),
+  zipCodes: z.string().optional(),
 }).refine((data) => {
   if (data.ageMin === undefined || data.ageMax === undefined) return true;
   return data.ageMax >= data.ageMin;
@@ -30,81 +27,39 @@ const formSchema = z.object({
 type FilterFormValues = z.infer<typeof formSchema>;
 
 interface FiltersProps {
-  handleFilterChange: (filter: { zipCodes?: string[]; ageMin?: number; ageMax?: number; states?: string[] }) => void;
+  handleFilterChange: (filter: { ageMin?: number; ageMax?: number; zipCodes?: string[]; }) => void;
 }
 
 export default function Filters({ handleFilterChange }: FiltersProps) {
-  const [isFocused, setIsFocused] = useState(false);
-  const [searchValue, setSearchValue] = useState("");
-  const [stateOptions, setStateOptions] = useState(states);
-  const containerRef = useRef<HTMLDivElement>(null);
-
   const form = useForm<FilterFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      zipCodes: "",
       ageMin: undefined,
       ageMax: undefined,
+      zipCodes: "",
     },
   });
 
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
-        setIsFocused(false);
-      }
-    }
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  const { availableStates, selectedStates } = filterStateSearchItems(stateOptions, searchValue);
-
   const onSubmit = (data: FilterFormValues) => {
     const parsedData = formSchema.parse(data);
-    const zipCodes = parsedData.zipCodes.split(",").map(zip => zip.trim()).filter(Boolean);
-    if (!zipCodes.every(zip => /^\d{5}$/.test(zip))) {
+    const zipCodes = parsedData.zipCodes ? parsedData.zipCodes.split(",").map(zip => zip.trim()).filter(Boolean) : undefined;
+    
+    if (zipCodes && !zipCodes.every(zip => /^\d{5}$/.test(zip))) {
       form.setError("zipCodes", { message: "Each zip code must be 5 digits" });
       return;
     }
+
     handleFilterChange({
-      zipCodes,
       ageMin: parsedData.ageMin,
       ageMax: parsedData.ageMax,
-      states: selectedStates.map(state => state.code)
+      zipCodes,
     });
-  };
-
-  const handleStateSelection = (code: string) => {
-    setStateOptions(prevOptions => 
-      prevOptions.map(state => 
-        state.code === code 
-          ? { ...state, isSelected: !state.isSelected }
-          : state
-      )
-    );
   };
 
   return (
     <div className="flex flex-col gap-4 p-4 border rounded-lg shadow-sm">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <div className="space-y-2">
-            <FormLabel>States</FormLabel>
-            <div ref={containerRef} className="relative">
-              <StateSearch
-                isFocused={isFocused}
-                searchValue={searchValue}
-                availableStates={availableStates}
-                selectedStates={selectedStates}
-                onFocus={() => setIsFocused(true)}
-                onSearchValueChange={setSearchValue}
-                onStateSelection={handleStateSelection}
-              />
-            </div>
-          </div>
-
           <div className="space-y-2">
             <FormLabel>Zip Codes</FormLabel>
             <FormField

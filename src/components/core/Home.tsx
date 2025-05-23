@@ -6,12 +6,13 @@ import { filterBreedSearchItems } from "../utils";
 import { useDog, useLikedDogs, useSearch } from "../hooks";
 import { PageControl } from "../Page";
 import DogCardSkeleton from "./DogCardSkeleton";
+import LocationFilters from "./LocationFilters";
 
 export default function Home() {
   const [isFocused, setIsFocused] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const [searchValue, setSearchValue] = useState("");
-  const { dogIds, breedSearchItems, handleSearch, changeBreedAvailability, currentPage, setCurrentPage, totalPages, sortBy, setSortBy, pageSize, setPageSize, handleFilterChange } = useSearch();
+  const { dogIds, breedSearchItems, handleSearch, changeBreedAvailability, currentPage, setCurrentPage, totalPages, sortBy, setSortBy, pageSize, setPageSize, handleFilterChange, locationFilters, setLocationFilters } = useSearch();
   const { dogs, isLoading } = useDog(dogIds);
   const { likedDogs, handleLikeChange } = useLikedDogs();
   const { availableBreeds, selectedBreeds } = filterBreedSearchItems(breedSearchItems, searchValue);
@@ -56,7 +57,10 @@ export default function Home() {
         </div>
 
         <div className="w-full flex justify-start gap-2">
-          <Filters handleFilterChange={handleFilterChange} />
+          <div className="flex flex-col gap-2">
+            <Filters handleFilterChange={handleFilterChange} />
+            <LocationFilters handleLocationChange={setLocationFilters} />
+          </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 w-full">
             {isLoading ? (
               // Show 8 skeleton cards while loading
