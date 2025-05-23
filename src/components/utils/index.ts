@@ -1,2 +1,2 @@
-export * from './dogUtils';
+export * from './searchUtils';
 export * from './paginationUtils';
