@@ -16,7 +16,6 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 export default function PageSize(props: {pageSize: number, setPageSize: (pageSize: number) => void}) {
-  console.log("pageSize", props.pageSize);
   const { pageSize, setPageSize } = props;
 
   const form = useForm<FormValues>({

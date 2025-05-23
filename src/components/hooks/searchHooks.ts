@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import type { DogSearchOption, FilterOptions, SortableField, SortDirection } from "@/models";
-import { getBreeds, getSearchResults } from "@/services";
+import type { DogSearchOption, FilterOptions, ZipCodeSearchParams, SortableField, SortDirection, FilteredLocations } from "@/models";
+import { getBreeds, getSearchResults, getFilteredLocations } from "@/services";
 import { SortByOptions } from "@/models";
 
 export const useSearch = () => {
@@ -11,6 +11,9 @@ export const useSearch = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [sortBy, setSortBy] = useState<SortByOptions>(SortByOptions.BREED_ASC);
   const [filters, setFilters] = useState<FilterOptions>({});
+  const [filteredLocations, setFilteredLocations] = useState<FilteredLocations | undefined>(undefined);
+  console.log("filteredLocations 15", filteredLocations);
+  const [locationFilters, setLocationFilters] = useState<ZipCodeSearchParams>({});
 
   const totalPages = Math.ceil(results / pageSize);
   const [sortField, sortDirection] = sortBy.split(":");
@@ -78,5 +81,21 @@ export const useSearch = () => {
     }));
   };
 
-  return { dogIds, breedSearchItems, handleSearch, changeBreedAvailability, pageSize, setPageSize, currentPage, setCurrentPage, totalPages, sortBy, setSortBy, filters, handleFilterChange };
+  const handleLocationSearch = (locationFilters: ZipCodeSearchParams) => {
+    getFilteredLocations(locationFilters).then(locations => {
+      console.log("locations 85", locations);
+      setFilteredLocations(locations);
+    }).catch(error => {
+      console.error(error);
+    });
+  };
+
+  const handleLocationFilterChange = (location: ZipCodeSearchParams) => {
+    setLocationFilters(prevLocationFilters => ({
+      ...prevLocationFilters,
+      ...location
+    }));
+  };
+
+  return { dogIds, breedSearchItems, handleSearch, changeBreedAvailability, pageSize, setPageSize, currentPage, setCurrentPage, totalPages, sortBy, setSortBy, filters, handleFilterChange, filteredLocations, locationFilters, setLocationFilters, handleLocationFilterChange, handleLocationSearch };
 };

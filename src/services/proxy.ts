@@ -1,4 +1,4 @@
-import type { Result, User, DogSearchParams, Dog, Match, DogLocation } from "@/models";
+import type { Result, User, DogSearchParams, Dog, Match, DogLocation, ZipCodeSearchParams, FilteredLocations } from "@/models";
 
 const API_URL = "https://frontend-take-home-service.fetch.com";
 
@@ -9,6 +9,7 @@ const requests = {
   dogs: `${API_URL}/dogs`,
   match: `${API_URL}/dogs/match`,
   locations: `${API_URL}/locations`,
+  zipCodes: `${API_URL}/locations/search`,
 };
 
 const generateQueryParams = (params?: unknown): string => {
@@ -132,3 +133,21 @@ export const getLocations = async (zipCodes: string[]): Promise<DogLocation[]> =
 
   return response.json();
 }
+
+export const getFilteredLocations = async (locationFilters: ZipCodeSearchParams): Promise<FilteredLocations> => {
+
+  const response = await fetch(requests.zipCodes, {
+    credentials: "include",
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(locationFilters),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to get zip codes. Please try again.");
+  }
+
+  return response.json();
+};

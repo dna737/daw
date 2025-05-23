@@ -1,7 +1,7 @@
-import type { Dog } from "@/models";
+import type { Dog, DogLocation } from "@/models";
 import { getDogs } from "@/services/proxy";
 import { useEffect, useState } from "react";
-import { useStorage } from ".";
+import { useStorage, useZipCodes } from ".";
 
 /*
   Handles liked dogs state management
@@ -28,21 +28,32 @@ export const useLikedDogs = () => {
 /*
   Handles fetching and managing dog data
 */
-export const useDog = (ids: string[]) => {
+export const useDog = (ids: string[], locations?: DogLocation[]) => {
   const [dogs, setDogs] = useState<Dog[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const zipCodes = locations?.map(location => location.zip_code);
+
+  console.log("zipCodes 36", zipCodes);
 
   // Responsible for fetching the dogs that show up as cards.
   useEffect(() => {
     setIsLoading(true);
     getDogs(ids).then((dogs: Dog[]) => {
-      setDogs(dogs);
+
+      if (zipCodes) {
+        const filteredDogs = dogs.filter(dog => zipCodes.includes(dog.zip_code));
+        console.log("dogs 43", filteredDogs, zipCodes);
+        setDogs(filteredDogs);
+      } else {
+        console.log("dogs 48", zipCodes);
+        setDogs(dogs);
+      }
       setIsLoading(false);
     }).catch(error => {
       console.error(error);
       setIsLoading(false);
     });
-  }, [JSON.stringify(ids)]);
+  }, [JSON.stringify(ids), JSON.stringify(locations)]);
 
   return { dogs, isLoading };
 };

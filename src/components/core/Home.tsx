@@ -12,8 +12,8 @@ export default function Home() {
   const [isFocused, setIsFocused] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const [searchValue, setSearchValue] = useState("");
-  const { dogIds, breedSearchItems, handleSearch, changeBreedAvailability, currentPage, setCurrentPage, totalPages, sortBy, setSortBy, pageSize, setPageSize, handleFilterChange, locationFilters, setLocationFilters } = useSearch();
-  const { dogs, isLoading } = useDog(dogIds);
+  const { dogIds, breedSearchItems, handleSearch, changeBreedAvailability, currentPage, setCurrentPage, totalPages, sortBy, setSortBy, pageSize, setPageSize, handleFilterChange, locationFilters, setLocationFilters, handleLocationSearch, filteredLocations } = useSearch();
+  const { dogs, isLoading } = useDog(dogIds, filteredLocations?.results);
   const { likedDogs, handleLikeChange } = useLikedDogs();
   const { availableBreeds, selectedBreeds } = filterBreedSearchItems(breedSearchItems, searchValue);
 
@@ -59,7 +59,7 @@ export default function Home() {
         <div className="w-full flex justify-start gap-2">
           <div className="flex flex-col gap-2">
             <Filters handleFilterChange={handleFilterChange} />
-            <LocationFilters handleLocationChange={setLocationFilters} />
+            <LocationFilters handleLocationChange={handleLocationSearch} />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 w-full">
             {isLoading ? (

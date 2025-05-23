@@ -109,10 +109,15 @@ export interface CornerBoundingBox {
 
 export type GeoBoundingBox = CardinalBoundingBox | CornerBoundingBox;
 
-export interface LocationFilters {
+export interface ZipCodeSearchParams {
   city?: string;           // full or partial name of a city
   states?: string[];       // array of two-letter state/territory abbreviations
   geoBoundingBox?: GeoBoundingBox;
   size?: number;          // number of results to return (defaults to 25)
   from?: string;          // cursor for pagination
+}
+
+export interface FilteredLocations {
+  results: DogLocation[];
+  total: number;
 }

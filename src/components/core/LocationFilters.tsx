@@ -7,13 +7,14 @@ import { states, filterStateSearchItems } from "../utils"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
+import type { ZipCodeSearchParams } from "@/models"
 
 const formSchema = z.object({});
 
 type LocationFormValues = z.infer<typeof formSchema>;
 
 interface LocationFiltersProps {
-  handleLocationChange: (location: { states?: string[] }) => void;
+  handleLocationChange: (location: ZipCodeSearchParams) => void;
 }
 
 export default function LocationFilters({ handleLocationChange }: LocationFiltersProps) {
