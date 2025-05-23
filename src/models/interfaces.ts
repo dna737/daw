@@ -86,3 +86,33 @@ export interface StateOption {
   code: string;
   isSelected: boolean;
 }
+
+// Base coordinates for a point
+interface GeoPoint {
+  lat: number;
+  lon: number;
+}
+
+export interface CardinalBoundingBox {
+  top: number;    // higher latitude
+  left: number;   // left-most longitude
+  bottom: number; // lower latitude
+  right: number;  // right-most longitude
+}
+
+export interface CornerBoundingBox {
+  bottom_left: GeoPoint;
+  top_right: GeoPoint;
+  bottom_right?: GeoPoint;
+  top_left?: GeoPoint;
+}
+
+export type GeoBoundingBox = CardinalBoundingBox | CornerBoundingBox;
+
+export interface LocationFilters {
+  city?: string;           // full or partial name of a city
+  states?: string[];       // array of two-letter state/territory abbreviations
+  geoBoundingBox?: GeoBoundingBox;
+  size?: number;          // number of results to return (defaults to 25)
+  from?: string;          // cursor for pagination
+}

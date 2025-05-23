@@ -1,4 +1,4 @@
-import type { DogSearchOption, StateOption  } from "@/models";
+import type { CardinalBoundingBox, CornerBoundingBox, DogSearchOption, GeoBoundingBox, StateOption  } from "@/models";
 
 export const states: StateOption[] = [
   { name: "Alabama", code: "AL", isSelected: false },
@@ -69,4 +69,12 @@ export const filterStateSearchItems = (stateOptions: typeof states, searchValue:
   const availableStates = filteredStates.filter((state) => !state.isSelected).sort((a, b) => a.name.localeCompare(b.name));
   const selectedStates = filteredStates.filter((state) => state.isSelected).sort((a, b) => a.name.localeCompare(b.name));
   return { availableStates, selectedStates };
+}
+
+export function isCardinalBoundingBox(box: GeoBoundingBox): box is CardinalBoundingBox {
+  return 'top' in box && 'left' in box && 'bottom' in box && 'right' in box;
+}
+
+export function isCornerBoundingBox(box: GeoBoundingBox): box is CornerBoundingBox {
+  return 'bottom_left' in box && 'top_right' in box;
 }
