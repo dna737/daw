@@ -18,6 +18,7 @@ export const useSearch = () => {
   const [zipCodeResultsMessage, setZipCodeResultsMessage] = useState<string>("");
   const [zipCodeSize, setZipCodeSize] = useState<number>(25);
   const [zipCodeFrom, setZipCodeFrom] = useState<number>(0);
+  const [zipCodeCoverage, setZipCodeCoverage] = useState<string>("");
 
   const handleSearch = () => {
     getSearchResults({
@@ -70,16 +71,6 @@ export const useSearch = () => {
     });
   };
 
-  useEffect(() => {
-    if(results.zipCodes > 0) {
-      if(zipCodeSize < results.zipCodes) {
-        setZipCodeResultsMessage(`Showing ${zipCodeFrom + 1} - ${Math.min(zipCodeFrom + zipCodeSize, results.zipCodes)} of ${results.zipCodes} zip codes`);
-      } else {
-        setZipCodeResultsMessage(`Showing all ${results.zipCodes} zip codes`);
-      }
-    }
-  }, [zipCodeSize, results.zipCodes, zipCodeFrom]);
-
   // Separately done for breeds as it's not with the rest of the filter options.
   useEffect(() => {
     setFilters({
@@ -94,6 +85,14 @@ export const useSearch = () => {
       ...filter
     }));
   };
+
+  useEffect(() => {
+    let message = zipCodeSize < results.zipCodes
+      ? `Showing ${zipCodeFrom + 1} - ${Math.min(zipCodeFrom + zipCodeSize, results.zipCodes)} of ${results.zipCodes} zip codes`
+      : `Showing all ${results.zipCodes} zip codes`;
+    message += zipCodeCoverage ? `\n${zipCodeCoverage}` : "";
+    setZipCodeResultsMessage(message);
+  }, [results.zipCodes, zipCodeFrom, zipCodeSize, zipCodeCoverage]);
 
   const handleLocationFilterChange = async (location: ZipCodeSearchParams) => {
     try {
@@ -116,18 +115,14 @@ export const useSearch = () => {
         zipCodes: locations.results.map(loc => loc.zip_code)
       }));
 
+      setZipCodeCoverage(`(${locations.results[0].zip_code} - ${locations.results[locations.results.length - 1].zip_code})`);
+
     } catch (error) {
       console.error("Error fetching filtered locations:", error);
     }
   };
 
   useEffect(() => {
-    if (results.zipCodes > 0) {
-      const message = zipCodeSize < results.zipCodes
-        ? `Showing ${zipCodeFrom + 1} - ${Math.min(zipCodeFrom + zipCodeSize, results.zipCodes)} of ${results.zipCodes} zip codes`
-        : `Showing all ${results.zipCodes} zip codes`;
-      setZipCodeResultsMessage(message);
-    }
   }, [zipCodeSize, results.zipCodes, zipCodeFrom]);
 
   return { dogIds, breedSearchItems, handleSearch, changeBreedAvailability, pageSize, setPageSize, currentPage, setCurrentPage, totalPages, sortBy, setSortBy, filters, handleFilterChange, handleLocationFilterChange, dogResultsMessage, zipCodeResultsMessage, zipCodeSize, results, zipCodeFrom };

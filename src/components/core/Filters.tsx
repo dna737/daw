@@ -207,7 +207,7 @@ export default function Filters({ handleFilterChange, handleLocationChange, tota
   return (
     <div className="flex flex-col gap-4 p-4 border rounded-lg shadow-sm">
       {totalZipCodes > 0 && (
-        <div className="text-gray-500 text-left text-sm">
+        <div className="text-gray-500 text-center text-sm whitespace-pre-wrap">
           {zipCodeResultsMessage}
         </div>
       )}
