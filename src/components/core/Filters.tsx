@@ -23,7 +23,7 @@ const formSchema = z.object({
   ageMax: z.coerce.number().min(0).optional(),
   states: z.array(z.string()).optional(),
   city: z.string().optional(),
-  zipCodeLoading: z.enum(["next", "all", "custom"]).optional(),
+  zipCodeLoading: z.enum(["next", "previous", "all", "custom"]).optional(),
   customZipSize: z.coerce.number().min(1).optional(),
 }).refine((data) => {
   if (data.ageMin === undefined || data.ageMax === undefined) return true;
@@ -50,7 +50,7 @@ interface FiltersProps {
   zipCodeFrom: number;
 }
 
-function ZipCodeLoadingRadioGroup({ currentZipSize, totalZipCodes, form }: { currentZipSize: number; totalZipCodes: number; form: UseFormReturn<FilterFormValues> }) {
+function ZipCodeLoadingRadioGroup({ currentZipSize, totalZipCodes, form, zipCodeFrom }: { currentZipSize: number; totalZipCodes: number; form: UseFormReturn<FilterFormValues>; zipCodeFrom: number }) {
   return (
           <div className="space-y-2">
             <FormLabel>ZIP Code Loading</FormLabel>
@@ -65,10 +65,18 @@ function ZipCodeLoadingRadioGroup({ currentZipSize, totalZipCodes, form }: { cur
                       defaultValue={field.value}
                       className="space-y-2"
                     >
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="next" id="next" />
-                        <Label htmlFor="next">Load next {currentZipSize} ZIPs</Label>
-                      </div>
+                      {zipCodeFrom + currentZipSize < totalZipCodes && (
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="next" id="next" />
+                          <Label htmlFor="next">Load next {currentZipSize} ZIPs</Label>
+                        </div>
+                      )}
+                      {zipCodeFrom > 0 && (
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="previous" id="previous" />
+                          <Label htmlFor="previous">Load previous {currentZipSize} ZIPs</Label>
+                        </div>
+                      )}
                       <div className="flex items-center space-x-2">
                         <RadioGroupItem value="all" id="all" />
                         <Label htmlFor="all">Load all ZIPs ({totalZipCodes})</Label>
@@ -160,7 +168,11 @@ export default function Filters({ handleFilterChange, handleLocationChange, tota
     // Handle ZIP code loading options
     switch (parsedData.zipCodeLoading) {
       case "next":
-        locationData.from = zipCodeFrom + currentZipSize;  // Start from the beginning
+        locationData.from = zipCodeFrom + currentZipSize;
+        locationData.size = currentZipSize;
+        break;
+      case "previous":
+        locationData.from = zipCodeFrom - currentZipSize;
         locationData.size = currentZipSize;
         break;
       case "all":
@@ -201,7 +213,7 @@ export default function Filters({ handleFilterChange, handleLocationChange, tota
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          {totalZipCodes > 0 && <ZipCodeLoadingRadioGroup currentZipSize={currentZipSize} totalZipCodes={totalZipCodes} form={form} />}
+          {totalZipCodes > 0 && <ZipCodeLoadingRadioGroup currentZipSize={currentZipSize} totalZipCodes={totalZipCodes} form={form} zipCodeFrom={zipCodeFrom} />}
 
           <div className="space-y-2">
             <FormLabel>City</FormLabel>

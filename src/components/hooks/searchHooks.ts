@@ -106,26 +106,44 @@ export const useSearch = () => {
 
   const handleLocationFilterChange = async (location: ZipCodeSearchParams) => {
     try {
-      const locations = await getFilteredLocations(
-        {
-          ...location,
-        }
-      );
+      const locations = await getFilteredLocations(location);
       
-      // Update the main filters with the zip codes from the filtered locations
-      setFilters(prevFilters => ({
-        ...prevFilters,
-        zipCodes: locations.results.map(loc => loc.zip_code)
+      setResults(prevResults => ({ 
+        ...prevResults, 
+        zipCodes: locations.total 
       }));
 
-      if(location.from) { setZipCodeFrom(location.from); console.log("updated zipCodeFrom", location.from); }
-      if(location.size) { setZipCodeSize(location.size); console.log("updated zipCodeSize", location.size); }
+      setZipCodeFrom(location.from ?? 0);
+      setZipCodeSize(location.size ?? 25);
 
-      setResults({ ...results, zipCodes: locations.total });
+      setTimeout(() => {
+        setFilters(prevFilters => ({
+          ...prevFilters,
+          zipCodes: locations.results.map(loc => loc.zip_code)
+        }));
+      }, 0);
+
     } catch (error) {
       console.error("Error fetching filtered locations:", error);
     }
   };
+
+  useEffect(() => {
+    if (filters.zipCodes?.length === 0) {
+      setZipCodeFrom(0);
+      setZipCodeSize(25);
+    }
+  }, [filters.zipCodes]);
+
+  useEffect(() => {
+    if (results.zipCodes > 0) {
+      const message = zipCodeSize < results.zipCodes
+        ? `Showing ${zipCodeFrom + 1} - ${Math.min(zipCodeFrom + zipCodeSize, results.zipCodes)} of ${results.zipCodes} zip codes`
+        : `Showing all ${results.zipCodes} zip codes`;
+      console.log("Setting ZIP code message:", message);
+      setZipCodeResultsMessage(message);
+    }
+  }, [zipCodeSize, results.zipCodes, zipCodeFrom]);
 
   return { dogIds, breedSearchItems, handleSearch, changeBreedAvailability, pageSize, setPageSize, currentPage, setCurrentPage, totalPages, sortBy, setSortBy, filters, handleFilterChange, handleLocationFilterChange, dogResultsMessage, zipCodeResultsMessage, zipCodeSize, results, zipCodeFrom };
 };
