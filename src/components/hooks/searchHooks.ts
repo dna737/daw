@@ -23,6 +23,7 @@ export const useSearch = () => {
   const handleSearch = () => {
     getSearchResults({
       ...filters,
+      breeds: breedSearchItems.filter(item => item.isSelected).map(item => item.name),
       from: (currentPage - 1) * pageSize,
       size: pageSize,
       sort: {
@@ -49,7 +50,7 @@ export const useSearch = () => {
   // Responsible for updating results.
   useEffect(() => {
     handleSearch();
-  }, [currentPage, pageSize, sortBy]);
+  }, [currentPage, pageSize, sortBy, filters]);
 
   useEffect(() => {
     setDogResultsMessage(`Showing ${(currentPage - 1) * pageSize + 1} - ${Math.min(currentPage * pageSize, results.dogs)} of ${results.dogs} dogs`);
@@ -72,12 +73,12 @@ export const useSearch = () => {
   };
 
   // Separately done for breeds as it's not with the rest of the filter options.
-  useEffect(() => {
-    setFilters({
-      ...filters,
-      breeds: breedSearchItems.filter(item => item.isSelected).map(item => item.name),
-    });
-  }, [breedSearchItems]);
+  // useEffect(() => {
+  //   setFilters({
+  //     ...filters,
+  //     breeds: breedSearchItems.filter(item => item.isSelected).map(item => item.name),
+  //   });
+  // }, [breedSearchItems]);
 
   const handleFilterChange = (filter: FilterOptions) => {
     setFilters(prevFilters => ({
@@ -116,7 +117,7 @@ export const useSearch = () => {
       }));
 
       setZipCodeCoverage(`(${locations.results[0].zip_code} - ${locations.results[locations.results.length - 1].zip_code})`);
-
+      handleSearch();
     } catch (error) {
       console.error("Error fetching filtered locations:", error);
     }
