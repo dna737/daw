@@ -176,12 +176,12 @@ export default function Filters({ handleFilterChange, handleLocationChange, tota
         locationData.size = currentZipSize;
         break;
       case "all":
-        locationData.from = 0;  // Start from the beginning
+        locationData.from = 0;
         locationData.size = totalZipCodes;
         break;
       case "custom":
         if (parsedData.customZipSize) {
-          locationData.from = 0;  // Start from the beginning
+          locationData.from = 0;
           locationData.size = Math.min(parsedData.customZipSize, totalZipCodes);
         }
         break;
@@ -199,9 +199,6 @@ export default function Filters({ handleFilterChange, handleLocationChange, tota
       )
     );
   };
-
-  console.log("totalZipCodes", totalZipCodes);
-  console.log("currentZipSize", currentZipSize);
 
   return (
     <div className="flex flex-col gap-4 p-4 border rounded-lg shadow-sm">

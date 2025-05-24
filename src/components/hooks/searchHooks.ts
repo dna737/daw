@@ -3,13 +3,11 @@ import type { DogSearchOption, FilterOptions, ZipCodeSearchParams, SortableField
 import { getBreeds, getSearchResults, getFilteredLocations } from "@/services";
 import { SortByOptions } from "@/models";
 
-const MAX_DOGS = 10000;
-
 export const useSearch = () => {
-  const [dogIds, setDogIds] = useState<string[]>([]); // To store the dog ids.
+  const [dogIds, setDogIds] = useState<string[]>([]);
   const [results, setResults] = useState<SearchResults>({ dogs: 0, zipCodes: 0 });
   const [breedSearchItems, setBreedSearchItems] = useState<DogSearchOption[]>([]);
-  const [pageSize, setPageSize] = useState<number>(25); // Can be modified later.
+  const [pageSize, setPageSize] = useState<number>(25);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [sortBy, setSortBy] = useState<SortByOptions>(SortByOptions.BREED_ASC);
   const [filters, setFilters] = useState<FilterOptions>({});
@@ -21,7 +19,6 @@ export const useSearch = () => {
   const [zipCodeSize, setZipCodeSize] = useState<number>(25);
   const [zipCodeFrom, setZipCodeFrom] = useState<number>(0);
 
-  // TODO: Check if it's easier to pass the link directly instead of using the from and size query params.
   const handleSearch = () => {
     getSearchResults({
       ...filters,
@@ -140,7 +137,6 @@ export const useSearch = () => {
       const message = zipCodeSize < results.zipCodes
         ? `Showing ${zipCodeFrom + 1} - ${Math.min(zipCodeFrom + zipCodeSize, results.zipCodes)} of ${results.zipCodes} zip codes`
         : `Showing all ${results.zipCodes} zip codes`;
-      console.log("Setting ZIP code message:", message);
       setZipCodeResultsMessage(message);
     }
   }, [zipCodeSize, results.zipCodes, zipCodeFrom]);
