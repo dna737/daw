@@ -8,19 +8,17 @@ export default function NotFound() {
   const { isLoggedIn } = useAuth();
 
   useEffect(() => {
+    if (countdown <= 0) {
+      navigate(isLoggedIn ? "/" : "/login");
+      return;
+    }
+
     const timer = setInterval(() => {
-      setCountdown((prev) => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          navigate("/");
-          return 0;
-        }
-        return prev - 1;
-      });
+      setCountdown(prev => prev - 1);
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [navigate]);
+  }, [countdown, navigate, isLoggedIn]);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">

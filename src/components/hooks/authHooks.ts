@@ -13,7 +13,7 @@ export const useAuth = () => {
   useEffect(() => {
     const isLoggedIn = getItem("isLoggedIn");
     setIsLoggedIn(isLoggedIn);
-  }, [isLoggedIn]);
+  }, []);
 
   const login = async (name: string, email: string) => {
     try{
