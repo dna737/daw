@@ -277,7 +277,7 @@ export default function Filters({ handleFilterChange, handleLocationChange, tota
               />
             </div>
           </div>
-          <Button type="submit">Apply Filters</Button>
+          <Button type="submit" disabled={!form.formState.isDirty}>Apply Filters</Button>
         </form>
       </Form>
     </div>
