@@ -3,9 +3,11 @@
 import { useState, useRef, useEffect } from "react";
 import { MainSearch, Header, DogCard, SortBy, Filters } from ".";
 import { filterBreedSearchItems } from "../utils";
-import { useDog, useLikedDogs, useSearch } from "../hooks";
+import { useBackToTop, useDog, useLikedDogs, useSearch } from "../hooks";
 import { PageControl } from "../Page";
 import DogCardSkeleton from "./DogCardSkeleton";
+import { Button } from "../ui/button";
+import { ArrowUp } from "lucide-react";
 
 export default function Home() {
   const [isFocused, setIsFocused] = useState(false);
@@ -14,6 +16,7 @@ export default function Home() {
   const { dogIds, breedSearchItems, handleSearch, changeBreedAvailability, currentPage, setCurrentPage, totalPages, sortBy, setSortBy, pageSize, setPageSize, handleFilterChange, handleLocationFilterChange, dogResultsMessage, zipCodeResultsMessage, results, zipCodeSize, zipCodeFrom } = useSearch();
 
   const { dogs, isLoading } = useDog(dogIds);
+  const { isVisible, scrollToTop } = useBackToTop();
   const { likedDogs, handleLikeChange } = useLikedDogs();
   const { availableBreeds, selectedBreeds } = filterBreedSearchItems(breedSearchItems, searchValue);
 
@@ -30,6 +33,15 @@ export default function Home() {
 
   return (
     <div className="flex flex-col justify-between gap-4 p-4 h-full">
+      {isVisible && (
+        <Button 
+          onClick={scrollToTop} 
+          className="fixed bottom-4 right-4 aria-hidden:hidden bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600 transition-colors"
+          aria-label="Back to top"
+        >
+            <ArrowUp className="w-4 h-4" />
+        </Button>
+      )}
       <div className="flex flex-col items-center gap-4 p-4">
         <Header 
           title="Home"
