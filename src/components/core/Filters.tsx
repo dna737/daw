@@ -192,7 +192,6 @@ export default function Filters({ handleFilterChange, handleLocationChange, tota
     }
 
     handleLocationChange(locationData);
-    // form.reset();
   };
 
   const handleStateSelection = (code: string) => {
@@ -277,7 +276,7 @@ export default function Filters({ handleFilterChange, handleLocationChange, tota
               />
             </div>
           </div>
-          <Button type="submit" disabled={!form.formState.isDirty}>Apply Filters</Button>
+          <Button type="submit" disabled={!form.formState.isDirty && selectedStates.length === 0}>Apply Filters</Button>
         </form>
       </Form>
     </div>

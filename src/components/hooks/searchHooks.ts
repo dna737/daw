@@ -18,10 +18,8 @@ export const useSearch = () => {
   const [zipCodeResultsMessage, setZipCodeResultsMessage] = useState<string>("");
   const [zipCodeSize, setZipCodeSize] = useState<number>(25);
   const [zipCodeFrom, setZipCodeFrom] = useState<number>(0);
-  console.log("results:", results.zipCodes);
 
   const handleSearch = () => {
-    console.trace();
     getSearchResults({
       ...filters,
       from: (currentPage - 1) * pageSize,
@@ -99,7 +97,6 @@ export const useSearch = () => {
 
   const handleLocationFilterChange = async (location: ZipCodeSearchParams) => {
     try {
-      console.log("zipCodeFrom 107", location);
       const locations = await getFilteredLocations(location);
       setResults(prevResults => ({ 
         ...prevResults, 
