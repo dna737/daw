@@ -53,48 +53,52 @@ const MainSearch = forwardRef<HTMLDivElement, MainSearchProps>(({
   onBreedSelection,
   handleSearch
 }, ref) => {
-  return (
-    <div className="flex gap-2 relative">
+  const onSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    handleSearch();
+  };
 
-    <Command ref={ref} className={cn(
-      "md:min-w-[450px] transition-all duration-200 border shadow-md rounded-lg",
-      isFocused ? "h-max" : "h-9"
-    )}>
-      <CommandInput 
-        placeholder="Select the breeds you want to search for..." 
-        onFocus={onFocus}
-        value={searchValue}
-        onValueChange={onSearchValueChange}
-      />
-      {isFocused && (
-        <div className="absolute top-full left-0 right-0 mt-1 bg-white border rounded-md shadow-lg z-50">
-          <CommandList className="h-min p-2">
-            {selectedBreeds.length > 0 && (
-              <CommandGroup heading="Selected Breeds">
-                {selectedBreeds.map((breed) => (
-                  <DogSearchResult key={breed.name} dog={breed} onCheckedChange={onBreedSelection} />
-                ))}
-              </CommandGroup>
-            )}
-            {selectedBreeds.length > 0 && availableBreeds.length > 0 && <Separator className="my-2" />}
-            {availableBreeds.length > 0 && (
-              <>
-                <CommandGroup heading="Available Breeds">
-                  {availableBreeds.map((breed) => (
+  return (
+    <form onSubmit={onSubmit} className="flex gap-2 relative">
+      <Command ref={ref} className={cn(
+        "md:min-w-[450px] transition-all duration-200 border shadow-md rounded-lg",
+        isFocused ? "h-max" : "h-9"
+      )}>
+        <CommandInput 
+          placeholder="Select the breeds you want to search for..." 
+          onFocus={onFocus}
+          value={searchValue}
+          onValueChange={onSearchValueChange}
+        />
+        {isFocused && (
+          <div className="absolute top-full left-0 right-0 mt-1 bg-white border rounded-md shadow-lg z-50">
+            <CommandList className="h-min p-2">
+              {selectedBreeds.length > 0 && (
+                <CommandGroup heading="Selected Breeds">
+                  {selectedBreeds.map((breed) => (
                     <DogSearchResult key={breed.name} dog={breed} onCheckedChange={onBreedSelection} />
                   ))}
                 </CommandGroup>
-              </>
-            )}
-            {selectedBreeds.length === 0 && availableBreeds.length === 0 && (
-              <CommandEmpty>{"No breeds found."}</CommandEmpty>
-            )}
-          </CommandList>
-        </div>
-      )}
-    </Command>
-    <Button onClick={handleSearch}>Search</Button>
-    </div>
+              )}
+              {selectedBreeds.length > 0 && availableBreeds.length > 0 && <Separator className="my-2" />}
+              {availableBreeds.length > 0 && (
+                <>
+                  <CommandGroup heading="Available Breeds">
+                    {availableBreeds.map((breed) => (
+                      <DogSearchResult key={breed.name} dog={breed} onCheckedChange={onBreedSelection} />
+                    ))}
+                  </CommandGroup>
+                </>
+              )}
+              {selectedBreeds.length === 0 && availableBreeds.length === 0 && (
+                <CommandEmpty>{"No breeds found."}</CommandEmpty>
+              )}
+            </CommandList>
+          </div>
+        )}
+      </Command>
+      <Button type="submit">Search</Button>
+    </form>
   );
 });
 

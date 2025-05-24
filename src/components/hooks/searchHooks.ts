@@ -49,7 +49,7 @@ export const useSearch = () => {
   // Responsible for updating results.
   useEffect(() => {
     handleSearch();
-  }, [breedSearchItems, currentPage, pageSize, sortBy, filters]);
+  }, [currentPage, pageSize, sortBy]);
 
   useEffect(() => {
     setDogResultsMessage(`Showing ${(currentPage - 1) * pageSize + 1} - ${Math.min(currentPage * pageSize, results.dogs)} of ${results.dogs} dogs`);
