@@ -18,8 +18,10 @@ export const useSearch = () => {
   const [zipCodeResultsMessage, setZipCodeResultsMessage] = useState<string>("");
   const [zipCodeSize, setZipCodeSize] = useState<number>(25);
   const [zipCodeFrom, setZipCodeFrom] = useState<number>(0);
+  console.log("results:", results.zipCodes);
 
   const handleSearch = () => {
+    console.trace();
     getSearchResults({
       ...filters,
       from: (currentPage - 1) * pageSize,
@@ -71,12 +73,6 @@ export const useSearch = () => {
   };
 
   useEffect(() => {
-    if(filters.zipCodes && filters.zipCodes.length > 0) {
-      setZipCodeSize(25);
-    }
-  }, [filters.zipCodes]);
-
-  useEffect(() => {
     if(results.zipCodes > 0) {
       if(zipCodeSize < results.zipCodes) {
         setZipCodeResultsMessage(`Showing ${zipCodeFrom + 1} - ${Math.min(zipCodeFrom + zipCodeSize, results.zipCodes)} of ${results.zipCodes} zip codes`);
@@ -103,34 +99,30 @@ export const useSearch = () => {
 
   const handleLocationFilterChange = async (location: ZipCodeSearchParams) => {
     try {
+      console.log("zipCodeFrom 107", location);
       const locations = await getFilteredLocations(location);
-      
       setResults(prevResults => ({ 
         ...prevResults, 
         zipCodes: locations.total 
       }));
 
-      setZipCodeFrom(location.from ?? 0);
-      setZipCodeSize(location.size ?? 25);
+      if(location.from && location.from > results.zipCodes - 1) {
+        setZipCodeFrom(0);
+        setZipCodeSize(25);
+      } else {
+        setZipCodeFrom(location.from ?? 0);
+        setZipCodeSize(location.size ?? 25);
+      }
 
-      setTimeout(() => {
-        setFilters(prevFilters => ({
-          ...prevFilters,
-          zipCodes: locations.results.map(loc => loc.zip_code)
-        }));
-      }, 0);
+      setFilters(prevFilters => ({
+        ...prevFilters,
+        zipCodes: locations.results.map(loc => loc.zip_code)
+      }));
 
     } catch (error) {
       console.error("Error fetching filtered locations:", error);
     }
   };
-
-  useEffect(() => {
-    if (filters.zipCodes?.length === 0) {
-      setZipCodeFrom(0);
-      setZipCodeSize(25);
-    }
-  }, [filters.zipCodes]);
 
   useEffect(() => {
     if (results.zipCodes > 0) {

@@ -68,7 +68,7 @@ function ZipCodeLoadingRadioGroup({ currentZipSize, totalZipCodes, form, zipCode
                       {zipCodeFrom + currentZipSize < totalZipCodes && (
                         <div className="flex items-center space-x-2">
                           <RadioGroupItem value="next" id="next" />
-                          <Label htmlFor="next">Load next {currentZipSize} ZIPs</Label>
+                          <Label htmlFor="next">Load next {Math.min(currentZipSize, totalZipCodes - (zipCodeFrom + currentZipSize))} ZIPs</Label>
                         </div>
                       )}
                       {zipCodeFrom > 0 && (
@@ -168,7 +168,7 @@ export default function Filters({ handleFilterChange, handleLocationChange, tota
     // Handle ZIP code loading options
     switch (parsedData.zipCodeLoading) {
       case "next":
-        locationData.from = zipCodeFrom + currentZipSize;
+        locationData.from = (zipCodeFrom + currentZipSize) > totalZipCodes ? 0 : zipCodeFrom + currentZipSize;
         locationData.size = currentZipSize;
         break;
       case "previous":
@@ -182,12 +182,17 @@ export default function Filters({ handleFilterChange, handleLocationChange, tota
       case "custom":
         if (parsedData.customZipSize) {
           locationData.from = 0;
-          locationData.size = Math.min(parsedData.customZipSize, totalZipCodes);
+          locationData.size = Math.min(parsedData.customZipSize ?? 25, totalZipCodes);
         }
+        break;
+      default:
+        locationData.from = 0;
+        locationData.size = 25;
         break;
     }
 
     handleLocationChange(locationData);
+    // form.reset();
   };
 
   const handleStateSelection = (code: string) => {
@@ -272,11 +277,9 @@ export default function Filters({ handleFilterChange, handleLocationChange, tota
               />
             </div>
           </div>
-
           <Button type="submit">Apply Filters</Button>
         </form>
       </Form>
     </div>
   );
 }
-

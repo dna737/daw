@@ -16,7 +16,6 @@ const generateQueryParams = (params?: unknown): string => {
   const queryParams = new URLSearchParams();
   if (params) {
     Object.entries(params).forEach(([key, value]) => {
-      console.log("key", key, "value", value);
       if(value === undefined || value === "") {
         return;
       } else if (Array.isArray(value)) {
@@ -64,7 +63,6 @@ export const getBreeds = async (): Promise<string[]> => {
 export const getSearchResults = async (params?: DogSearchParams): Promise<Result> => {
 
   const endpoint = `${requests.search + (params ? "?" + generateQueryParams(params) : "")}`;
-  console.log("values endpoint", endpoint);
 
   const response = await fetch(endpoint, {
     credentials: "include",
@@ -81,7 +79,6 @@ export const getSearchResults = async (params?: DogSearchParams): Promise<Result
 };
 
 export const getDogs = async (ids: string[]): Promise<Dog[]> => {
-  console.log("ids", ids);
   const response = await fetch(requests.dogs, {
     credentials: "include",
     method: "POST",
