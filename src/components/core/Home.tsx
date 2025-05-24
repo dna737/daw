@@ -11,7 +11,7 @@ export default function Home() {
   const [isFocused, setIsFocused] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const [searchValue, setSearchValue] = useState("");
-  const { dogIds, breedSearchItems, handleSearch, changeBreedAvailability, currentPage, setCurrentPage, totalPages, sortBy, setSortBy, pageSize, setPageSize, handleFilterChange, handleLocationFilterChange, dogResultsMessage, zipCodeResultsMessage, results } = useSearch();
+  const { dogIds, breedSearchItems, handleSearch, changeBreedAvailability, currentPage, setCurrentPage, totalPages, sortBy, setSortBy, pageSize, setPageSize, handleFilterChange, handleLocationFilterChange, dogResultsMessage, zipCodeResultsMessage, results, zipCodeSize, zipCodeFrom } = useSearch();
 
   const { dogs, isLoading } = useDog(dogIds);
   const { likedDogs, handleLikeChange } = useLikedDogs();
@@ -59,14 +59,13 @@ export default function Home() {
         {results.dogs === 0 ? <div className="text-gray-500 text-center">No dogs found</div> :
         <>
           {dogResultsMessage && <div className="text-gray-500 text-center">{dogResultsMessage}</div>}
-          {zipCodeResultsMessage && <div className="text-gray-500 text-center">{zipCodeResultsMessage}</div>}
         </>
         }
 
 
         <div className="w-full flex justify-start gap-2">
           <div className="flex flex-col gap-2">
-            <Filters handleFilterChange={handleFilterChange} handleLocationChange={handleLocationFilterChange} />
+            <Filters handleFilterChange={handleFilterChange} handleLocationChange={handleLocationFilterChange} totalZipCodes={results.zipCodes} currentZipSize={zipCodeSize} zipCodeResultsMessage={zipCodeResultsMessage} zipCodeFrom={zipCodeFrom} />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 w-full">
             {results.dogs > 0 && (

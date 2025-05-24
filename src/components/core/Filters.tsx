@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
+import { useForm, type UseFormReturn } from "react-hook-form"
 import { z } from "zod"
 import { Button } from "../ui/button"
 import {
@@ -15,18 +15,28 @@ import { StateSearch } from "./StateSearch"
 import { useState, useRef, useEffect } from "react"
 import type { ZipCodeSearchParams } from "@/models"
 import { filterStateSearchItems, getStateOptions } from "../utils"
+import { Label } from "../ui/label"
+import { RadioGroup, RadioGroupItem } from "../ui/radio-group"
 
 const formSchema = z.object({
   ageMin: z.coerce.number().min(0).optional(),
   ageMax: z.coerce.number().min(0).optional(),
   states: z.array(z.string()).optional(),
   city: z.string().optional(),
+  zipCodeLoading: z.enum(["next", "all", "custom"]).optional(),
+  customZipSize: z.coerce.number().min(1).optional(),
 }).refine((data) => {
   if (data.ageMin === undefined || data.ageMax === undefined) return true;
   return data.ageMax >= data.ageMin;
 }, {
   message: "Maximum age must be greater than or equal to minimum age",
   path: ["ageMax"],
+}).refine((data) => {
+  if (data.zipCodeLoading !== "custom") return true;
+  return data.customZipSize !== undefined;
+}, {
+  message: "Custom ZIP size is required when using custom loading",
+  path: ["customZipSize"],
 });
 
 type FilterFormValues = z.infer<typeof formSchema>;
@@ -34,9 +44,71 @@ type FilterFormValues = z.infer<typeof formSchema>;
 interface FiltersProps {
   handleFilterChange: (filter: { ageMin?: number; ageMax?: number; }) => void;
   handleLocationChange: (location: ZipCodeSearchParams) => void;
+  totalZipCodes: number;
+  currentZipSize: number;
+  zipCodeResultsMessage: string;
+  zipCodeFrom: number;
 }
 
-export default function Filters({ handleFilterChange, handleLocationChange }: FiltersProps) {
+function ZipCodeLoadingRadioGroup({ currentZipSize, totalZipCodes, form }: { currentZipSize: number; totalZipCodes: number; form: UseFormReturn<FilterFormValues> }) {
+  return (
+          <div className="space-y-2">
+            <FormLabel>ZIP Code Loading</FormLabel>
+            <FormField
+              control={form.control}
+              name="zipCodeLoading"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <RadioGroup
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                      className="space-y-2"
+                    >
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="next" id="next" />
+                        <Label htmlFor="next">Load next {currentZipSize} ZIPs</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="all" id="all" />
+                        <Label htmlFor="all">Load all ZIPs ({totalZipCodes})</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="custom" id="custom" />
+                        <Label htmlFor="custom">Set custom ZIP size</Label>
+                      </div>
+                    </RadioGroup>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="customZipSize"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      min={1}
+                      max={totalZipCodes}
+                      placeholder={`Enter size (1-${totalZipCodes})`}
+                      {...field}
+                      className="text-sm"
+                      disabled={form.watch("zipCodeLoading") !== "custom"}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+  );
+}
+
+export default function Filters({ handleFilterChange, handleLocationChange, totalZipCodes, currentZipSize, zipCodeResultsMessage, zipCodeFrom }: FiltersProps) {
   const [isFocused, setIsFocused] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const [stateOptions, setStateOptions] = useState(getStateOptions());
@@ -49,6 +121,8 @@ export default function Filters({ handleFilterChange, handleLocationChange }: Fi
       ageMax: undefined,
       states: [],
       city: "",
+      zipCodeLoading: undefined,
+      customZipSize: currentZipSize,
     },
   });
 
@@ -83,6 +157,24 @@ export default function Filters({ handleFilterChange, handleLocationChange }: Fi
       locationData.states = selectedStates.map(state => state.code);
     }
 
+    // Handle ZIP code loading options
+    switch (parsedData.zipCodeLoading) {
+      case "next":
+        locationData.from = zipCodeFrom + currentZipSize;  // Start from the beginning
+        locationData.size = currentZipSize;
+        break;
+      case "all":
+        locationData.from = 0;  // Start from the beginning
+        locationData.size = totalZipCodes;
+        break;
+      case "custom":
+        if (parsedData.customZipSize) {
+          locationData.from = 0;  // Start from the beginning
+          locationData.size = Math.min(parsedData.customZipSize, totalZipCodes);
+        }
+        break;
+    }
+
     handleLocationChange(locationData);
   };
 
@@ -96,10 +188,21 @@ export default function Filters({ handleFilterChange, handleLocationChange }: Fi
     );
   };
 
+  console.log("totalZipCodes", totalZipCodes);
+  console.log("currentZipSize", currentZipSize);
+
   return (
     <div className="flex flex-col gap-4 p-4 border rounded-lg shadow-sm">
+      {totalZipCodes > 0 && (
+        <div className="text-gray-500 text-left text-sm">
+          {zipCodeResultsMessage}
+        </div>
+      )}
+
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          {totalZipCodes > 0 && <ZipCodeLoadingRadioGroup currentZipSize={currentZipSize} totalZipCodes={totalZipCodes} form={form} />}
+
           <div className="space-y-2">
             <FormLabel>City</FormLabel>
             <FormField

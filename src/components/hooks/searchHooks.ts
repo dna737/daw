@@ -19,6 +19,7 @@ export const useSearch = () => {
   const [dogResultsMessage, setDogResultsMessage] = useState<string>("");
   const [zipCodeResultsMessage, setZipCodeResultsMessage] = useState<string>("");
   const [zipCodeSize, setZipCodeSize] = useState<number>(25);
+  const [zipCodeFrom, setZipCodeFrom] = useState<number>(0);
 
   // TODO: Check if it's easier to pass the link directly instead of using the from and size query params.
   const handleSearch = () => {
@@ -56,12 +57,6 @@ export const useSearch = () => {
     setDogResultsMessage(`Showing ${(currentPage - 1) * pageSize + 1} - ${Math.min(currentPage * pageSize, results.dogs)} of ${results.dogs} dogs`);
   }, [currentPage, pageSize, results.dogs]);
 
-  useEffect(() => {
-    if(results.dogs < MAX_DOGS) {
-      setZipCodeSize(zipCodeSize + 25);
-    }
-  }, [JSON.stringify(filters.zipCodes)]);
-
   // When a breed is selected, reset the page to 1 as the new results may have lesser results than before.
   useEffect(() => {
     setCurrentPage(1);
@@ -86,9 +81,13 @@ export const useSearch = () => {
 
   useEffect(() => {
     if(results.zipCodes > 0) {
-      setZipCodeResultsMessage(`Showing ${(currentPage - 1) * zipCodeSize + 1} - ${Math.min(currentPage * zipCodeSize, results.zipCodes)} of ${results.zipCodes} zip codes`);
+      if(zipCodeSize < results.zipCodes) {
+        setZipCodeResultsMessage(`Showing ${zipCodeFrom + 1} - ${Math.min(zipCodeFrom + zipCodeSize, results.zipCodes)} of ${results.zipCodes} zip codes`);
+      } else {
+        setZipCodeResultsMessage(`Showing all ${results.zipCodes} zip codes`);
+      }
     }
-  }, [currentPage, zipCodeSize, results.zipCodes]);
+  }, [zipCodeSize, results.zipCodes, zipCodeFrom]);
 
   // Separately done for breeds as it's not with the rest of the filter options.
   useEffect(() => {
@@ -110,8 +109,6 @@ export const useSearch = () => {
       const locations = await getFilteredLocations(
         {
           ...location,
-          // from: (currentPage - 1) * zipCodeSize,
-          // size: zipCodeSize
         }
       );
       
@@ -120,11 +117,15 @@ export const useSearch = () => {
         ...prevFilters,
         zipCodes: locations.results.map(loc => loc.zip_code)
       }));
+
+      if(location.from) { setZipCodeFrom(location.from); console.log("updated zipCodeFrom", location.from); }
+      if(location.size) { setZipCodeSize(location.size); console.log("updated zipCodeSize", location.size); }
+
       setResults({ ...results, zipCodes: locations.total });
     } catch (error) {
       console.error("Error fetching filtered locations:", error);
     }
   };
 
-  return { dogIds, breedSearchItems, handleSearch, changeBreedAvailability, pageSize, setPageSize, currentPage, setCurrentPage, totalPages, sortBy, setSortBy, filters, handleFilterChange, handleLocationFilterChange, dogResultsMessage, zipCodeResultsMessage, zipCodeSize, results };
+  return { dogIds, breedSearchItems, handleSearch, changeBreedAvailability, pageSize, setPageSize, currentPage, setCurrentPage, totalPages, sortBy, setSortBy, filters, handleFilterChange, handleLocationFilterChange, dogResultsMessage, zipCodeResultsMessage, zipCodeSize, results, zipCodeFrom };
 };

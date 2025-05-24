@@ -1,7 +1,7 @@
-import type { Dog, DogLocation } from "@/models";
+import type { Dog } from "@/models";
 import { getDogs } from "@/services/proxy";
 import { useEffect, useState } from "react";
-import { useStorage, useZipCodes } from ".";
+import { useStorage } from ".";
 
 /*
   Handles liked dogs state management
