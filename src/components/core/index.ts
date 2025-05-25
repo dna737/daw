@@ -9,3 +9,4 @@ export { default as Header } from "./Header";
 export { default as SortBy } from "./SortBy";
 export { default as Filters } from "./Filters";
 export { default as NoFavorites } from "./NoFavorites";
+export { default as Logout } from "./Logout";

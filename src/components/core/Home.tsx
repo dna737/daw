@@ -8,6 +8,8 @@ import { PageControl } from "../Page";
 import DogCardSkeleton from "./DogCardSkeleton";
 import { Button } from "../ui/button";
 import { ArrowUp } from "lucide-react";
+import { Link } from "react-router";
+import { cn } from "@/lib/utils";
 
 export default function Home() {
   const [isFocused, setIsFocused] = useState(false);
@@ -31,6 +33,11 @@ export default function Home() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  const links = [
+    {name: "View Favorites", path: "/favorites", className: "bg-blue-500 text-white"},
+    {name: "Find a Match!", path: "/match", className: "bg-red-500 text-white"}
+  ]
+
   return (
     <div className="flex flex-col justify-between gap-4 p-4 h-full">
       {isVisible && (
@@ -43,13 +50,17 @@ export default function Home() {
         </Button>
       )}
       <div className="flex flex-col items-center gap-4 p-4">
-        <Header 
-          title="Home"
-          links={[
-            {name: "View Favorites", path: "/favorites", className: "bg-blue-500 text-white"},
-            {name: "Find a Match!", path: "/match", className: "bg-red-500 text-white"}
-          ]}
-        />
+        <Header title="Home">
+        <div className="flex gap-2">
+          {links.map((link) => (
+            <Link to={link.path} key={link.name}>
+              <Button variant="outline" className={cn(link.className, "cursor-pointer")}>
+                {link.name}
+              </Button>
+            </Link>
+          ))}
+        </div>
+        </Header>
         <div className="flex w-full items-center">
           <div className="flex-1" />
           <MainSearch

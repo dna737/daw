@@ -39,7 +39,5 @@ export const useAuth = () => {
     removeItem("isLoggedIn");
   };
 
-
-
   return { isLoggedIn, login, logout, isLoading };
 }; 
