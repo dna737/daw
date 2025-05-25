@@ -73,7 +73,6 @@ function MultiSelectCommandInner<TItem extends BaseItem>(
         <div
           key={key}
           className="flex items-center space-x-2 cursor-pointer"
-          onClick={() => onItemToggle(item)}
         >
           <Checkbox id={key} checked={isCurrentlySelected} className="cursor-pointer" />
           <label htmlFor={key} className="flex-1">
