@@ -79,9 +79,9 @@ export default function Home() {
           </div>
         </div>
 
-        {results.dogs === 0 ? <div className="text-gray-500 text-center">No dogs found</div> :
+        {!isLoading && results.dogs === 0 ? <div className="text-gray-500 text-center">No dogs found</div> :
         <>
-          {dogResultsMessage && <div className="text-gray-500 text-center">{dogResultsMessage}</div>}
+          {!isLoading && dogResultsMessage && <div className="text-gray-500 text-center">{dogResultsMessage}</div>}
         </>
         }
 
