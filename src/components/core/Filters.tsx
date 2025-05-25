@@ -56,45 +56,70 @@ const formSchema = z.object({
       lon: z.coerce.number().min(-180).max(180)
     }).optional(),
   }).optional(),
-}).refine((data) => {
-  if (data.ageMin === undefined || data.ageMax === undefined) return true;
-  return data.ageMax >= data.ageMin;
-}, {
-  message: "Maximum age must be >= minimum age",
-  path: ["ageMax"],
-}).refine((data) => {
-  if (data.zipCodeLoading !== "custom") return true;
-  return data.customZipSize !== undefined;
-}, {
-  message: "Custom ZIP size is required when using custom loading",
-  path: ["customZipSize"],
-}).refine((data) => {
-  if (data.boundingBoxType === "none" || !data.geoBoundingBox) return true;
-  
-  const { top, left, bottom, right, bottom_left, top_right, bottom_right, top_left } = data.geoBoundingBox;
-  
-  switch (data.boundingBoxType) {
-    case "edges":
-      if (top === undefined || left === undefined || bottom === undefined || right === undefined) return false;
-      if (bottom >= top) return false;
-      if (left >= right) return false;
-      return true;
-    case "upper_diagonal":
-      if (!bottom_left || !top_right) return false;
-      if (bottom_left.lat >= top_right.lat) return false;
-      if (bottom_left.lon >= top_right.lon) return false;
-      return true;
-    case "lower_diagonal":
-      if (!bottom_right || !top_left) return false;
-      if (bottom_right.lat >= top_left.lat) return false;
-      if (bottom_right.lon >= top_left.lon) return false;
-      return true;
-    default:
-      return true;
+}).superRefine((data, ctx) => {
+  if (data.ageMin !== undefined && data.ageMax !== undefined && data.ageMax < data.ageMin) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Maximum age must be >= minimum age",
+      path: ["ageMax"],
+    });
   }
-}, {
-  message: "Invalid geographic bounding box: coordinates must form a valid box with non-zero width and height",
-  path: ["geoBoundingBox"],
+
+  if (data.boundingBoxType !== "none" && data.geoBoundingBox) {
+    const { top, left, bottom, right, bottom_left, top_right, bottom_right, top_left } = data.geoBoundingBox;
+    switch (data.boundingBoxType) {
+      case "edges":
+        if (top === undefined || left === undefined || bottom === undefined || right === undefined) {
+          ctx.addIssue({ code: z.ZodIssueCode.custom, message: "All edge coordinates are required for 'edges' type.", path: ["geoBoundingBox"] });
+        } else {
+          if (bottom >= top) {
+            ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Bottom lat must be < Top lat.", path: ["geoBoundingBox", "bottom"] });
+            ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Top lat must be > Bottom lat.", path: ["geoBoundingBox", "top"] });
+          }
+          if (left >= right) {
+            ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Left lon must be < Right lon.", path: ["geoBoundingBox", "left"] });
+            ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Right lon must be > Left lon.", path: ["geoBoundingBox", "right"] });
+          }
+        }
+        break;
+      case "upper_diagonal":
+        if (!bottom_left || !top_right) {
+          ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Bottom-left and Top-right coordinates are required.", path: ["geoBoundingBox"] });
+        } else {
+          if (bottom_left.lat >= top_right.lat) {
+            ctx.addIssue({ code: z.ZodIssueCode.custom, message: "BL lat must be < TR lat.", path: ["geoBoundingBox", "bottom_left", "lat"] });
+            ctx.addIssue({ code: z.ZodIssueCode.custom, message: "TR lat must be > BL lat.", path: ["geoBoundingBox", "top_right", "lat"] });
+          }
+          if (bottom_left.lon >= top_right.lon) {
+            ctx.addIssue({ code: z.ZodIssueCode.custom, message: "BL lon must be < TR lon.", path: ["geoBoundingBox", "bottom_left", "lon"] });
+            ctx.addIssue({ code: z.ZodIssueCode.custom, message: "TR lon must be > BL lon.", path: ["geoBoundingBox", "top_right", "lon"] });
+          }
+        }
+        break;
+      case "lower_diagonal":
+        if (!bottom_right || !top_left) {
+          ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Bottom-right and Top-left coordinates are required.", path: ["geoBoundingBox"] });
+        } else {
+          if (bottom_right.lat >= top_left.lat) {
+            ctx.addIssue({ code: z.ZodIssueCode.custom, message: "BR lat must be < TL lat.", path: ["geoBoundingBox", "bottom_right", "lat"] });
+            ctx.addIssue({ code: z.ZodIssueCode.custom, message: "TL lat must be > BR lat.", path: ["geoBoundingBox", "top_left", "lat"] });
+          }
+          if (bottom_right.lon >= top_left.lon) {
+            ctx.addIssue({ code: z.ZodIssueCode.custom, message: "BR lon must be < TL lon.", path: ["geoBoundingBox", "bottom_right", "lon"] });
+            ctx.addIssue({ code: z.ZodIssueCode.custom, message: "TL lon must be > BR lon.", path: ["geoBoundingBox", "top_left", "lon"] });
+          }
+        }
+        break;
+    }
+  }
+
+  if (data.zipCodeLoading === "custom" && data.customZipSize === undefined) {
+      ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Custom ZIP size is required when using custom loading",
+          path: ["customZipSize"],
+      });
+  }
 });
 
 type FilterFormValues = z.infer<typeof formSchema>;
@@ -160,16 +185,17 @@ function BoundingBoxAccordion({ form }: { form: UseFormReturn<FilterFormValues> 
             {boundingBoxType === "edges" && (
               <>
               <Separator className="my-4" />
-              <div className="grid grid-cols-2 gap-2 mt-2">
+              <div className="grid grid-cols-2 gap-2 mt-2 items-start">
                 <FormField
                   control={form.control}
                   name="geoBoundingBox.top"
                   render={({ field }) => (
                     <FormItem>
+                      <FormLabel>Top (Latitude)</FormLabel>
                       <FormControl>
                         <Input 
                           type="number" 
-                          placeholder="Top (lat.)" 
+                          placeholder="e.g. 49.0"
                           min={-90} 
                           max={90} 
                           step="any"
@@ -186,10 +212,11 @@ function BoundingBoxAccordion({ form }: { form: UseFormReturn<FilterFormValues> 
                   name="geoBoundingBox.left"
                   render={({ field }) => (
                     <FormItem>
+                      <FormLabel>Left (Longitude)</FormLabel>
                       <FormControl>
                         <Input 
                           type="number" 
-                          placeholder="Left (lon.)" 
+                          placeholder="e.g. -125.0"
                           min={-180} 
                           max={180} 
                           step="any"
@@ -206,10 +233,11 @@ function BoundingBoxAccordion({ form }: { form: UseFormReturn<FilterFormValues> 
                   name="geoBoundingBox.bottom"
                   render={({ field }) => (
                     <FormItem>
+                      <FormLabel>Bottom (Latitude)</FormLabel>
                       <FormControl>
                         <Input 
                           type="number" 
-                          placeholder="Bottom (lat.)" 
+                          placeholder="e.g. 25.0"
                           min={-90} 
                           max={90} 
                           step="any"
@@ -226,10 +254,11 @@ function BoundingBoxAccordion({ form }: { form: UseFormReturn<FilterFormValues> 
                   name="geoBoundingBox.right"
                   render={({ field }) => (
                     <FormItem>
+                      <FormLabel>Right (Longitude)</FormLabel>
                       <FormControl>
                         <Input 
                           type="number" 
-                          placeholder="Right (lon.)" 
+                          placeholder="e.g. -66.0"
                           min={-180} 
                           max={180} 
                           step="any"
@@ -243,7 +272,9 @@ function BoundingBoxAccordion({ form }: { form: UseFormReturn<FilterFormValues> 
                 />
               </div>
               <div className="mt-2">
-                <FormMessage />
+                {form.formState.errors.geoBoundingBox && !form.formState.errors.geoBoundingBox.types && (
+                   <p className="text-sm font-medium text-destructive">{form.formState.errors.geoBoundingBox.message}</p>
+                )}
               </div>
               </>
             )}
@@ -536,8 +567,8 @@ export default function Filters({ handleFilterChange, handleLocationChange, tota
     customZipSize: currentZipSize || 25,
     boundingBoxType: "none",
     geoBoundingBox: {
-      top: undefined, left: undefined, bottom: undefined, right: undefined,
-      bottom_left: undefined, top_right: undefined, bottom_right: undefined, top_left: undefined,
+      top: 0, left: 0, bottom: 0, right: 0,
+      bottom_left: { lat: 0, lon: 0 }, top_right: { lat: 0, lon: 0 }, bottom_right: { lat: 0, lon: 0 }, top_left: { lat: 0, lon: 0 },
     },
   };
   
@@ -591,13 +622,21 @@ export default function Filters({ handleFilterChange, handleLocationChange, tota
 
     if(data.boundingBoxType !== "none" && data.geoBoundingBox) {
       const box = data.geoBoundingBox;
-      if (data.boundingBoxType === "edges" && 
-          box.top !== undefined && box.left !== undefined && box.bottom !== undefined && box.right !== undefined) {
-        locationData.geoBoundingBox = { top: box.top, left: box.left, bottom: box.bottom, right: box.right } as const;
+      if (data.boundingBoxType === "edges") {
+        locationData.geoBoundingBox = { 
+            top: box.top!, 
+            left: box.left!, 
+            bottom: box.bottom!, 
+            right: box.right! 
+        } as const;
       } else if (data.boundingBoxType === "upper_diagonal" && 
                  box.bottom_left && 
                  box.top_right) {
-        locationData.geoBoundingBox = { bottom_left: box.bottom_left, top_right: box.top_right } as const;
+        if (box.bottom_left.lat < box.top_right.lat && box.bottom_left.lon < box.top_right.lon) {
+          locationData.geoBoundingBox = { bottom_left: box.bottom_left, top_right: box.top_right } as const;
+        } else {
+          console.log("Upper diagonal selected, but coordinates are invalid/default. Not applying geoBoundingBox.");
+        }
       } else if (data.boundingBoxType === "lower_diagonal" && 
                  box.bottom_right && 
                  box.top_left) {

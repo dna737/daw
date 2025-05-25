@@ -88,7 +88,7 @@ export interface StateOption {
 }
 
 // Base coordinates for a point
-interface GeoPoint {
+export interface Coordinates {
   lat: number;
   lon: number;
 }
@@ -101,13 +101,13 @@ export interface CardinalBoundingBox {
 }
 
 export interface DiagonalBoxBLTR {
-  bottom_left: GeoPoint;
-  top_right: GeoPoint;
+  bottom_left: Coordinates;
+  top_right: Coordinates;
 }
 
 export interface DiagonalBoxBRTL {
-  bottom_right: GeoPoint;
-  top_left: GeoPoint;
+  bottom_right: Coordinates;
+  top_left: Coordinates;
 }
 
 export type GeoBoundingBox = CardinalBoundingBox | DiagonalBoxBLTR | DiagonalBoxBRTL;
