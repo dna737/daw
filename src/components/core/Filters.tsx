@@ -18,6 +18,12 @@ import { filterStateSearchItems, getStateOptions } from "../utils"
 import { Label } from "../ui/label"
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group"
 import { cn } from "@/lib/utils"
+  import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "../ui/accordion"
 
 const formSchema = z.object({
   ageMin: z.coerce.number().min(0).optional(),
@@ -26,6 +32,29 @@ const formSchema = z.object({
   city: z.string().optional(),
   zipCodeLoading: z.enum(["next", "previous", "all", "custom"]).optional(),
   customZipSize: z.coerce.number().min(1).optional(),
+  boundingBoxType: z.enum(["none", "edges", "upper_diagonal", "lower_diagonal"]).optional(),
+  geoBoundingBox: z.object({
+    top: z.coerce.number().min(-90).max(90).optional(),
+    left: z.coerce.number().min(-180).max(180).optional(),
+    bottom: z.coerce.number().min(-90).max(90).optional(),
+    right: z.coerce.number().min(-180).max(180).optional(),
+    bottom_left: z.object({
+      lat: z.coerce.number().min(-90).max(90),
+      lon: z.coerce.number().min(-180).max(180)
+    }).optional(),
+    top_right: z.object({
+      lat: z.coerce.number().min(-90).max(90),
+      lon: z.coerce.number().min(-180).max(180)
+    }).optional(),
+    bottom_right: z.object({
+      lat: z.coerce.number().min(-90).max(90),
+      lon: z.coerce.number().min(-180).max(180)
+    }).optional(),
+    top_left: z.object({
+      lat: z.coerce.number().min(-90).max(90),
+      lon: z.coerce.number().min(-180).max(180)
+    }).optional(),
+  }).optional(),
 }).refine((data) => {
   if (data.ageMin === undefined || data.ageMax === undefined) return true;
   return data.ageMax >= data.ageMin;
@@ -38,6 +67,24 @@ const formSchema = z.object({
 }, {
   message: "Custom ZIP size is required when using custom loading",
   path: ["customZipSize"],
+}).refine((data) => {
+  if (data.boundingBoxType === "none" || !data.geoBoundingBox) return true;
+  
+  const { top, left, bottom, right, bottom_left, top_right, bottom_right, top_left } = data.geoBoundingBox;
+  
+  switch (data.boundingBoxType) {
+    case "edges":
+      return top !== undefined && left !== undefined && bottom !== undefined && right !== undefined;
+    case "upper_diagonal":
+      return bottom_left !== undefined && top_right !== undefined;
+    case "lower_diagonal":
+      return bottom_right !== undefined && top_left !== undefined;
+    default:
+      return true;
+  }
+}, {
+  message: "Invalid geographic bounding box combination",
+  path: ["geoBoundingBox"],
 });
 
 type FilterFormValues = z.infer<typeof formSchema>;
@@ -50,6 +97,327 @@ interface FiltersProps {
   zipCodeResultsMessage: string;
   zipCodeFrom: number;
   handleZipCodeReset: () => void;
+}
+
+function BoundingBoxAccordion({ form }: { form: UseFormReturn<FilterFormValues> }) {
+
+  return (
+    <Accordion type="single" collapsible className="w-full">
+      <AccordionItem value="item-1">
+        <AccordionTrigger>Geographic Bounding Box</AccordionTrigger>
+        <AccordionContent>
+            <FormField
+              control={form.control}
+              name="boundingBoxType"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <RadioGroup
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                      className="space-y-2"
+                    >
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="none" id="none" />
+                        <Label htmlFor="none">None</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="edges" id="edges" />
+                        <Label htmlFor="edges" className="text-left">Edges</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="upper_diagonal" id="upper_diagonal" />
+                        <Label htmlFor="upper_diagonal" className="text-left">Top Diagonal</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="lower_diagonal" id="lower_diagonal" />
+                        <Label htmlFor="lower_diagonal" className="text-left">Bottom Diagonal</Label>
+                      </div>
+                    </RadioGroup>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {form.watch("boundingBoxType") === "edges" && (
+              <div className="grid grid-cols-2 gap-2 mt-2">
+                <FormField
+                  control={form.control}
+                  name="geoBoundingBox.top"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Input 
+                          type="number" 
+                          placeholder="Top (lat.)" 
+                          min={-90} 
+                          max={90} 
+                          step="any"
+                          {...field} 
+                          className="text-sm" 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="geoBoundingBox.left"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Input 
+                          type="number" 
+                          placeholder="Left (lon.)" 
+                          min={-180} 
+                          max={180} 
+                          step="any"
+                          {...field} 
+                          className="text-sm" 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="geoBoundingBox.bottom"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Input 
+                          type="number" 
+                          placeholder="Bottom (lat.)" 
+                          min={-90} 
+                          max={90} 
+                          step="any"
+                          {...field} 
+                          className="text-sm" 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="geoBoundingBox.right"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Input 
+                          type="number" 
+                          placeholder="Right (lon.)" 
+                          min={-180} 
+                          max={180} 
+                          step="any"
+                          {...field} 
+                          className="text-sm" 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            )}
+
+            {form.watch("boundingBoxType") === "upper_diagonal" && (
+              <div className="grid grid-cols-2 gap-2 mt-2">
+                <div className="space-y-2">
+                  <Label>Bottom Left</Label>
+                  <div className="grid grid-rows-2 gap-2 w-25">
+                    <FormField
+                      control={form.control}
+                      name="geoBoundingBox.bottom_left.lat"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Input 
+                              type="number" 
+                              placeholder="Latitude" 
+                              min={-90} 
+                              max={90} 
+                              step="any"
+                              {...field} 
+                              className="text-sm" 
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="geoBoundingBox.bottom_left.lon"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Input 
+                              type="number" 
+                              placeholder="Longitude" 
+                              min={-180} 
+                              max={180} 
+                              step="any"
+                              {...field} 
+                              className="text-sm" 
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label>Top Right</Label>
+                  <div className="grid grid-rows-2 gap-2 w-25">
+                    <FormField
+                      control={form.control}
+                      name="geoBoundingBox.top_right.lat"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Input 
+                              type="number" 
+                              placeholder="Latitude" 
+                              min={-90} 
+                              max={90} 
+                              step="any"
+                              {...field} 
+                              className="text-sm" 
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="geoBoundingBox.top_right.lon"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Input 
+                              type="number" 
+                              placeholder="Longitude" 
+                              min={-180} 
+                              max={180} 
+                              step="any"
+                              {...field} 
+                              className="text-sm" 
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {form.watch("boundingBoxType") === "lower_diagonal" && (
+              <div className="grid grid-cols-2 gap-2">
+                <div className="space-y-2">
+                  <Label>Bottom Right</Label>
+                  <div className="grid grid-rows-2 gap-2 w-25">
+                    <FormField
+                      control={form.control}
+                      name="geoBoundingBox.bottom_right.lat"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Input 
+                              type="number" 
+                              placeholder="Latitude" 
+                              min={-90} 
+                              max={90} 
+                              step="any"
+                              {...field} 
+                              className="text-sm" 
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="geoBoundingBox.bottom_right.lon"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Input 
+                              type="number" 
+                              placeholder="Longitude" 
+                              min={-180} 
+                              max={180} 
+                              step="any"
+                              {...field} 
+                              className="text-sm" 
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label>Top Left</Label>
+                  <div className="grid grid-rows-2 gap-2 w-25">
+                    <FormField
+                      control={form.control}
+                      name="geoBoundingBox.top_left.lat"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Input 
+                              type="number" 
+                              placeholder="Latitude" 
+                              min={-90} 
+                              max={90} 
+                              step="any"
+                              {...field} 
+                              className="text-sm" 
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="geoBoundingBox.top_left.lon"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Input 
+                              type="number" 
+                              placeholder="Longitude" 
+                              min={-180} 
+                              max={180} 
+                              step="any"
+                              {...field} 
+                              className="text-sm" 
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+          </AccordionContent>
+      </AccordionItem>
+    </Accordion>
+  )
 }
 
 function ZipCodeLoadingRadioGroup({ currentZipSize, totalZipCodes, form, zipCodeFrom }: { currentZipSize: number; totalZipCodes: number; form: UseFormReturn<FilterFormValues>; zipCodeFrom: number }) {
@@ -134,8 +502,17 @@ export default function Filters({ handleFilterChange, handleLocationChange, tota
       city: "",
       zipCodeLoading: undefined,
       customZipSize: currentZipSize,
+      boundingBoxType: "none",
+      geoBoundingBox: {
+        top: undefined,
+        left: undefined,
+        bottom: undefined,
+        right: undefined,
+      },
     },
   });
+
+  const boundingBoxType = form.watch("boundingBoxType");
 
   useEffect(() => {
     setIsZipCodeAllowed(form.formState.isDirty);
@@ -170,6 +547,35 @@ export default function Filters({ handleFilterChange, handleLocationChange, tota
     }
     if(selectedStates.length > 0) {
       locationData.states = selectedStates.map(state => state.code);
+    }
+    if(parsedData.boundingBoxType !== "none" && parsedData.geoBoundingBox) {
+      const box = parsedData.geoBoundingBox;
+      if (parsedData.boundingBoxType === "edges" && 
+          box.top !== undefined && 
+          box.left !== undefined && 
+          box.bottom !== undefined && 
+          box.right !== undefined) {
+        locationData.geoBoundingBox = {
+          top: box.top,
+          left: box.left,
+          bottom: box.bottom,
+          right: box.right
+        } as const;
+      } else if (parsedData.boundingBoxType === "upper_diagonal" && 
+                 box.bottom_left && 
+                 box.top_right) {
+        locationData.geoBoundingBox = {
+          bottom_left: box.bottom_left,
+          top_right: box.top_right
+        } as const;
+      } else if (parsedData.boundingBoxType === "lower_diagonal" && 
+                 box.bottom_right && 
+                 box.top_left) {
+        locationData.geoBoundingBox = {
+          bottom_left: box.bottom_right,
+          top_right: box.top_left
+        } as const;
+      }
     }
 
     // Handle ZIP code loading options
@@ -214,7 +620,21 @@ export default function Filters({ handleFilterChange, handleLocationChange, tota
   const isDirty = form.formState.isDirty || selectedStates.length > 0;
 
   const handleReset = () => {
-    form.reset();
+    form.reset({
+      ageMin: undefined,
+      ageMax: undefined,
+      states: [],
+      city: "",
+      zipCodeLoading: "all",
+      customZipSize: 25,
+      boundingBoxType: "none",
+      geoBoundingBox: {
+        top: undefined,
+        left: undefined,
+        bottom: undefined,
+        right: undefined,
+      },
+    });
     setStateOptions(getStateOptions());
     setSearchValue("");
     handleZipCodeReset();
@@ -292,6 +712,11 @@ export default function Filters({ handleFilterChange, handleLocationChange, tota
               />
             </div>
           </div>
+
+          <div className="space-y-2">
+            <BoundingBoxAccordion form={form} />
+          </div>
+
           <div className={cn("flex", isDirty ? "justify-between" : "justify-center")}>
             {isDirty && <Button type="button" onClick={handleReset} variant="outline">Reset Filters</Button>}
             <Button type="submit" disabled={!isDirty}>Apply Filters</Button>

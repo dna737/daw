@@ -44,3 +44,7 @@ export function isCardinalBoundingBox(box: GeoBoundingBox): box is CardinalBound
 export function isCornerBoundingBox(box: GeoBoundingBox): box is CornerBoundingBox {
   return 'bottom_left' in box && 'top_right' in box;
 }
+
+export function isDiagonalBoundingBox(box: GeoBoundingBox): box is CornerBoundingBox {
+  return 'bottom_right' in box && 'top_left' in box;
+}
