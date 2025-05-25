@@ -13,7 +13,7 @@ export default function Home() {
   const [isFocused, setIsFocused] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const [searchValue, setSearchValue] = useState("");
-  const { dogIds, breedSearchItems, handleSearch, changeBreedAvailability, currentPage, setCurrentPage, totalPages, sortBy, setSortBy, pageSize, setPageSize, handleFilterChange, handleLocationFilterChange, dogResultsMessage, zipCodeResultsMessage, results, zipCodeSize, zipCodeFrom } = useSearch();
+  const { dogIds, breedSearchItems, handleSearch, changeBreedAvailability, currentPage, setCurrentPage, totalPages, sortBy, setSortBy, pageSize, setPageSize, handleFilterChange, handleLocationFilterChange, dogResultsMessage, zipCodeResultsMessage, results, zipCodeSize, zipCodeFrom, handleZipCodeReset } = useSearch();
 
   const { dogs, isLoading } = useDog(dogIds);
   const { isVisible, scrollToTop } = useBackToTop();
@@ -77,7 +77,7 @@ export default function Home() {
 
         <div className="w-full flex justify-start gap-2">
           <div className="flex flex-col gap-2">
-            <Filters handleFilterChange={handleFilterChange} handleLocationChange={handleLocationFilterChange} totalZipCodes={results.zipCodes} currentZipSize={zipCodeSize} zipCodeResultsMessage={zipCodeResultsMessage} zipCodeFrom={zipCodeFrom} />
+            <Filters handleFilterChange={handleFilterChange} handleLocationChange={handleLocationFilterChange} totalZipCodes={results.zipCodes} currentZipSize={zipCodeSize} zipCodeResultsMessage={zipCodeResultsMessage} zipCodeFrom={zipCodeFrom} handleZipCodeReset={handleZipCodeReset} />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 w-full">
             {results.dogs > 0 && (

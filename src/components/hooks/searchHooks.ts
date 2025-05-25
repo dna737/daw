@@ -95,6 +95,13 @@ export const useSearch = () => {
     setZipCodeResultsMessage(message);
   }, [results.zipCodes, zipCodeFrom, zipCodeSize, zipCodeCoverage]);
 
+  const handleZipCodeReset = () => {
+    setZipCodeFrom(0);
+    setZipCodeSize(25);
+    setZipCodeCoverage("");
+    setFilters({});
+  };
+
   const handleLocationFilterChange = async (location: ZipCodeSearchParams) => {
     try {
       const locations = await getFilteredLocations(location);
@@ -117,7 +124,6 @@ export const useSearch = () => {
       }));
 
       setZipCodeCoverage(`(${locations.results[0].zip_code} - ${locations.results[locations.results.length - 1].zip_code})`);
-      handleSearch();
     } catch (error) {
       console.error("Error fetching filtered locations:", error);
     }
@@ -126,5 +132,5 @@ export const useSearch = () => {
   useEffect(() => {
   }, [zipCodeSize, results.zipCodes, zipCodeFrom]);
 
-  return { dogIds, breedSearchItems, handleSearch, changeBreedAvailability, pageSize, setPageSize, currentPage, setCurrentPage, totalPages, sortBy, setSortBy, filters, handleFilterChange, handleLocationFilterChange, dogResultsMessage, zipCodeResultsMessage, zipCodeSize, results, zipCodeFrom };
+  return { dogIds, breedSearchItems, handleSearch, changeBreedAvailability, pageSize, setPageSize, currentPage, setCurrentPage, totalPages, sortBy, setSortBy, filters, handleFilterChange, handleLocationFilterChange, dogResultsMessage, zipCodeResultsMessage, zipCodeSize, results, zipCodeFrom, handleZipCodeReset };
 };

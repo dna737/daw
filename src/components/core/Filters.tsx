@@ -17,6 +17,7 @@ import type { ZipCodeSearchParams } from "@/models"
 import { filterStateSearchItems, getStateOptions } from "../utils"
 import { Label } from "../ui/label"
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group"
+import { cn } from "@/lib/utils"
 
 const formSchema = z.object({
   ageMin: z.coerce.number().min(0).optional(),
@@ -29,7 +30,7 @@ const formSchema = z.object({
   if (data.ageMin === undefined || data.ageMax === undefined) return true;
   return data.ageMax >= data.ageMin;
 }, {
-  message: "Maximum age must be greater than or equal to minimum age",
+  message: "Maximum age must be >= minimum age",
   path: ["ageMax"],
 }).refine((data) => {
   if (data.zipCodeLoading !== "custom") return true;
@@ -48,6 +49,7 @@ interface FiltersProps {
   currentZipSize: number;
   zipCodeResultsMessage: string;
   zipCodeFrom: number;
+  handleZipCodeReset: () => void;
 }
 
 function ZipCodeLoadingRadioGroup({ currentZipSize, totalZipCodes, form, zipCodeFrom }: { currentZipSize: number; totalZipCodes: number; form: UseFormReturn<FilterFormValues>; zipCodeFrom: number }) {
@@ -116,11 +118,12 @@ function ZipCodeLoadingRadioGroup({ currentZipSize, totalZipCodes, form, zipCode
   );
 }
 
-export default function Filters({ handleFilterChange, handleLocationChange, totalZipCodes, currentZipSize, zipCodeResultsMessage, zipCodeFrom }: FiltersProps) {
+export default function Filters({ handleFilterChange, handleLocationChange, totalZipCodes, currentZipSize, zipCodeResultsMessage, zipCodeFrom, handleZipCodeReset }: FiltersProps) {
   const [isFocused, setIsFocused] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const [stateOptions, setStateOptions] = useState(getStateOptions());
   const containerRef = useRef<HTMLDivElement>(null);
+  const [isZipCodeAllowed, setIsZipCodeAllowed] = useState(false);
 
   const form = useForm<FilterFormValues>({
     resolver: zodResolver(formSchema),
@@ -133,6 +136,10 @@ export default function Filters({ handleFilterChange, handleLocationChange, tota
       customZipSize: currentZipSize,
     },
   });
+
+  useEffect(() => {
+    setIsZipCodeAllowed(form.formState.isDirty);
+  }, [form.formState.isDirty]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -204,9 +211,18 @@ export default function Filters({ handleFilterChange, handleLocationChange, tota
     );
   };
 
+  const isDirty = form.formState.isDirty || selectedStates.length > 0;
+
+  const handleReset = () => {
+    form.reset();
+    setStateOptions(getStateOptions());
+    setSearchValue("");
+    handleZipCodeReset();
+  };
+
   return (
     <div className="flex flex-col gap-4 p-4 border rounded-lg shadow-sm">
-      {totalZipCodes > 0 && (
+      {totalZipCodes > 0 && isZipCodeAllowed && (
         <div className="text-gray-500 text-center text-sm whitespace-pre-wrap">
           {zipCodeResultsMessage}
         </div>
@@ -214,7 +230,7 @@ export default function Filters({ handleFilterChange, handleLocationChange, tota
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          {totalZipCodes > 0 && <ZipCodeLoadingRadioGroup currentZipSize={currentZipSize} totalZipCodes={totalZipCodes} form={form} zipCodeFrom={zipCodeFrom} />}
+          {totalZipCodes > 0 && isZipCodeAllowed && <ZipCodeLoadingRadioGroup currentZipSize={currentZipSize} totalZipCodes={totalZipCodes} form={form} zipCodeFrom={zipCodeFrom} />}
 
           <div className="space-y-2">
             <FormLabel>City</FormLabel>
@@ -276,7 +292,10 @@ export default function Filters({ handleFilterChange, handleLocationChange, tota
               />
             </div>
           </div>
-          <Button type="submit" disabled={!form.formState.isDirty && selectedStates.length === 0}>Apply Filters</Button>
+          <div className={cn("flex", isDirty ? "justify-between" : "justify-center")}>
+            {isDirty && <Button type="button" onClick={handleReset} variant="outline">Reset Filters</Button>}
+            <Button type="submit" disabled={!isDirty}>Apply Filters</Button>
+          </div>
         </form>
       </Form>
     </div>
