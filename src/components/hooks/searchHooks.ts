@@ -103,6 +103,7 @@ export const useSearch = () => {
   };
 
   const handleLocationFilterChange = async (location: ZipCodeSearchParams) => {
+    console.trace("location 632");
     try {
       const locations = await getFilteredLocations(location);
       setResults(prevResults => ({ 

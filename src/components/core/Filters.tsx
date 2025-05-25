@@ -18,18 +18,18 @@ import { filterStateSearchItems, getStateOptions } from "../utils"
 import { Label } from "../ui/label"
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group"
 import { cn } from "@/lib/utils"
-  import {
+import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "../ui/accordion"
 import { Separator } from "../ui/separator"
+import _isEqual from 'lodash/isEqual'
 
 const formSchema = z.object({
   ageMin: z.coerce.number().min(0).optional(),
   ageMax: z.coerce.number().min(0).optional(),
-  states: z.array(z.string()).optional(),
   city: z.string().optional(),
   zipCodeLoading: z.enum(["next", "previous", "all", "custom"]).optional(),
   customZipSize: z.coerce.number().min(1).optional(),
@@ -76,23 +76,17 @@ const formSchema = z.object({
   switch (data.boundingBoxType) {
     case "edges":
       if (top === undefined || left === undefined || bottom === undefined || right === undefined) return false;
-      // (south < north)
       if (bottom >= top) return false;
-      // (west < east)
       if (left >= right) return false;
       return true;
     case "upper_diagonal":
       if (!bottom_left || !top_right) return false;
-      // (south < north)
       if (bottom_left.lat >= top_right.lat) return false;
-      // (west < east)
       if (bottom_left.lon >= top_right.lon) return false;
       return true;
     case "lower_diagonal":
       if (!bottom_right || !top_left) return false;
-      // (south < north)
       if (bottom_right.lat >= top_left.lat) return false;
-      // (west < east)
       if (bottom_right.lon >= top_left.lon) return false;
       return true;
     default:
@@ -104,6 +98,8 @@ const formSchema = z.object({
 });
 
 type FilterFormValues = z.infer<typeof formSchema>;
+
+type TrackedFilterState = FilterFormValues & { selectedStateCodes: string[] };
 
 interface FiltersProps {
   handleFilterChange: (filter: { ageMin?: number; ageMax?: number; }) => void;
@@ -472,6 +468,7 @@ function ZipCodeLoadingRadioGroup({ currentZipSize, totalZipCodes, form, zipCode
                     <RadioGroup
                       onValueChange={field.onChange}
                       defaultValue={field.value}
+                      value={field.value}
                       className="space-y-2"
                     >
                       {zipCodeFrom + currentZipSize < totalZipCodes && (
@@ -510,8 +507,8 @@ function ZipCodeLoadingRadioGroup({ currentZipSize, totalZipCodes, form, zipCode
                     <Input
                       type="number"
                       min={1}
-                      max={totalZipCodes}
-                      placeholder={`Enter size (1-${totalZipCodes})`}
+                      max={totalZipCodes > 0 ? totalZipCodes : undefined }
+                      placeholder={`Enter size (1-${totalZipCodes > 0 ? totalZipCodes : 'max'})`}
                       {...field}
                       className="text-sm"
                       disabled={form.watch("zipCodeLoading") !== "custom"}
@@ -530,34 +527,43 @@ export default function Filters({ handleFilterChange, handleLocationChange, tota
   const [searchValue, setSearchValue] = useState("");
   const [stateOptions, setStateOptions] = useState(getStateOptions());
   const containerRef = useRef<HTMLDivElement>(null);
-  const [isZipCodeAllowed, setIsZipCodeAllowed] = useState(false);
+
+  const initialFormValues: FilterFormValues = {
+    ageMin: undefined,
+    ageMax: undefined,
+    city: "",
+    zipCodeLoading: undefined,
+    customZipSize: currentZipSize || 25,
+    boundingBoxType: "none",
+    geoBoundingBox: {
+      top: undefined, left: undefined, bottom: undefined, right: undefined,
+      bottom_left: undefined, top_right: undefined, bottom_right: undefined, top_left: undefined,
+    },
+  };
+  
+  const getInitialTrackedState = (): TrackedFilterState => ({
+    ...initialFormValues,
+    selectedStateCodes: [],
+  });
+
+  const [lastAppliedFilters, setLastAppliedFilters] = useState<TrackedFilterState>(getInitialTrackedState());
+  const [isChangedSinceLastApply, setIsChangedSinceLastApply] = useState(false);
 
   const form = useForm<FilterFormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      ageMin: undefined,
-      ageMax: undefined,
-      states: [],
-      city: "",
-      zipCodeLoading: undefined,
-      customZipSize: currentZipSize,
-      boundingBoxType: "none",
-      geoBoundingBox: {
-        top: undefined,
-        left: undefined,
-        bottom: undefined,
-        right: undefined,
-        bottom_left: undefined,
-        top_right: undefined,
-        bottom_right: undefined,
-        top_left: undefined,
-      },
-    },
+    defaultValues: initialFormValues,
   });
 
+  const currentWatchedValues = form.watch();
+  const { availableStates, selectedStates } = filterStateSearchItems(stateOptions, searchValue);
+
   useEffect(() => {
-    setIsZipCodeAllowed(form.formState.isDirty);
-  }, [form.formState.isDirty]);
+    const currentTrackedState: TrackedFilterState = {
+      ...currentWatchedValues,
+      selectedStateCodes: selectedStates.map(s => s.code).sort(),
+    };
+    setIsChangedSinceLastApply(!_isEqual(currentTrackedState, lastAppliedFilters));
+  }, [currentWatchedValues, selectedStates, lastAppliedFilters]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -565,63 +571,41 @@ export default function Filters({ handleFilterChange, handleLocationChange, tota
         setIsFocused(false);
       }
     }
-
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const { availableStates, selectedStates } = filterStateSearchItems(stateOptions, searchValue);
-
   const onSubmit = (data: FilterFormValues) => {
-    console.log('oof')
-    const parsedData = formSchema.parse(data);
-    
-    // Handle age filters
     handleFilterChange({
-      ageMin: parsedData.ageMin,
-      ageMax: parsedData.ageMax,
+      ageMin: data.ageMin,
+      ageMax: data.ageMax,
     });
 
-    // Handle location filters
     const locationData: ZipCodeSearchParams = {};
-    if(parsedData.city) {
-      locationData.city = parsedData.city;
+    if(data.city) locationData.city = data.city;
+    
+    const currentSelectedStateCodes = selectedStates.map(state => state.code);
+    if(currentSelectedStateCodes.length > 0) {
+      locationData.states = currentSelectedStateCodes;
     }
-    if(selectedStates.length > 0) {
-      locationData.states = selectedStates.map(state => state.code);
-    }
-    if(parsedData.boundingBoxType !== "none" && parsedData.geoBoundingBox) {
-      const box = parsedData.geoBoundingBox;
-      if (parsedData.boundingBoxType === "edges" && 
-          box.top !== undefined && 
-          box.left !== undefined && 
-          box.bottom !== undefined && 
-          box.right !== undefined) {
-        locationData.geoBoundingBox = {
-          top: box.top,
-          left: box.left,
-          bottom: box.bottom,
-          right: box.right
-        } as const;
-      } else if (parsedData.boundingBoxType === "upper_diagonal" && 
+
+    if(data.boundingBoxType !== "none" && data.geoBoundingBox) {
+      const box = data.geoBoundingBox;
+      if (data.boundingBoxType === "edges" && 
+          box.top !== undefined && box.left !== undefined && box.bottom !== undefined && box.right !== undefined) {
+        locationData.geoBoundingBox = { top: box.top, left: box.left, bottom: box.bottom, right: box.right } as const;
+      } else if (data.boundingBoxType === "upper_diagonal" && 
                  box.bottom_left && 
                  box.top_right) {
-        locationData.geoBoundingBox = {
-          bottom_left: box.bottom_left,
-          top_right: box.top_right
-        } as const;
-      } else if (parsedData.boundingBoxType === "lower_diagonal" && 
+        locationData.geoBoundingBox = { bottom_left: box.bottom_left, top_right: box.top_right } as const;
+      } else if (data.boundingBoxType === "lower_diagonal" && 
                  box.bottom_right && 
                  box.top_left) {
-        locationData.geoBoundingBox = {
-          bottom_left: box.bottom_right,
-          top_right: box.top_left
-        } as const;
+        locationData.geoBoundingBox = { bottom_right: box.bottom_right, top_left: box.top_left } as const;
       }
     }
 
-    // Handle ZIP code loading options
-    switch (parsedData.zipCodeLoading) {
+    switch (data.zipCodeLoading) {
       case "next":
         locationData.from = (zipCodeFrom + currentZipSize) > totalZipCodes ? 0 : zipCodeFrom + currentZipSize;
         locationData.size = currentZipSize;
@@ -635,9 +619,9 @@ export default function Filters({ handleFilterChange, handleLocationChange, tota
         locationData.size = totalZipCodes;
         break;
       case "custom":
-        if (parsedData.customZipSize) {
+        if (data.customZipSize) {
           locationData.from = 0;
-          locationData.size = Math.min(parsedData.customZipSize ?? 25, totalZipCodes);
+          locationData.size = Math.min(data.customZipSize ?? 25, totalZipCodes > 0 ? totalZipCodes : Infinity);
         }
         break;
       default:
@@ -645,8 +629,18 @@ export default function Filters({ handleFilterChange, handleLocationChange, tota
         locationData.size = 25;
         break;
     }
+    
+    if(_isEqual(Object.keys(locationData), ["from", "size"])) {
+      handleReset();
+    } else {
+      handleLocationChange(locationData);
+    }
 
-    handleLocationChange(locationData);
+    setLastAppliedFilters({
+      ...data,
+      selectedStateCodes: currentSelectedStateCodes.sort(),
+    });
+    setIsChangedSinceLastApply(false);
   };
 
   const handleStateSelection = (code: string) => {
@@ -658,37 +652,22 @@ export default function Filters({ handleFilterChange, handleLocationChange, tota
       )
     );
   };
-
-  const isDirty = form.formState.isDirty || selectedStates.length > 0;
+  
+  const isButtonAreaVisible = form.formState.isDirty || selectedStates.length > 0 || isChangedSinceLastApply;
 
   const handleReset = () => {
-    form.reset({
-      ageMin: undefined,
-      ageMax: undefined,
-      states: [],
-      city: "",
-      zipCodeLoading: "all",
-      customZipSize: 25,
-      boundingBoxType: "none",
-      geoBoundingBox: {
-        top: undefined,
-        left: undefined,
-        bottom: undefined,
-        right: undefined,
-        bottom_left: undefined,
-        top_right: undefined,
-        bottom_right: undefined,
-        top_left: undefined,
-      },
-    });
+    form.reset(initialFormValues);
     setStateOptions(getStateOptions());
     setSearchValue("");
     handleZipCodeReset();
+    
+    setLastAppliedFilters(getInitialTrackedState());
+    setIsChangedSinceLastApply(false);
   };
 
   return (
-    <div className="flex flex-col gap-4 p-4 border rounded-lg shadow-sm">
-      {totalZipCodes > 0 && isZipCodeAllowed && (
+    <div className={cn("flex flex-col gap-4 p-4 border rounded-lg shadow-sm min-w-[300px]")}>
+      {totalZipCodes > 0 && (
         <div className="text-gray-500 text-center text-sm whitespace-pre-wrap">
           {zipCodeResultsMessage}
         </div>
@@ -696,7 +675,7 @@ export default function Filters({ handleFilterChange, handleLocationChange, tota
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          {totalZipCodes > 0 && isZipCodeAllowed && <ZipCodeLoadingRadioGroup currentZipSize={currentZipSize} totalZipCodes={totalZipCodes} form={form} zipCodeFrom={zipCodeFrom} />}
+          {totalZipCodes > 0 && <ZipCodeLoadingRadioGroup currentZipSize={currentZipSize} totalZipCodes={totalZipCodes} form={form} zipCodeFrom={zipCodeFrom} />}
 
           <div className="space-y-2">
             <FormLabel>City</FormLabel>
@@ -763,9 +742,9 @@ export default function Filters({ handleFilterChange, handleLocationChange, tota
             <BoundingBoxAccordion form={form} />
           </div>
 
-          <div className={cn("flex", isDirty ? "justify-between" : "justify-center")}>
-            {isDirty && <Button type="button" onClick={handleReset} variant="outline">Reset</Button>}
-            <Button type="submit" disabled={!isDirty}>Apply Filters</Button>
+          <div className={cn("flex", isButtonAreaVisible ? "justify-between" : "justify-center")}>
+            {isButtonAreaVisible && <Button type="button" onClick={handleReset} variant="outline">Reset</Button>}
+            <Button type="submit" disabled={!isChangedSinceLastApply}>Apply Filters</Button>
           </div>
         </form>
       </Form>

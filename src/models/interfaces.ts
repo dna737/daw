@@ -100,14 +100,17 @@ export interface CardinalBoundingBox {
   right: number;  // right-most longitude
 }
 
-export interface CornerBoundingBox {
+export interface DiagonalBoxBLTR {
   bottom_left: GeoPoint;
   top_right: GeoPoint;
-  bottom_right?: GeoPoint;
-  top_left?: GeoPoint;
 }
 
-export type GeoBoundingBox = CardinalBoundingBox | CornerBoundingBox;
+export interface DiagonalBoxBRTL {
+  bottom_right: GeoPoint;
+  top_left: GeoPoint;
+}
+
+export type GeoBoundingBox = CardinalBoundingBox | DiagonalBoxBLTR | DiagonalBoxBRTL;
 
 export interface ZipCodeSearchParams {
   city?: string;           // full or partial name of a city
