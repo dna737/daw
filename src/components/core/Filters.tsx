@@ -11,7 +11,7 @@ import {
   FormMessage,
 } from "../ui/form"
 import { Input } from "../ui/input"
-import { StateSearch } from "./StateSearch"
+import { StateSearch } from "."
 import { useState, useRef, useEffect } from "react"
 import type { ZipCodeSearchParams } from "@/models"
 import { filterStateSearchItems, getStateOptions } from "../utils"
