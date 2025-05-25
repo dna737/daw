@@ -123,12 +123,6 @@ function BoundingBoxAccordion({ form }: { form: UseFormReturn<FilterFormValues> 
       type="single" 
       collapsible 
       className="w-full" 
-      value={"item-1"}
-      onValueChange={(value) => {
-        if (!value) {
-          form.setValue("boundingBoxType", "none");
-        }
-      }}
     >
       <AccordionItem value={"item-1"}>
         <AccordionTrigger>Geographic Bounding Box</AccordionTrigger>
