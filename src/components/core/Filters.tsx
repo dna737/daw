@@ -12,7 +12,7 @@ import {
 } from "../ui/form"
 import { Input } from "../ui/input"
 import { StateSearch } from "."
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, useMemo } from "react"
 import type { ZipCodeSearchParams } from "@/models"
 import { filterStateSearchItems, getStateOptions } from "../utils"
 import { Label } from "../ui/label"
@@ -586,7 +586,9 @@ export default function Filters({ handleFilterChange, handleLocationChange, tota
   });
 
   const currentWatchedValues = form.watch();
-  const { availableStates, selectedStates } = filterStateSearchItems(stateOptions, searchValue);
+  const { availableStates, selectedStates } = useMemo(() => {
+    return filterStateSearchItems(stateOptions, searchValue);
+  }, [stateOptions, searchValue]);
 
   useEffect(() => {
     const currentTrackedState: TrackedFilterState = {
