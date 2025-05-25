@@ -61,7 +61,9 @@ const StateSearch = forwardRef<HTMLDivElement, StateSearchProps>(({
       <Command ref={ref} className={cn(
         "transition-all duration-200 border rounded-lg",
         isFocused ? "h-max" : "h-9"
-      )}>
+      )}
+      shouldFilter={false}
+      >
         <CommandInput
           placeholder="Search for states..."
           onFocus={onFocus}
