@@ -24,6 +24,7 @@ import { cn } from "@/lib/utils"
   AccordionItem,
   AccordionTrigger,
 } from "../ui/accordion"
+import { Separator } from "../ui/separator"
 
 const formSchema = z.object({
   ageMin: z.coerce.number().min(0).optional(),
@@ -100,10 +101,21 @@ interface FiltersProps {
 }
 
 function BoundingBoxAccordion({ form }: { form: UseFormReturn<FilterFormValues> }) {
+  const boundingBoxType = form.watch("boundingBoxType");
 
   return (
-    <Accordion type="single" collapsible className="w-full">
-      <AccordionItem value="item-1">
+    <Accordion 
+      type="single" 
+      collapsible 
+      className="w-full" 
+      value={boundingBoxType === "none" ? undefined : "item-1"}
+      onValueChange={(value) => {
+        if (!value) {
+          form.setValue("boundingBoxType", "none");
+        }
+      }}
+    >
+      <AccordionItem value={"item-1"}>
         <AccordionTrigger>Geographic Bounding Box</AccordionTrigger>
         <AccordionContent>
             <FormField
@@ -114,7 +126,7 @@ function BoundingBoxAccordion({ form }: { form: UseFormReturn<FilterFormValues> 
                   <FormControl>
                     <RadioGroup
                       onValueChange={field.onChange}
-                      defaultValue={field.value}
+                      value={field.value}
                       className="space-y-2"
                     >
                       <div className="flex items-center space-x-2">
@@ -140,7 +152,9 @@ function BoundingBoxAccordion({ form }: { form: UseFormReturn<FilterFormValues> 
               )}
             />
 
-            {form.watch("boundingBoxType") === "edges" && (
+            {boundingBoxType === "edges" && (
+              <>
+              <Separator className="my-4" />
               <div className="grid grid-cols-2 gap-2 mt-2">
                 <FormField
                   control={form.control}
@@ -223,9 +237,12 @@ function BoundingBoxAccordion({ form }: { form: UseFormReturn<FilterFormValues> 
                   )}
                 />
               </div>
+              </>
             )}
 
-            {form.watch("boundingBoxType") === "upper_diagonal" && (
+            {boundingBoxType === "upper_diagonal" && (
+              <>
+              <Separator className="my-4" />
               <div className="grid grid-cols-2 gap-2 mt-2">
                 <div className="space-y-2">
                   <Label>Bottom Left</Label>
@@ -318,10 +335,13 @@ function BoundingBoxAccordion({ form }: { form: UseFormReturn<FilterFormValues> 
                   </div>
                 </div>
               </div>
+              </>
             )}
 
-            {form.watch("boundingBoxType") === "lower_diagonal" && (
-              <div className="grid grid-cols-2 gap-2">
+            {boundingBoxType === "lower_diagonal" && (
+              <>
+              <Separator className="my-4" />
+              <div className="grid grid-cols-2 gap-2 mt-2">
                 <div className="space-y-2">
                   <Label>Bottom Right</Label>
                   <div className="grid grid-rows-2 gap-2 w-25">
@@ -413,6 +433,7 @@ function BoundingBoxAccordion({ form }: { form: UseFormReturn<FilterFormValues> 
                   </div>
                 </div>
               </div>
+              </>
             )}
           </AccordionContent>
       </AccordionItem>
@@ -511,8 +532,6 @@ export default function Filters({ handleFilterChange, handleLocationChange, tota
       },
     },
   });
-
-  const boundingBoxType = form.watch("boundingBoxType");
 
   useEffect(() => {
     setIsZipCodeAllowed(form.formState.isDirty);
@@ -633,6 +652,10 @@ export default function Filters({ handleFilterChange, handleLocationChange, tota
         left: undefined,
         bottom: undefined,
         right: undefined,
+        bottom_left: undefined,
+        top_right: undefined,
+        bottom_right: undefined,
+        top_left: undefined,
       },
     });
     setStateOptions(getStateOptions());
@@ -718,7 +741,7 @@ export default function Filters({ handleFilterChange, handleLocationChange, tota
           </div>
 
           <div className={cn("flex", isDirty ? "justify-between" : "justify-center")}>
-            {isDirty && <Button type="button" onClick={handleReset} variant="outline">Reset Filters</Button>}
+            {isDirty && <Button type="button" onClick={handleReset} variant="outline">Reset</Button>}
             <Button type="submit" disabled={!isDirty}>Apply Filters</Button>
           </div>
         </form>
