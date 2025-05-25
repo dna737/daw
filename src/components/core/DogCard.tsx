@@ -59,7 +59,7 @@ export default function DogCard(props: { dog: Dog; isLiked?: boolean; handleLike
   }
 
   return (
-    <Card className="w-full h-full p-4">
+    <Card className="w-full p-4 h-90">
       <CardHeader className="p-0">
         <div className="flex justify-between items-center">
           <CardTitle>{dog.name}</CardTitle>
@@ -76,7 +76,7 @@ export default function DogCard(props: { dog: Dog; isLiked?: boolean; handleLike
             </Button>
           )}
         </div>
-        <CardDescription className="flex flex-col justify-center gap-2">
+        <CardDescription className="flex flex-col justify-center gap-2 h-70">
           <div className="w-full h-48 rounded-md flex items-center justify-center">
             <img 
               src={dog.img} 

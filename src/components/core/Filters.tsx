@@ -113,12 +113,20 @@ const formSchema = z.object({
     }
   }
 
-  if (data.zipCodeLoading === "custom" && data.customZipSize === undefined) {
+  if (data.zipCodeLoading === "custom") {
+    if(data.customZipSize === undefined) {
       ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "Custom ZIP size is required when using custom loading",
-          path: ["customZipSize"],
+        code: z.ZodIssueCode.custom,
+        message: "Custom ZIP size is required when using custom loading",
+        path: ["customZipSize"],
       });
+    } else if(data.customZipSize > 1000) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Custom ZIP size cannot exceed 1000", // The endpoint only supports 1000 ZIPs at a time
+        path: ["customZipSize"],
+      });
+    }
   }
 });
 
@@ -516,7 +524,7 @@ function ZipCodeLoadingRadioGroup({ currentZipSize, totalZipCodes, form, zipCode
                       )}
                       <div className="flex items-center space-x-2">
                         <RadioGroupItem value="all" id="all" />
-                        <Label htmlFor="all">Load all ZIPs ({totalZipCodes})</Label>
+                        <Label htmlFor="all">Load {totalZipCodes <= 1000 ? "all" : "next"} ZIPs ({Math.min(totalZipCodes, 1000)})</Label>
                       </div>
                       <div className="flex items-center space-x-2">
                         <RadioGroupItem value="custom" id="custom" />
@@ -538,8 +546,8 @@ function ZipCodeLoadingRadioGroup({ currentZipSize, totalZipCodes, form, zipCode
                     <Input
                       type="number"
                       min={1}
-                      max={totalZipCodes > 0 ? totalZipCodes : undefined }
-                      placeholder={`Enter size (1-${totalZipCodes > 0 ? totalZipCodes : 'max'})`}
+                      max={totalZipCodes > 0 ? Math.min(totalZipCodes, 1000) : undefined }
+                      placeholder={`Enter size (1-${totalZipCodes > 0 ? Math.min(totalZipCodes, 1000) : 'max'})`}
                       {...field}
                       className="text-sm"
                       disabled={form.watch("zipCodeLoading") !== "custom"}
@@ -657,12 +665,14 @@ export default function Filters({ handleFilterChange, handleLocationChange, tota
         break;
       case "all":
         locationData.from = 0;
-        locationData.size = totalZipCodes;
+        locationData.size = Math.min(totalZipCodes, 1000);
         break;
       case "custom":
         if (data.customZipSize) {
           locationData.from = 0;
-          locationData.size = Math.min(data.customZipSize ?? 25, totalZipCodes > 0 ? totalZipCodes : Infinity);
+          locationData.size = Math.min(data.customZipSize ?? 25, 1000);
+
+          console.log("location in custom", locationData);
         }
         break;
       default:
@@ -705,6 +715,10 @@ export default function Filters({ handleFilterChange, handleLocationChange, tota
     setLastAppliedFilters(getInitialTrackedState());
     setIsChangedSinceLastApply(false);
   };
+
+  const watchedZipCodeLoading = form.watch("zipCodeLoading");
+  const canLoadNext = watchedZipCodeLoading === "next" && zipCodeFrom + currentZipSize < totalZipCodes;
+  const canLoadPrevious = watchedZipCodeLoading === "previous" && zipCodeFrom > 0;
 
   return (
     <div className={cn("flex flex-col gap-4 p-4 border rounded-lg shadow-sm min-w-[300px]")}>
@@ -785,7 +799,7 @@ export default function Filters({ handleFilterChange, handleLocationChange, tota
 
           <div className={cn("flex", isButtonAreaVisible ? "justify-between" : "justify-center")}>
             {isButtonAreaVisible && <Button type="button" onClick={handleReset} variant="outline">Reset</Button>}
-            <Button type="submit" disabled={!isChangedSinceLastApply}>Apply Filters</Button>
+            <Button type="submit" disabled={!(isChangedSinceLastApply || canLoadNext || canLoadPrevious)}>Apply Filters</Button>
           </div>
         </form>
       </Form>
