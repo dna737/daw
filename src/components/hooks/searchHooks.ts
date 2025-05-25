@@ -119,12 +119,14 @@ export const useSearch = () => {
         setZipCodeSize(location.size ?? 25);
       }
 
-      setFilters(prevFilters => ({
-        ...prevFilters,
-        zipCodes: locations.results.map(loc => loc.zip_code)
-      }));
+      if(locations.results.length > 0) {
+        setFilters(prevFilters => ({
+          ...prevFilters,
+          zipCodes: locations.results.map(loc => loc.zip_code)
+        }));
 
-      setZipCodeCoverage(`(${locations.results[0].zip_code} - ${locations.results[locations.results.length - 1].zip_code})`);
+        setZipCodeCoverage(`(${locations.results[0].zip_code} - ${locations.results[locations.results.length - 1].zip_code})`);
+      }
     } catch (error) {
       console.error("Error fetching filtered locations:", error);
     }
