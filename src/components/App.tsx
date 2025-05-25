@@ -1,5 +1,5 @@
 import "../App.css"
-import { Routes, Route } from "react-router"
+import { Routes, Route, Navigate } from "react-router"
 import { useAuth } from './hooks'
 import { AppContextProvider } from '../context/AppContext'
 import { Login, Home, Favorites, Match } from './core'
@@ -16,11 +16,13 @@ function AppRoutes() {
         </>
       ) : (
         <>
-          <Route path="/" element={<Home />} />
+          <Route path="/home" element={<Home />} />
           <Route path="/favorites" element={<Favorites />} />
           <Route path="/match" element={<Match />} />
         </>
       )}
+
+      <Route path="/" element={<Navigate to={isLoggedIn ? "/home" : "/login"} replace/>} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
