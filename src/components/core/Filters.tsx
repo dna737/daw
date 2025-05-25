@@ -31,7 +31,7 @@ const formSchema = z.object({
   ageMin: z.coerce.number().min(0).optional(),
   ageMax: z.coerce.number().min(0).optional(),
   city: z.string().optional(),
-  zipCodeLoading: z.enum(["next", "previous", "all", "custom"]).optional(),
+  zipCodeLoading: z.enum(["next", "previous", "custom"]).optional(),
   customZipSize: z.coerce.number().min(1).optional(),
   boundingBoxType: z.enum(["none", "edges", "upper_diagonal", "lower_diagonal"]).optional(),
   geoBoundingBox: z.object({
@@ -523,10 +523,6 @@ function ZipCodeLoadingRadioGroup({ currentZipSize, totalZipCodes, form, zipCode
                         </div>
                       )}
                       <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="all" id="all" />
-                        <Label htmlFor="all">Load {totalZipCodes <= 1000 ? "all" : "next"} ZIPs ({Math.min(totalZipCodes, 1000)})</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
                         <RadioGroupItem value="custom" id="custom" />
                         <Label htmlFor="custom">Set custom ZIP size</Label>
                       </div>
@@ -663,15 +659,10 @@ export default function Filters({ handleFilterChange, handleLocationChange, tota
         locationData.from = zipCodeFrom - currentZipSize;
         locationData.size = currentZipSize;
         break;
-      case "all":
-        locationData.from = 0;
-        locationData.size = Math.min(totalZipCodes, 1000);
-        break;
       case "custom":
         if (data.customZipSize) {
           locationData.from = 0;
           locationData.size = Math.min(data.customZipSize ?? 25, 1000);
-
           console.log("location in custom", locationData);
         }
         break;
@@ -715,10 +706,6 @@ export default function Filters({ handleFilterChange, handleLocationChange, tota
     setLastAppliedFilters(getInitialTrackedState());
     setIsChangedSinceLastApply(false);
   };
-
-  const watchedZipCodeLoading = form.watch("zipCodeLoading");
-  const canLoadNext = watchedZipCodeLoading === "next" && zipCodeFrom + currentZipSize < totalZipCodes;
-  const canLoadPrevious = watchedZipCodeLoading === "previous" && zipCodeFrom > 0;
 
   return (
     <div className={cn("flex flex-col gap-4 p-4 border rounded-lg shadow-sm min-w-[300px]")}>
@@ -799,7 +786,7 @@ export default function Filters({ handleFilterChange, handleLocationChange, tota
 
           <div className={cn("flex", isButtonAreaVisible ? "justify-between" : "justify-center")}>
             {isButtonAreaVisible && <Button type="button" onClick={handleReset} variant="outline">Reset</Button>}
-            <Button type="submit" disabled={!(isChangedSinceLastApply || canLoadNext || canLoadPrevious)}>Apply Filters</Button>
+            <Button type="submit" disabled={!isChangedSinceLastApply}>Apply Filters</Button>
           </div>
         </form>
       </Form>
