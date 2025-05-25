@@ -72,14 +72,6 @@ export const useSearch = () => {
     });
   };
 
-  // Separately done for breeds as it's not with the rest of the filter options.
-  // useEffect(() => {
-  //   setFilters({
-  //     ...filters,
-  //     breeds: breedSearchItems.filter(item => item.isSelected).map(item => item.name),
-  //   });
-  // }, [breedSearchItems]);
-
   const handleFilterChange = (filter: FilterOptions) => {
     setFilters(prevFilters => ({
       ...prevFilters,
@@ -88,18 +80,25 @@ export const useSearch = () => {
   };
 
   useEffect(() => {
-    let message = zipCodeSize < results.zipCodes
-      ? `Showing ${zipCodeFrom + 1} - ${Math.min(zipCodeFrom + zipCodeSize, results.zipCodes)} of ${results.zipCodes} zip codes`
-      : `Showing all ${results.zipCodes} zip codes`;
-    message += zipCodeCoverage ? `\n${zipCodeCoverage}` : "";
-    setZipCodeResultsMessage(message);
+    let message;
+
+    if(results.zipCodes > 0) {
+      message = zipCodeSize < results.zipCodes
+        ? `Showing ${zipCodeFrom + 1} - ${Math.min(zipCodeFrom + zipCodeSize, results.zipCodes)} of ${results.zipCodes} zip codes`
+        : `Showing all ${results.zipCodes} zip codes`;
+      message += zipCodeCoverage ? `\n${zipCodeCoverage}` : "";
+    }
+    setZipCodeResultsMessage(message ?? "");
   }, [results.zipCodes, zipCodeFrom, zipCodeSize, zipCodeCoverage]);
 
   const handleZipCodeReset = () => {
+    console.log("handleZipCodeReset triggered");
     setZipCodeFrom(0);
     setZipCodeSize(25);
     setZipCodeCoverage("");
     setFilters({});
+    setResults({ ...results, zipCodes: 0 });
+    setZipCodeResultsMessage("");
   };
 
   const handleLocationFilterChange = async (location: ZipCodeSearchParams) => {
