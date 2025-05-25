@@ -60,10 +60,14 @@ const MainSearch = forwardRef<HTMLDivElement, MainSearchProps>(({
 
   return (
     <form onSubmit={onSubmit} className="flex gap-2 relative">
-      <Command ref={ref} className={cn(
-        "md:min-w-[450px] transition-all duration-200 border shadow-md rounded-lg",
-        isFocused ? "h-max" : "h-9"
-      )}>
+      <Command
+        ref={ref}
+        className={cn(
+          "md:min-w-[450px] transition-all duration-200 border shadow-md rounded-lg",
+          isFocused ? "h-max" : "h-9"
+        )}
+        shouldFilter={false}
+      >
         <CommandInput 
           placeholder="Select the breeds you want to search for..." 
           onFocus={onFocus}

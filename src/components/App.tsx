@@ -3,7 +3,7 @@ import { Routes, Route, Navigate } from "react-router"
 import { useAuth } from './hooks'
 import { AppContextProvider } from '../context/AppContext'
 import { Login, Home, Favorites, Match, Logout } from './core'
-import NotFound from "./NotFound"
+import NotFound from "./NotFound";
 
 function AppRoutes() {
   const { isLoggedIn } = useAuth();
