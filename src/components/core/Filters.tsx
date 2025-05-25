@@ -75,16 +75,31 @@ const formSchema = z.object({
   
   switch (data.boundingBoxType) {
     case "edges":
-      return top !== undefined && left !== undefined && bottom !== undefined && right !== undefined;
+      if (top === undefined || left === undefined || bottom === undefined || right === undefined) return false;
+      // (south < north)
+      if (bottom >= top) return false;
+      // (west < east)
+      if (left >= right) return false;
+      return true;
     case "upper_diagonal":
-      return bottom_left !== undefined && top_right !== undefined;
+      if (!bottom_left || !top_right) return false;
+      // (south < north)
+      if (bottom_left.lat >= top_right.lat) return false;
+      // (west < east)
+      if (bottom_left.lon >= top_right.lon) return false;
+      return true;
     case "lower_diagonal":
-      return bottom_right !== undefined && top_left !== undefined;
+      if (!bottom_right || !top_left) return false;
+      // (south < north)
+      if (bottom_right.lat >= top_left.lat) return false;
+      // (west < east)
+      if (bottom_right.lon >= top_left.lon) return false;
+      return true;
     default:
       return true;
   }
 }, {
-  message: "Invalid geographic bounding box combination",
+  message: "Invalid geographic bounding box: coordinates must form a valid box with non-zero width and height",
   path: ["geoBoundingBox"],
 });
 
@@ -108,7 +123,7 @@ function BoundingBoxAccordion({ form }: { form: UseFormReturn<FilterFormValues> 
       type="single" 
       collapsible 
       className="w-full" 
-      value={boundingBoxType === "none" ? undefined : "item-1"}
+      value={"item-1"}
       onValueChange={(value) => {
         if (!value) {
           form.setValue("boundingBoxType", "none");
@@ -237,6 +252,9 @@ function BoundingBoxAccordion({ form }: { form: UseFormReturn<FilterFormValues> 
                   )}
                 />
               </div>
+              <div className="mt-2">
+                <FormMessage />
+              </div>
               </>
             )}
 
@@ -334,6 +352,9 @@ function BoundingBoxAccordion({ form }: { form: UseFormReturn<FilterFormValues> 
                     />
                   </div>
                 </div>
+              </div>
+              <div className="mt-2">
+                <FormMessage />
               </div>
               </>
             )}
@@ -433,6 +454,9 @@ function BoundingBoxAccordion({ form }: { form: UseFormReturn<FilterFormValues> 
                   </div>
                 </div>
               </div>
+              <div className="mt-2">
+                <FormMessage />
+              </div>
               </>
             )}
           </AccordionContent>
@@ -529,6 +553,10 @@ export default function Filters({ handleFilterChange, handleLocationChange, tota
         left: undefined,
         bottom: undefined,
         right: undefined,
+        bottom_left: undefined,
+        top_right: undefined,
+        bottom_right: undefined,
+        top_left: undefined,
       },
     },
   });
@@ -551,6 +579,7 @@ export default function Filters({ handleFilterChange, handleLocationChange, tota
   const { availableStates, selectedStates } = filterStateSearchItems(stateOptions, searchValue);
 
   const onSubmit = (data: FilterFormValues) => {
+    console.log('oof')
     const parsedData = formSchema.parse(data);
     
     // Handle age filters
