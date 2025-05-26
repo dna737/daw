@@ -1,16 +1,22 @@
 import { useEffect, useState } from "react";
 import type { DogLocation } from "@/models";
 import { getLocations } from "@/services/proxy";
+import { MAX_PAGE_SIZE } from "../utils";
 
 export const useZipCodes = (zipCodes: string[] | undefined) => {
 
-  const [locations, setLocations] = useState<DogLocation[] | undefined>(undefined);
+  const [dogLocations, setDogLocations] = useState<Record<string, DogLocation> | undefined>(undefined);
 
   useEffect(() => {
-    if (zipCodes) {
+    if (zipCodes && zipCodes.length > 0 && zipCodes.length <= MAX_PAGE_SIZE) {
     getLocations(zipCodes).then(
       (result: DogLocation[]) => {
-        setLocations(result);
+        setDogLocations(result.reduce((acc, location) => {
+          if (location && location.zip_code) {
+            acc[location.zip_code] = location;
+          }
+          return acc;
+        }, {} as Record<string, DogLocation>));
       }
     ).catch(error => {
         console.error(error);
@@ -18,5 +24,5 @@ export const useZipCodes = (zipCodes: string[] | undefined) => {
     }
   }, [JSON.stringify(zipCodes)]);
 
-  return { locations };
+  return { dogLocations };
 };

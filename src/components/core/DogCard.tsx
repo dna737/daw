@@ -42,10 +42,8 @@ function LocationTooltip(props: { location: DogLocation | undefined }) {
   )
 }
 
-export default function DogCard(props: { dog: Dog; isLiked?: boolean; handleLikeChange?: (dogId: string) => void }) {
-  const { dog, isLiked, handleLikeChange } = props;
-  const { locations } = useZipCodes([dog.zip_code]);
-  const location = locations?.[0];
+export default function DogCard(props: { dog: Dog; isLiked?: boolean; handleLikeChange?: (dogId: string) => void, location: DogLocation | undefined}) {
+  const { dog, isLiked, handleLikeChange, location } = props;
 
   const displayDogAge = () => {
     switch (dog.age) {

@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { MainSearch, Header, DogCard, SortBy, Filters } from ".";
 import { filterBreedSearchItems } from "../utils";
-import { useBackToTop, useDog, useLikedDogs, useSearch } from "../hooks";
+import { useBackToTop, useDog, useLikedDogs, useSearch, useZipCodes } from "../hooks";
 import { PageControl } from "../Page";
 import DogCardSkeleton from "./DogCardSkeleton";
 import { Button } from "../ui/button";
@@ -17,7 +17,8 @@ export default function Home() {
   const [searchValue, setSearchValue] = useState("");
   const { dogIds, breedSearchItems, handleSearch, changeBreedAvailability, currentPage, setCurrentPage, totalPages, sortBy, setSortBy, pageSize, setPageSize, handleFilterChange, handleLocationFilterChange, dogResultsMessage, zipCodeResultsMessage, results, zipCodeSize, zipCodeFrom, handleZipCodeReset } = useSearch();
 
-  const { dogs, isLoading } = useDog(dogIds);
+  const { dogs, isLoading, dogZipCodes } = useDog(dogIds);
+  const { dogLocations } = useZipCodes(dogZipCodes);
   const { isVisible, scrollToTop } = useBackToTop();
   const { likedDogs, handleLikeChange } = useLikedDogs();
   const { availableBreeds, selectedBreeds } = filterBreedSearchItems(breedSearchItems, searchValue);
@@ -101,7 +102,7 @@ export default function Home() {
               ))
             ) : (
               dogs.map((dog) => (
-                <DogCard key={dog.id} dog={dog} handleLikeChange={handleLikeChange} isLiked={likedDogs.includes(dog.id)}/>
+                <DogCard key={dog.id} dog={dog} handleLikeChange={handleLikeChange} isLiked={likedDogs.includes(dog.id)} location={dogLocations?.[dog.zip_code]}/>
               ))
             )}
             </>
