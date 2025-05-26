@@ -1,15 +1,18 @@
 import { type GeoBoundingBox } from '@/models';
-import { isCardinalBoundingBox, isDiagonalBoundingBox } from '../utils';
+import { isCardinalBoundingBox } from '../utils';
 import { Map, Marker } from 'pigeon-maps';
+import { useRef } from 'react';
+import { useMarkersInView } from '../hooks';
 
 export default function MapIndicator(props: { geoBoundingBox: GeoBoundingBox | undefined, type: string | undefined}) {
 
   const { geoBoundingBox, type } = props;
-
-  console.log("geoBoundingBox", geoBoundingBox, type);
-  if(!geoBoundingBox || !isCardinalBoundingBox(geoBoundingBox) || !isDiagonalBoundingBox(geoBoundingBox) || !type) {
+  if(!geoBoundingBox || !type) {
     return null;
   }
+
+  const ref = useRef<Map>(null);
+  const { allVisible, checkVisibility } = useMarkersInView(ref, undefined);
 
   const calculateCenter = (geoBoundingBox: GeoBoundingBox) => {
     if(type === "edges" && isCardinalBoundingBox(geoBoundingBox)) {
@@ -90,14 +93,12 @@ export default function MapIndicator(props: { geoBoundingBox: GeoBoundingBox | u
   }
 
   const centerPoint = calculateCenter(geoBoundingBox);
-  console.log("centerPoint", centerPoint);
   const mapCenter: [number, number] = [centerPoint.lat, centerPoint.lon];
 
   return (
-    <Map height={300} defaultCenter={mapCenter} defaultZoom={3} center={mapCenter} zoom={3}>
+    <Map ref={ref} height={300} defaultCenter={mapCenter} defaultZoom={3} center={mapCenter} zoom={3} onBoundsChanged={checkVisibility}>
       {getMarkers().map((marker, index) => (
-        // TODO: Make the marker interactive
-        <Marker key={index} width={50} anchor={[marker.lat, marker.lon]} />
+        <Marker key={index} width={50} anchor={[marker.lat, marker.lon]} color={allVisible ? "red" : "blue"} />
       ))}
     </Map>
   )
