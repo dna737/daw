@@ -7,7 +7,7 @@ import { useBackToTop, useDog, useLikedDogs, useSearch, useZipCodes } from "../h
 import { PageControl } from "../Page";
 import DogCardSkeleton from "./DogCardSkeleton";
 import { Button } from "../ui/button";
-import { ArrowUp } from "lucide-react";
+import { ArrowUp, Heart, Star } from "lucide-react";
 import { Link } from "react-router";
 import { cn } from "@/lib/utils";
 
@@ -55,8 +55,11 @@ export default function Home() {
         <div className="flex gap-2">
           {links.map((link) => (
             <Link to={link.path} key={link.name}>
-              <Button variant="outline" className={cn(link.className, "cursor-pointer")}>
-                {link.name}
+              <Button variant="outline" className={cn(link.className, "cursor-pointer flex items-center gap-1")}>
+                <span className="sm:hidden">
+                  {link.name === "View Favorites" ? <Star className="w-4 h-4" /> : <Heart className="w-4 h-4" />}
+                </span>
+                <span className="hidden sm:inline">{link.name}</span>
               </Button>
             </Link>
           ))}

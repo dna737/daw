@@ -1,12 +1,13 @@
 import { cn } from "@/lib/utils";
 import { DogCard, Header, NoFavorites } from ".";
-import { useLikedDogs, useDog } from "../hooks";
+import { useLikedDogs, useDog, useZipCodes } from "../hooks";
 import { Link } from "react-router";
 import { Button } from "../ui/button";
 
 export default function Favorites() {
   const { likedDogs, handleLikeChange } = useLikedDogs();
-  const { dogs } = useDog(likedDogs);
+  const { dogs, dogZipCodes } = useDog(likedDogs);
+  const { dogLocations } = useZipCodes(dogZipCodes);
 
   const links = [
     {name: "Home", path: "/", className: "bg-black text-white"},
@@ -34,7 +35,7 @@ export default function Favorites() {
           const dog = dogs.find((dog) => dog.id === dogId);
             if (!dog) return null;
             return (
-              <DogCard key={dogId} dog={dog} handleLikeChange={handleLikeChange} isLiked={true} />
+              <DogCard key={dogId} dog={dog} handleLikeChange={handleLikeChange} isLiked={true} location={dogLocations?.[dog.zip_code]}/>
             );
           })}
         </div>
