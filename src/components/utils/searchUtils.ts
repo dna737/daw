@@ -1,4 +1,4 @@
-import type { CardinalBoundingBox, CornerBoundingBox, DogSearchOption, GeoBoundingBox, StateOption } from "@/models";
+import type { CardinalBoundingBox, DiagonalBoxBLTR, DiagonalBoxBRTL, DogSearchOption, GeoBoundingBox, StateOption } from "@/models";
 import { State } from "@/models";
 
 // Helper function to get state name from code
@@ -41,10 +41,6 @@ export function isCardinalBoundingBox(box: GeoBoundingBox): box is CardinalBound
   return 'top' in box && 'left' in box && 'bottom' in box && 'right' in box;
 }
 
-export function isCornerBoundingBox(box: GeoBoundingBox): box is CornerBoundingBox {
-  return 'bottom_left' in box && 'top_right' in box;
-}
-
-export function isDiagonalBoundingBox(box: GeoBoundingBox): box is CornerBoundingBox {
-  return 'bottom_right' in box && 'top_left' in box;
+export function isDiagonalBoundingBox(box: GeoBoundingBox): box is DiagonalBoxBLTR | DiagonalBoxBRTL {
+  return 'bottom_left' in box && 'top_right' in box || 'bottom_right' in box && 'top_left' in box;
 }
