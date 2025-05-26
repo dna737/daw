@@ -1,5 +1,5 @@
 import type { Dog } from "@/models";
-import { Card, CardDescription, CardHeader, CardTitle } from "../ui/card";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "../ui/card";
 import { Button } from "../ui/button";
 import { Calendar, InfoIcon, MapPin, PawPrint } from "lucide-react";
 import { useZipCodes } from "../hooks";
@@ -59,10 +59,12 @@ export default function DogCard(props: { dog: Dog; isLiked?: boolean; handleLike
   }
 
   return (
-    <Card className="w-full p-4 h-90">
+    <Card className="p-4 min-w-fit h-110">
+
       <CardHeader className="p-0">
         <div className="flex justify-between items-center">
-          <CardTitle>{dog.name}</CardTitle>
+          <CardTitle className="w-full flex justify-between items-center">
+          {dog.name}
           {isLiked !== undefined && (
             <Button 
               variant="ghost"
@@ -75,36 +77,40 @@ export default function DogCard(props: { dog: Dog; isLiked?: boolean; handleLike
               {isLiked ? '❤️' : '🤍'}
             </Button>
           )}
+          </CardTitle>
         </div>
-        <CardDescription className="flex flex-col justify-center gap-2 h-70">
-          <div className="w-full h-48 rounded-md flex items-center justify-center">
-            <img 
-              src={dog.img} 
-              alt={`Photo of ${dog.name}`} 
-              className="max-w-full max-h-full object-contain rounded-md"
-            />
-          </div>
-          <div className="flex flex-col gap-2">
-            <div className="flex items-center gap-2">
-              <div className="flex items-center gap-2">
-                <MapPin className="w-4 h-4" />
-                <p className="text-left">{location?.city}, {location?.state}</p>
-              </div>
-              <LocationTooltip location={location} />
-            </div>
-
-            <div className="flex items-center gap-2">
-              <PawPrint className="w-4 h-4" />
-              <p className="text-left">{dog.breed}</p>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <Calendar className="w-4 h-4" />
-              <p className="text-left">{displayDogAge()}</p>
-            </div>
-          </div>
-        </CardDescription>
       </CardHeader>
+
+      <CardContent className="p-0">
+        <div className="w-full h-48 rounded-md flex items-center justify-center">
+          <img
+            src={dog.img}
+            alt={`Photo of ${dog.name}`}
+            className="max-w-full max-h-full object-contain rounded-md"
+          />
+        </div>
+      </CardContent>
+
+      <CardFooter className="p-0 mt-auto">
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2">
+              <MapPin className="w-4 h-4" />
+              <p className="text-left">{location?.city}, {location?.state}</p>
+            </div>
+            <LocationTooltip location={location} />
+          </div>
+          <div className="flex items-center gap-2">
+            <PawPrint className="w-4 h-4" />
+            <p className="text-left">{dog.breed}</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Calendar className="w-4 h-4" />
+            <p className="text-left">{displayDogAge()}</p>
+          </div>
+        </div>
+      </CardFooter>
+
     </Card>
   );
 }

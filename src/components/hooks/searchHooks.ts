@@ -86,7 +86,7 @@ export const useSearch = () => {
     if(numZipCodes > 0) {
       message = zipCodeSize < numZipCodes
         ? `Showing ${zipCodeFrom + 1} - ${Math.min(zipCodeFrom + zipCodeSize, numZipCodes)} of ${numZipCodes} zip codes`
-        : `Showing all ${numZipCodes > 1 ? "all" : ""} zip code${numZipCodes > 1 ? "s" : ""}`;
+        : `Showing ${numZipCodes > 1 ? "all" : numZipCodes} zip code${numZipCodes > 1 ? "s" : ""}`;
       message += zipCodeCoverage ? `\n${zipCodeCoverage}` : "";
     }
     setZipCodeResultsMessage(message ?? "");
