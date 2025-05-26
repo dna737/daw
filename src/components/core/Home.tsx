@@ -85,8 +85,10 @@ export default function Home() {
         </>
         }
 
+      <PageControl currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} pageSize={pageSize} setPageSize={setPageSize} />
 
-        <div className="w-full flex justify-start gap-2">
+        <div className="w-full flex justify-start gap-2 flex-col md:max-md:flex-col lg:flex-row
+">
           <div className="flex flex-col gap-2">
             <Filters handleFilterChange={handleFilterChange} handleLocationChange={handleLocationFilterChange} totalZipCodes={results.zipCodes} currentZipSize={zipCodeSize} zipCodeResultsMessage={zipCodeResultsMessage} zipCodeFrom={zipCodeFrom} handleZipCodeReset={handleZipCodeReset} />
           </div>
@@ -94,7 +96,6 @@ export default function Home() {
             {results.dogs > 0 && (
               <>
             {isLoading ? (
-              // Show 8 skeleton cards while loading
               Array.from({ length: 8 }).map((_, index) => (
                 <DogCardSkeleton key={index} />
               ))

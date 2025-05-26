@@ -30,7 +30,7 @@ export default function PageSize(props: {pageSize: number, setPageSize: (pageSiz
   };
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-2 mx-auto">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="flex items-center gap-2">
           <FormField

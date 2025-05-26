@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
+import { useEffect } from "react";
 
 export default function PageJumper(props: {totalPages: number, currentPage: number, onPageChange: (page: number) => void}) {
   const { totalPages, currentPage, onPageChange } = props;
@@ -23,6 +24,10 @@ type FormValues = z.infer<typeof formSchema>;
     }
   });
 
+  useEffect(() => {
+    form.reset({ page: currentPage });
+  }, [currentPage, form.reset]);
+
   const onSubmit = (values: FormValues) => {
     if (values.page > 0 && values.page <= totalPages) {
       onPageChange(values.page);
@@ -31,7 +36,7 @@ type FormValues = z.infer<typeof formSchema>;
 
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-2 mx-auto">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="flex items-center gap-2">
             <FormField
