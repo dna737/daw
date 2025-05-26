@@ -562,6 +562,7 @@ export default function Filters({ handleFilterChange, handleLocationChange, tota
   const [searchValue, setSearchValue] = useState("");
   const [stateOptions, setStateOptions] = useState(getStateOptions());
   const containerRef = useRef<HTMLDivElement>(null);
+  const prevValuesRef = useRef<FilterFormValues>({});
 
   const initialFormValues: FilterFormValues = {
     ageMin: undefined,
@@ -589,18 +590,15 @@ export default function Filters({ handleFilterChange, handleLocationChange, tota
     defaultValues: initialFormValues,
   });
 
-  const currentWatchedValues = form.watch();
   const { availableStates, selectedStates } = useMemo(() => {
     return filterStateSearchItems(stateOptions, searchValue);
   }, [stateOptions, searchValue]);
 
   useEffect(() => {
-    const currentTrackedState: TrackedFilterState = {
-      ...currentWatchedValues,
-      selectedStateCodes: selectedStates.map(s => s.code).sort(),
-    };
-    setIsChangedSinceLastApply(!_isEqual(currentTrackedState, lastAppliedFilters));
-  }, [currentWatchedValues, selectedStates, lastAppliedFilters]);
+    const currentValues = form.getValues();
+
+    setIsChangedSinceLastApply(!_isEqual(currentValues, prevValuesRef.current));
+  }, [form.watch()]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -619,7 +617,11 @@ export default function Filters({ handleFilterChange, handleLocationChange, tota
     });
 
     const locationData: ZipCodeSearchParams = {};
-    if(data.city) locationData.city = data.city;
+    if(data.city) { 
+      locationData.city = data.city;
+
+      // if()
+    };
     
     const currentSelectedStateCodes = selectedStates.map(state => state.code);
     if(currentSelectedStateCodes.length > 0) {
