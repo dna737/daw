@@ -4,8 +4,7 @@ import { z } from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "../ui/form";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
-
-const MAX_PAGE_SIZE = 100;
+import { MAX_PAGE_SIZE } from "../utils";
 
 const formSchema = z.object({
   pageSize: z.coerce.number()
