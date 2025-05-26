@@ -5,9 +5,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "../ui/form";
+import { MAX_ZIP_BATCH_SIZE } from "../utils";
 
 const batchSizeSchema = z.object({
-  batchSize: z.coerce.number().min(1, "Must be at least 1").max(10000, "Cannot exceed 10,000")
+  batchSize: z.coerce.number().min(1, "Must be at least 1").max(MAX_ZIP_BATCH_SIZE, `Cannot exceed ${MAX_ZIP_BATCH_SIZE}`)
 });
 
 type BatchSizeFormValues = z.infer<typeof batchSizeSchema>;
@@ -15,7 +16,7 @@ type BatchSizeFormValues = z.infer<typeof batchSizeSchema>;
 interface ZipCodeSpecifierProps {
   onNextBatch: () => void;
   onLoadAll: () => void;
-  onBatchSizeChange: (size: number) => void;
+  onBatchSizeChange: (batchSize: number) => void;
   currentBatchSize: number;
   isAllLoaded: boolean;
 }
@@ -55,7 +56,7 @@ export default function ZipCodeSpecifier({
               <FormItem>
                 <FormLabel>Set zip code batch size</FormLabel>
                 <FormControl>
-                  <Input type="number" min={1} max={10000} {...field} />
+                  <Input type="number" min={1} max={MAX_ZIP_BATCH_SIZE} {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

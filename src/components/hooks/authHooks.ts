@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import { AppContext } from "@/context/AppContext";
 import { useStorage } from "./storageHooks";
 import { login as loginService } from "@/services";
-import { IS_LOGGED_IN_KEY } from "../utils/constants";
+import { IS_LOGGED_IN_KEY } from "../utils";
 export const useAuth = () => {
   const { isLoggedIn, setIsLoggedIn } = useContext(AppContext) as {
     isLoggedIn: boolean;

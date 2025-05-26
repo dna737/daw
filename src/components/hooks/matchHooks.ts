@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { MATCH_PAGE_VISITED_KEY } from "../utils/constants";
+import { MATCH_PAGE_VISITED_KEY } from "../utils";
 
 
 export const useMatch = () => {

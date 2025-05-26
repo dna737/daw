@@ -1,11 +1,10 @@
 import type { StorageItem } from "@/models";
 import { useCallback } from "react";
-
-const DEFAULT_TTL = 1000 * 60 * 60; // 1 hour
+import { DEFAULT_STORAGE_TTL_MS } from "../utils";
 
 // Takes care of auto-expiring login sessions and retrieving them from localStorage
 export const useStorage = () => {
-  const setItem = useCallback((key: string, value: any, ttlMs: number = DEFAULT_TTL) => {
+  const setItem = useCallback((key: string, value: any, ttlMs: number = DEFAULT_STORAGE_TTL_MS) => {
     const now = Date.now()
     const item: StorageItem = {
       value,

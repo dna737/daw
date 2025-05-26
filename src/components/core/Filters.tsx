@@ -27,6 +27,10 @@ import {
 import { Separator } from "../ui/separator"
 import { MapIndicator } from "."
 import _isEqual from 'lodash/isEqual'
+import {
+  MIN_LATITUDE, MAX_LATITUDE, MIN_LONGITUDE, MAX_LONGITUDE,
+  MAX_CUSTOM_ZIP_SIZE, DEFAULT_ZIP_PAGE_SIZE
+} from "../utils"
 
 const formSchema = z.object({
   ageMin: z.coerce.number().min(0).optional(),
@@ -36,17 +40,17 @@ const formSchema = z.object({
   customZipSize: z.coerce.number().min(1).optional(),
   boundingBoxType: z.enum(["none", "edges", "corners"]).optional(),
   geoBoundingBox: z.object({
-    top: z.coerce.number().min(-90).max(90).optional(),
-    left: z.coerce.number().min(-180).max(180).optional(),
-    bottom: z.coerce.number().min(-90).max(90).optional(),
-    right: z.coerce.number().min(-180).max(180).optional(),
+    top: z.coerce.number().min(MIN_LATITUDE).max(MAX_LATITUDE).optional(),
+    left: z.coerce.number().min(MIN_LONGITUDE).max(MAX_LONGITUDE).optional(),
+    bottom: z.coerce.number().min(MIN_LATITUDE).max(MAX_LATITUDE).optional(),
+    right: z.coerce.number().min(MIN_LONGITUDE).max(MAX_LONGITUDE).optional(),
     point1: z.object({
-      lat: z.coerce.number().min(-90).max(90),
-      lon: z.coerce.number().min(-180).max(180)
+      lat: z.coerce.number().min(MIN_LATITUDE).max(MAX_LATITUDE),
+      lon: z.coerce.number().min(MIN_LONGITUDE).max(MAX_LONGITUDE)
     }).optional(),
     point2: z.object({
-      lat: z.coerce.number().min(-90).max(90),
-      lon: z.coerce.number().min(-180).max(180)
+      lat: z.coerce.number().min(MIN_LATITUDE).max(MAX_LATITUDE),
+      lon: z.coerce.number().min(MIN_LONGITUDE).max(MAX_LONGITUDE)
     }).optional(),
   }).optional(),
 }).superRefine((data, ctx) => {
@@ -107,10 +111,10 @@ const formSchema = z.object({
         message: "Custom ZIP size is required when using custom loading",
         path: ["customZipSize"],
       });
-    } else if(data.customZipSize > 1000) {
+    } else if(data.customZipSize > MAX_CUSTOM_ZIP_SIZE) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "Custom ZIP size cannot exceed 1000", // The endpoint only supports 1000 ZIPs at a time
+        message: `Custom ZIP size cannot exceed ${MAX_CUSTOM_ZIP_SIZE}`,
         path: ["customZipSize"],
       });
     }
@@ -261,8 +265,8 @@ function BoundingBoxAccordion({ form }: { form: UseFormReturn<FilterFormValues> 
                         <Input 
                           type="number" 
                           placeholder="e.g. 49.0"
-                          min={-90} 
-                          max={90} 
+                          min={MIN_LATITUDE} 
+                          max={MAX_LATITUDE} 
                           step="any"
                           {...field} 
                           className="text-sm" 
@@ -282,8 +286,8 @@ function BoundingBoxAccordion({ form }: { form: UseFormReturn<FilterFormValues> 
                         <Input 
                           type="number" 
                           placeholder="e.g. -125.0"
-                          min={-180} 
-                          max={180} 
+                          min={MIN_LONGITUDE} 
+                          max={MAX_LONGITUDE} 
                           step="any"
                           {...field} 
                           className="text-sm" 
@@ -303,8 +307,8 @@ function BoundingBoxAccordion({ form }: { form: UseFormReturn<FilterFormValues> 
                         <Input 
                           type="number" 
                           placeholder="e.g. 25.0"
-                          min={-90} 
-                          max={90} 
+                          min={MIN_LATITUDE} 
+                          max={MAX_LATITUDE} 
                           step="any"
                           {...field} 
                           className="text-sm" 
@@ -324,8 +328,8 @@ function BoundingBoxAccordion({ form }: { form: UseFormReturn<FilterFormValues> 
                         <Input 
                           type="number" 
                           placeholder="e.g. -66.0"
-                          min={-180} 
-                          max={180} 
+                          min={MIN_LONGITUDE} 
+                          max={MAX_LONGITUDE} 
                           step="any"
                           {...field} 
                           className="text-sm" 
@@ -361,8 +365,8 @@ function BoundingBoxAccordion({ form }: { form: UseFormReturn<FilterFormValues> 
                         <Input 
                           type="number" 
                           placeholder="e.g. 40.0"
-                          min={-90} 
-                          max={90} 
+                          min={MIN_LATITUDE} 
+                          max={MAX_LATITUDE} 
                           step="any"
                           {...field} 
                           className="text-sm"
@@ -383,8 +387,8 @@ function BoundingBoxAccordion({ form }: { form: UseFormReturn<FilterFormValues> 
                         <Input 
                           type="number" 
                           placeholder="e.g. -100.0"
-                          min={-180} 
-                          max={180} 
+                          min={MIN_LONGITUDE} 
+                          max={MAX_LONGITUDE} 
                           step="any"
                           {...field} 
                           className="text-sm"
@@ -405,8 +409,8 @@ function BoundingBoxAccordion({ form }: { form: UseFormReturn<FilterFormValues> 
                         <Input 
                           type="number" 
                           placeholder="e.g. 30.0"
-                          min={-90} 
-                          max={90} 
+                          min={MIN_LATITUDE} 
+                          max={MAX_LATITUDE} 
                           step="any"
                           {...field} 
                           className="text-sm"
@@ -427,8 +431,8 @@ function BoundingBoxAccordion({ form }: { form: UseFormReturn<FilterFormValues> 
                         <Input 
                           type="number" 
                           placeholder="e.g. -90.0"
-                          min={-180} 
-                          max={180} 
+                          min={MIN_LONGITUDE} 
+                          max={MAX_LONGITUDE} 
                           step="any"
                           {...field} 
                           className="text-sm"
@@ -508,8 +512,8 @@ function ZipCodeLoadingRadioGroup({ currentZipSize, totalZipCodes, form, zipCode
                     <Input
                       type="number"
                       min={1}
-                      max={totalZipCodes > 0 ? Math.min(totalZipCodes, 1000) : undefined }
-                      placeholder={`Enter size (1-${totalZipCodes > 0 ? Math.min(totalZipCodes, 1000) : 'max'})`}
+                      max={totalZipCodes > 0 ? Math.min(totalZipCodes, MAX_CUSTOM_ZIP_SIZE) : undefined }
+                      placeholder={`Enter size (1-${totalZipCodes > 0 ? Math.min(totalZipCodes, MAX_CUSTOM_ZIP_SIZE) : 'max'})`}
                       {...field}
                       className="text-sm"
                       disabled={form.watch("zipCodeLoading") !== "custom"}
@@ -650,11 +654,11 @@ export default function Filters({ handleFilterChange, handleLocationChange, tota
         break;
       case "custom":
           locationData.from = 0;
-          locationData.size = data.customZipSize ? Math.min(data.customZipSize, 1000) : 25;
+          locationData.size = data.customZipSize ? Math.min(data.customZipSize, MAX_CUSTOM_ZIP_SIZE) : DEFAULT_ZIP_PAGE_SIZE;
         break;
       default:
         locationData.from = 0;
-        locationData.size = 25;
+        locationData.size = DEFAULT_ZIP_PAGE_SIZE;
         break;
     }
 
@@ -665,7 +669,7 @@ export default function Filters({ handleFilterChange, handleLocationChange, tota
     // This checks if there's a new value that wasn't there before.
     if(String(data[key] ?? "").length > 0 && String(lastAppliedFilters[key] ?? "").length === 0) {
       locationData.from = 0;
-      locationData.size = 25;
+      locationData.size = DEFAULT_ZIP_PAGE_SIZE;
       break;
     }
   }
