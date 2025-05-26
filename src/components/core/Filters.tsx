@@ -87,6 +87,14 @@ const formSchema = z.object({
             ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Longitudes must differ", path: ["geoBoundingBox", "point1", "lon"] });
             ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Longitudes must differ", path: ["geoBoundingBox", "point2", "lon"] });
           }
+          if (Math.abs(point1.lat - point2.lat) <= 1) {
+            ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Lat. diff. must be > 1", path: ["geoBoundingBox", "point1", "lat"] });
+            ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Lat. diff. must be > 1", path: ["geoBoundingBox", "point2", "lat"] });
+          }
+          if (Math.abs(point1.lon - point2.lon) <= 1) {
+            ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Lon. diff. must be > 1", path: ["geoBoundingBox", "point1", "lon"] });
+            ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Lon. diff. must be > 1", path: ["geoBoundingBox", "point2", "lon"] });
+          }
         }
         break;
     }
@@ -176,31 +184,25 @@ function BoundingBoxAccordion({ form }: { form: UseFormReturn<FilterFormValues> 
       } else {
         mapIndicatorType = "none"; // Lat or Lon are the same, not valid for preview
       }
-    } else { // hasErrors("corners") is true
+    } else {
       mapIndicatorType = "none";
     }
   } else if (castedGeoBoundingBox && boundingBoxType === "edges") {
     if (!hasErrors("edges")) {
       const { top, left, bottom, right } = castedGeoBoundingBox;
-      // Explicitly check for conditions that would be invalid for the API / Zod schema
-      // before Zod validation runs (e.g., if mode is onSubmit)
       if (
-        (top === 0 && left === 0 && bottom === 0 && right === 0) || // All zero default
-        bottom >= top ||  // Invalid latitude range (bottom should be strictly less than top)
-        left >= right     // Invalid longitude range (left should be strictly less than right)
+        (top === 0 && left === 0 && bottom === 0 && right === 0) || // Default values.  API doesn't support this.
+        bottom >= top ||
+        left >= right
       ) {
         mapIndicatorType = "none"; // Don't render map for these invalid states
       } else {
         mapIndicatorGeoBoundingBox = castedGeoBoundingBox as GeoBoundingBox;
-        // mapIndicatorType remains "edges" (from its initialization via boundingBoxType)
       }
-    } else { // hasErrors("edges") is true (Zod has reported errors)
+    } else {
       mapIndicatorType = "none";
     }
   } else {
-    // This handles cases like boundingBoxType === "none",
-    // or castedGeoBoundingBox is falsy (unlikely with init values),
-    // or for "corners", point1/point2 are missing before hasErrors check is relevant.
     mapIndicatorType = "none";
   }
 
@@ -585,8 +587,6 @@ export default function Filters({ handleFilterChange, handleLocationChange, tota
     const locationData: ZipCodeSearchParams = {};
     if(data.city) { 
       locationData.city = data.city;
-
-      // if()
     };
     
     const currentSelectedStateCodes = selectedStates.map(state => state.code);
@@ -606,44 +606,35 @@ export default function Filters({ handleFilterChange, handleLocationChange, tota
       } else if (data.boundingBoxType === "corners" && 
                  box.point1 && 
                  box.point2) {
-        // Determine if it's an upper or lower diagonal based on point1 and point2
         const { lat: lat1, lon: lon1 } = box.point1;
         const { lat: lat2, lon: lon2 } = box.point2;
 
-        // Ensure lats and lons are different (already validated by Zod, but good for clarity)
         if (lat1 !== lat2 && lon1 !== lon2) {
-          // Case 1: point1 is bottom-left, point2 is top-right (upper diagonal)
+          // 1: (upper diagonal)
           if (lat1 < lat2 && lon1 < lon2) {
             locationData.geoBoundingBox = { 
               bottom_left: { lat: lat1, lon: lon1 }, 
               top_right: { lat: lat2, lon: lon2 } 
             } as const;
-          // Case 2: point1 is top-right, point2 is bottom-left (upper diagonal, swapped)
+          // 2: (upper diagonal, swapped)
           } else if (lat1 > lat2 && lon1 > lon2) {
             locationData.geoBoundingBox = { 
               bottom_left: { lat: lat2, lon: lon2 }, 
               top_right: { lat: lat1, lon: lon1 } 
             } as const;
-          // Case 3: point1 is top-left, point2 is bottom-right (lower diagonal)
+          // 3: (lower diagonal)
           } else if (lat1 > lat2 && lon1 < lon2) {
             locationData.geoBoundingBox = { 
               top_left: { lat: lat1, lon: lon1 }, 
               bottom_right: { lat: lat2, lon: lon2 } 
             } as const;
-          // Case 4: point1 is bottom-right, point2 is top-left (lower diagonal, swapped)
+          // 4: (lower diagonal, swapped)
           } else if (lat1 < lat2 && lon1 > lon2) {
             locationData.geoBoundingBox = { 
               top_left: { lat: lat2, lon: lon2 }, 
               bottom_right: { lat: lat1, lon: lon1 } 
             } as const;
-          } else {
-            // This case should ideally not be reached if lats and lons are different
-            // and cover all valid diagonal definitions.
-            console.log("Corners selected, but points do not form a clear diagonal. Not applying geoBoundingBox.");
           }
-        } else {
-          // This case should be caught by Zod validation
-          console.log("Corners selected, but latitudes or longitudes are the same. Not applying geoBoundingBox.");
         }
       }
     }
