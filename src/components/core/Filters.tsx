@@ -660,28 +660,36 @@ export default function Filters({ handleFilterChange, handleLocationChange, tota
         locationData.size = currentZipSize;
         break;
       case "custom":
-        if (data.customZipSize) {
           locationData.from = 0;
-          locationData.size = Math.min(data.customZipSize ?? 25, 1000);
-          console.log("location in custom", locationData);
-        }
+          locationData.size = data.customZipSize ? Math.min(data.customZipSize, 1000) : 25;
         break;
       default:
         locationData.from = 0;
         locationData.size = 25;
         break;
     }
-    
-    if(_isEqual(Object.keys(locationData), ["from", "size"])) {
-      handleReset();
-    } else {
-      handleLocationChange(locationData);
-    }
 
-    setLastAppliedFilters({
-      ...data,
-      selectedStateCodes: currentSelectedStateCodes.sort(),
-    });
+  const keys = [...formSchema._def.schema.keyof().options];
+  const keysToCompare = keys.filter(key => key !== "zipCodeLoading" && key !== "customZipSize");
+
+  for(const key of keysToCompare) {
+    // This checks if there's a new value that wasn't there before.
+    if(String(data[key] ?? "").length > 0 && String(lastAppliedFilters[key] ?? "").length === 0) {
+      locationData.from = 0;
+      locationData.size = 25;
+      break;
+    }
+  }
+
+  if(_isEqual(Object.keys(locationData), ["from", "size"])) {
+    handleReset();
+  } else {
+    handleLocationChange(locationData);
+  }
+  setLastAppliedFilters({
+    ...data,
+    selectedStateCodes: currentSelectedStateCodes.sort(),
+  });
     setIsChangedSinceLastApply(false);
   };
 
