@@ -13,8 +13,8 @@ import {
 import { Input } from "../ui/input"
 import { StateSearch } from "."
 import { useState, useRef, useEffect, useMemo } from "react"
-import type { ZipCodeSearchParams } from "@/models"
-import { filterStateSearchItems, getStateOptions } from "../utils"
+import type { GeoBoundingBox, ZipCodeSearchParams } from "@/models"
+import { castToNumbers, filterStateSearchItems, getStateOptions } from "../utils"
 import { Label } from "../ui/label"
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group"
 import { cn } from "@/lib/utils"
@@ -25,6 +25,7 @@ import {
   AccordionTrigger,
 } from "../ui/accordion"
 import { Separator } from "../ui/separator"
+import { MapIndicator } from "."
 import _isEqual from 'lodash/isEqual'
 
 const formSchema = z.object({
@@ -146,6 +147,30 @@ interface FiltersProps {
 
 function BoundingBoxAccordion({ form }: { form: UseFormReturn<FilterFormValues> }) {
   const boundingBoxType = form.watch("boundingBoxType");
+  const geoBoundingBoxValue = form.watch("geoBoundingBox");
+
+  const hasErrors = (type: typeof boundingBoxType): boolean | undefined => {
+  const errors = form.formState.errors;
+    if(!errors || !errors.geoBoundingBox) {
+      return false;
+    }
+
+    const geoBoundingBoxErrors = errors.geoBoundingBox;
+    let result = false;
+
+    if(type === "edges") {
+      result = !!(geoBoundingBoxErrors?.top || geoBoundingBoxErrors?.left || geoBoundingBoxErrors?.bottom || geoBoundingBoxErrors?.right);
+    } else if(type === "upper_diagonal") {
+      result = !!(geoBoundingBoxErrors?.bottom_left || geoBoundingBoxErrors?.top_right);
+    } else if(type === "lower_diagonal") {
+      result = !!(geoBoundingBoxErrors?.bottom_right || geoBoundingBoxErrors?.top_left);
+    }
+
+    return result && !geoBoundingBoxErrors?.type;
+  }
+
+  const castedGeoBoundingBox = castToNumbers(geoBoundingBoxValue);
+  const canRenderMap = castedGeoBoundingBox && !hasErrors(boundingBoxType) && boundingBoxType !== "none";
 
   return (
     <Accordion 
@@ -487,6 +512,12 @@ function BoundingBoxAccordion({ form }: { form: UseFormReturn<FilterFormValues> 
                 <FormMessage />
               </div>
               </>
+            )}
+
+            {canRenderMap && (
+              <div className="mt-4">
+                <MapIndicator geoBoundingBox={castedGeoBoundingBox as GeoBoundingBox} type={boundingBoxType} />
+              </div>
             )}
           </AccordionContent>
       </AccordionItem>
