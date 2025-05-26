@@ -13,7 +13,7 @@ import {
 import { Input } from "../ui/input"
 import { StateSearch } from "."
 import { useState, useRef, useEffect, useMemo } from "react"
-import type { GeoBoundingBox, ZipCodeSearchParams } from "@/models"
+import type { FilterOptions, GeoBoundingBox, ZipCodeSearchParams } from "@/models"
 import { castToNumbers, filterStateSearchItems, getStateOptions } from "../utils"
 import { Label } from "../ui/label"
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group"
@@ -583,10 +583,17 @@ export default function Filters({ handleFilterChange, handleLocationChange, tota
   }, []);
 
   const onSubmit = (data: FilterFormValues) => {
-    handleFilterChange({
-      ageMin: data.ageMin,
-      ageMax: data.ageMax,
-    });
+    const updatedFilters: FilterOptions = {};
+    if(data.ageMin) {
+      updatedFilters.ageMin = data.ageMin;
+    }
+    if(data.ageMax) {
+      updatedFilters.ageMax = data.ageMax;
+    }
+  
+    if(Object.keys(updatedFilters).length > 0) {
+      handleFilterChange(updatedFilters);
+    }
 
     const locationData: ZipCodeSearchParams = {};
     if(data.city) { 

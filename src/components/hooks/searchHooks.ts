@@ -97,7 +97,6 @@ export const useSearch = () => {
     setZipCodeFrom(0);
     setZipCodeSize(25);
     setZipCodeCoverage("");
-    setFilters({});
     setResults({ ...results, zipCodes: 0 });
     setZipCodeResultsMessage("");
   };
