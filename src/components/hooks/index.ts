@@ -5,3 +5,4 @@ export * from "./searchHooks";
 export * from "./zipCodeHooks";
 export * from "./scrollHooks";
 export * from "./mapHooks";
+export * from "./matchHooks";
