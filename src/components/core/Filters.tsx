@@ -13,7 +13,7 @@ import {
 import { Input } from "../ui/input"
 import { StateSearch } from "."
 import { useState, useRef, useEffect, useMemo } from "react"
-import type { ZipCodeSearchParams } from "@/models"
+import type { GeoBoundingBox, ZipCodeSearchParams } from "@/models"
 import { filterStateSearchItems, getStateOptions } from "../utils"
 import { Label } from "../ui/label"
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group"
@@ -26,6 +26,7 @@ import {
 } from "../ui/accordion"
 import { Separator } from "../ui/separator"
 import _isEqual from 'lodash/isEqual'
+import MapIndicator from "./MapIndicator"
 
 const formSchema = z.object({
   ageMin: z.coerce.number().min(0).optional(),
@@ -146,6 +147,40 @@ interface FiltersProps {
 
 function BoundingBoxAccordion({ form }: { form: UseFormReturn<FilterFormValues> }) {
   const boundingBoxType = form.watch("boundingBoxType");
+  const geoBoundingBoxValue = form.watch("geoBoundingBox");
+  const errors = form.formState.errors;
+
+  // let canRenderMap = false;
+  // if (geoBoundingBoxValue) {
+  //   if (boundingBoxType === "edges" &&
+  //       'top' in geoBoundingBoxValue && typeof geoBoundingBoxValue.top === 'number' && !errors.geoBoundingBox?.top &&
+  //       'left' in geoBoundingBoxValue && typeof geoBoundingBoxValue.left === 'number' && !errors.geoBoundingBox?.left &&
+  //       'bottom' in geoBoundingBoxValue && typeof geoBoundingBoxValue.bottom === 'number' && !errors.geoBoundingBox?.bottom &&
+  //       'right' in geoBoundingBoxValue && typeof geoBoundingBoxValue.right === 'number' && !errors.geoBoundingBox?.right
+  //   ) {
+  //     canRenderMap = true;
+  //   } else if (boundingBoxType === "upper_diagonal" &&
+  //       'bottom_left' in geoBoundingBoxValue && geoBoundingBoxValue.bottom_left &&
+  //         typeof geoBoundingBoxValue.bottom_left.lat === 'number' && !errors.geoBoundingBox?.bottom_left?.lat &&
+  //         typeof geoBoundingBoxValue.bottom_left.lon === 'number' && !errors.geoBoundingBox?.bottom_left?.lon &&
+  //       'top_right' in geoBoundingBoxValue && geoBoundingBoxValue.top_right &&
+  //         typeof geoBoundingBoxValue.top_right.lat === 'number' && !errors.geoBoundingBox?.top_right?.lat &&
+  //         typeof geoBoundingBoxValue.top_right.lon === 'number' && !errors.geoBoundingBox?.top_right?.lon
+  //   ) {
+  //     canRenderMap = true;
+  //   } else if (boundingBoxType === "lower_diagonal" &&
+  //       'bottom_right' in geoBoundingBoxValue && geoBoundingBoxValue.bottom_right &&
+  //         typeof geoBoundingBoxValue.bottom_right.lat === 'number' && !errors.geoBoundingBox?.bottom_right?.lat &&
+  //         typeof geoBoundingBoxValue.bottom_right.lon === 'number' && !errors.geoBoundingBox?.bottom_right?.lon &&
+  //       'top_left' in geoBoundingBoxValue && geoBoundingBoxValue.top_left &&
+  //         typeof geoBoundingBoxValue.top_left.lat === 'number' && !errors.geoBoundingBox?.top_left?.lat &&
+  //         typeof geoBoundingBoxValue.top_left.lon === 'number' && !errors.geoBoundingBox?.top_left?.lon
+  //   ) {
+  //     canRenderMap = true;
+  //   }
+  // }
+
+  // console.log("canRenderMap", canRenderMap);
 
   return (
     <Accordion 
@@ -487,6 +522,12 @@ function BoundingBoxAccordion({ form }: { form: UseFormReturn<FilterFormValues> 
                 <FormMessage />
               </div>
               </>
+            )}
+
+            {geoBoundingBoxValue && (
+              <div className="mt-4">
+                <MapIndicator geoBoundingBox={geoBoundingBoxValue as GeoBoundingBox} />
+              </div>
             )}
           </AccordionContent>
       </AccordionItem>

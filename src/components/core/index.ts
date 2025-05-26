@@ -12,3 +12,4 @@ export { default as NoFavorites } from "./NoFavorites";
 export { default as Logout } from "./Logout";
 export { default as MultiSelectCommand } from "./MultiSelectCommand";
 export { default as StateSearch } from "./StateSearch";
+export { default as MapIndicator } from "./MapIndicator";
