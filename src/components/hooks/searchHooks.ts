@@ -81,11 +81,12 @@ export const useSearch = () => {
 
   useEffect(() => {
     let message;
+    const numZipCodes = results.zipCodes;
 
-    if(results.zipCodes > 0) {
-      message = zipCodeSize < results.zipCodes
-        ? `Showing ${zipCodeFrom + 1} - ${Math.min(zipCodeFrom + zipCodeSize, results.zipCodes)} of ${results.zipCodes} zip codes`
-        : `Showing all ${results.zipCodes} zip codes`;
+    if(numZipCodes > 0) {
+      message = zipCodeSize < numZipCodes
+        ? `Showing ${zipCodeFrom + 1} - ${Math.min(zipCodeFrom + zipCodeSize, numZipCodes)} of ${numZipCodes} zip codes`
+        : `Showing all ${numZipCodes > 1 ? "all" : ""} zip code${numZipCodes > 1 ? "s" : ""}`;
       message += zipCodeCoverage ? `\n${zipCodeCoverage}` : "";
     }
     setZipCodeResultsMessage(message ?? "");
