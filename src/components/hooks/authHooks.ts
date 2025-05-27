@@ -8,7 +8,7 @@ export const useAuth = () => {
     isLoggedIn: boolean;
     setIsLoggedIn: (value: boolean) => void;
   };
-  const { setItem, removeItem, getItem } = useStorage();
+  const { setItem, getItem, clear } = useStorage();
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -37,7 +37,7 @@ export const useAuth = () => {
 
   const logout = () => {
     setIsLoggedIn(false);
-    removeItem(IS_LOGGED_IN_KEY);
+    clear();
   };
 
   return { isLoggedIn, login, logout, isLoading };

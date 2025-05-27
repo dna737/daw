@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import goodbyeGif from "@/assets/goodbye-animated-gif-sped-up.gif";
+import { REDIRECT_COUNTDOWN_SECONDS } from "../utils";
 
 export default function Logout() {
   const navigate = useNavigate();
-  const [countdown, setCountdown] = useState(3);
+  const [countdown, setCountdown] = useState(REDIRECT_COUNTDOWN_SECONDS);
 
   useEffect(() => {
     if (countdown <= 0) {
@@ -22,12 +23,11 @@ export default function Logout() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
       <h3>Thanks for using the app -- see you soon!</h3>
-      <img 
-        src={goodbyeGif}
-        alt="Goodbye animation" 
-        className="mt-4 w-32 h-32 object-contain"
-      />
+        <img 
+          src={goodbyeGif}
+          alt="Goodbye animation" 
+          className="mt-4 w-32 h-32 object-contain"
+        />
     </div>
   )
-   
 }

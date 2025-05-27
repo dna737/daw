@@ -39,5 +39,9 @@ export const useStorage = () => {
     localStorage.removeItem(key)
   }, [])
 
-  return { setItem, getItem, removeItem }
+  const clear = useCallback(() => {
+    localStorage.clear();
+  }, [])
+
+  return { setItem, getItem, removeItem, clear }
 };
