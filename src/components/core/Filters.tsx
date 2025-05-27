@@ -467,7 +467,7 @@ function BoundingBoxAccordion({ form }: { form: UseFormReturn<FilterFormValues> 
 function ZipCodeLoadingRadioGroup({ currentZipSize, totalZipCodes, form, zipCodeFrom }: { currentZipSize: number; totalZipCodes: number; form: UseFormReturn<FilterFormValues>; zipCodeFrom: number }) {
   return (
           <div className="space-y-2">
-            <FormLabel>ZIP Code Loading</FormLabel>
+            <FormLabel htmlFor="zipCodeLoading">ZIP Code Loading</FormLabel>
             <FormField
               control={form.control}
               name="zipCodeLoading"
@@ -479,6 +479,7 @@ function ZipCodeLoadingRadioGroup({ currentZipSize, totalZipCodes, form, zipCode
                       defaultValue={field.value}
                       value={field.value}
                       className="space-y-2"
+                      id="zipCodeLoading"
                     >
                       {zipCodeFrom + currentZipSize < totalZipCodes && (
                         <div className="flex items-center space-x-2">
@@ -512,8 +513,8 @@ function ZipCodeLoadingRadioGroup({ currentZipSize, totalZipCodes, form, zipCode
                     <Input
                       type="number"
                       min={1}
-                      max={totalZipCodes > 0 ? Math.min(totalZipCodes, MAX_CUSTOM_ZIP_SIZE) : undefined }
-                      placeholder={`Enter size (1-${totalZipCodes > 0 ? Math.min(totalZipCodes, MAX_CUSTOM_ZIP_SIZE) : 'max'})`}
+                      max={totalZipCodes > 0 ? Math.min(totalZipCodes - zipCodeFrom, MAX_CUSTOM_ZIP_SIZE) : undefined }
+                      placeholder={`Enter size (1-${totalZipCodes > 0 ? Math.min(totalZipCodes - zipCodeFrom, MAX_CUSTOM_ZIP_SIZE) : 'max'})`}
                       {...field}
                       className="text-sm"
                       disabled={form.watch("zipCodeLoading") !== "custom"}
@@ -569,9 +570,14 @@ export default function Filters({ handleFilterChange, handleLocationChange, tota
 
   useEffect(() => {
     const { selectedStateCodes, ...comparableLastApplied } = lastAppliedFilters;
-    const changed = !_isEqual(watchedFormValues, comparableLastApplied);
+    const currentSelectedStateCodes = selectedStates.map(state => state.code).sort();
+    
+    const formChanged = !_isEqual(watchedFormValues, comparableLastApplied);
+    const stateChanged = !_isEqual(currentSelectedStateCodes, selectedStateCodes);
+    
+    const changed = formChanged || stateChanged;
     setIsChangedSinceLastApply(changed);
-  }, [watchedFormValues, lastAppliedFilters, setIsChangedSinceLastApply]);
+  }, [watchedFormValues, lastAppliedFilters, selectedStates, setIsChangedSinceLastApply]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -682,9 +688,7 @@ export default function Filters({ handleFilterChange, handleLocationChange, tota
     }
   }
 
-  if(_isEqual(Object.keys(locationData), ["from", "size"])) {
-    handleReset(false);
-  } else {
+  if(!_isEqual(Object.keys(locationData), ["from", "size"])) {
     handleLocationChange(locationData);
   }
   setLastAppliedFilters({
@@ -706,16 +710,13 @@ export default function Filters({ handleFilterChange, handleLocationChange, tota
   
   const isButtonAreaVisible = form.formState.isDirty || selectedStates.length > 0 || isChangedSinceLastApply;
 
-  const handleReset = (alsoResetLastAppliedFilters?: boolean) => {
+  const handleReset = () => {
     form.reset(initialFormValues);
     setStateOptions(getStateOptions());
     setSearchValue("");
     handleZipCodeReset();
     setIsChangedSinceLastApply(false);
-    if(alsoResetLastAppliedFilters === true) {
-      console.log("resetting last applied filters");
-      setLastAppliedFilters(getInitialTrackedState());
-    }
+    setLastAppliedFilters(getInitialTrackedState());
   };
 
   return (
@@ -797,7 +798,7 @@ export default function Filters({ handleFilterChange, handleLocationChange, tota
           </div>
 
           <div className={cn("flex", isButtonAreaVisible ? "justify-between" : "justify-center")}>
-            {isButtonAreaVisible && <Button type="button" onClick={() => handleReset(true)} variant="outline">Reset</Button>}
+            {isButtonAreaVisible && <Button type="button" onClick={handleReset} variant="outline">Reset</Button>}
             <Button type="submit" disabled={!isChangedSinceLastApply}>Apply Filters</Button>
           </div>
         </form>
