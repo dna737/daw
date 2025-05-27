@@ -15,7 +15,7 @@ export default function Matches() {
   const { likedDogs } = useLikedDogs();
   const { dogZipCodes } = useDog(likedDogs);
   const { dogLocations } = useZipCodes(dogZipCodes);
-  const { showConfetti } = useMatch();
+  const { showConfetti } = useMatch(likedDogs.length);
 
   useEffect(() => {
     if (likedDogs.length > 0) {

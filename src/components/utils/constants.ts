@@ -2,6 +2,7 @@
 export const IS_LOGGED_IN_KEY = 'isLoggedIn';
 export const MATCH_PAGE_VISITED_KEY = 'hasVisitedMatchPage';
 export const DEFAULT_STORAGE_TTL_MS = 1000 * 60 * 60; // 1 hour
+export const LIKED_DOGS_KEY = "likedDogs";
 
 // page and size limits:
 export const MAX_PAGE_SIZE = 100;

@@ -2,16 +2,18 @@ import type { Dog } from "@/models";
 import { getDogs } from "@/services/proxy";
 import { useEffect, useState } from "react";
 import { useStorage } from ".";
+import { LIKED_DOGS_KEY } from "../utils";
 
 /*
   Handles liked dogs state management
 */
+
 export const useLikedDogs = () => {
   const { getItem, setItem } = useStorage();
-  const [likedDogs, setLikedDogs] = useState<string[]>(getItem("likedDogs") || []);
+  const [likedDogs, setLikedDogs] = useState<string[]>(getItem(LIKED_DOGS_KEY) ?? []);
 
   useEffect(() => {
-    setItem("likedDogs", likedDogs);
+    setItem(LIKED_DOGS_KEY, likedDogs);
   }, [likedDogs, setItem]);
 
   const handleLikeChange = (dogId: string) => {
