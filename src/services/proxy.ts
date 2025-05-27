@@ -93,7 +93,6 @@ export const getDogs = async (ids: string[]): Promise<Dog[]> => {
   }
 
   const data = await response.json();
-  console.log("data", data);
   return data;
 };
 

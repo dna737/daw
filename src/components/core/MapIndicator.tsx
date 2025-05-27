@@ -16,8 +16,6 @@ export default function MapIndicator(props: { geoBoundingBox: GeoBoundingBox | u
 
   const calculateCenter = (geoBoundingBox: GeoBoundingBox) => {
     if(type === "edges" && isCardinalBoundingBox(geoBoundingBox)) {
-      console.log("cardinal", geoBoundingBox, typeof geoBoundingBox.left, typeof geoBoundingBox.right);
-      console.log("cardinal", (geoBoundingBox.left + geoBoundingBox.right) / 2);
       return {
         lon: (geoBoundingBox.left + geoBoundingBox.right) / 2,
         lat: (geoBoundingBox.top + geoBoundingBox.bottom) / 2

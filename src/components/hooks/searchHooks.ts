@@ -49,7 +49,6 @@ export const useSearch = () => {
 
   // Responsible for updating results.
   useEffect(() => {
-    console.log("handleSearch triggered");
     handleSearch();
   }, [currentPage, pageSize, sortBy, filters, results.zipCodes]);
 
@@ -94,7 +93,6 @@ export const useSearch = () => {
   }, [results.zipCodes, zipCodeFrom, zipCodeSize, zipCodeCoverage]);
 
   const handleZipCodeReset = () => {
-    console.log("handleZipCodeReset triggered");
     setZipCodeFrom(0);
     setZipCodeSize(25);
     setZipCodeCoverage("");
