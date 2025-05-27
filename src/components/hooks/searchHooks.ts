@@ -49,8 +49,9 @@ export const useSearch = () => {
 
   // Responsible for updating results.
   useEffect(() => {
+    console.log("handleSearch triggered");
     handleSearch();
-  }, [currentPage, pageSize, sortBy, filters]);
+  }, [currentPage, pageSize, sortBy, filters, results.zipCodes]);
 
   useEffect(() => {
     setDogResultsMessage(`Showing ${(currentPage - 1) * pageSize + 1} - ${Math.min(currentPage * pageSize, results.dogs)} of ${results.dogs} dogs`);
@@ -98,6 +99,7 @@ export const useSearch = () => {
     setZipCodeSize(25);
     setZipCodeCoverage("");
     setResults({ ...results, zipCodes: 0 });
+    setFilters(prev => ({ ...prev, zipCodes: [] }));
     setZipCodeResultsMessage("");
   };
 

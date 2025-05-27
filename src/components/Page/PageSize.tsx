@@ -5,6 +5,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel } from "../ui/form";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { MAX_PAGE_SIZE } from "../utils";
+import { useEffect } from "react";
 
 const formSchema = z.object({
   pageSize: z.coerce.number()
@@ -23,6 +24,10 @@ export default function PageSize(props: {pageSize: number, setPageSize: (pageSiz
       pageSize: pageSize
     }
   });
+
+  useEffect(() => {
+    form.reset({ pageSize: pageSize });
+  }, [pageSize, form.reset]);
 
   const onSubmit = (values: FormValues) => {
     setPageSize(values.pageSize);
