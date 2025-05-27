@@ -33,8 +33,8 @@ import {
 } from "../utils"
 
 const formSchema = z.object({
-  ageMin: z.coerce.number().min(0).optional(),
-  ageMax: z.coerce.number().min(0).optional(),
+  ageMin: z.coerce.number().min(0).nullable(),
+  ageMax: z.coerce.number().min(0).nullable(),
   city: z.string().optional(),
   zipCodeLoading: z.enum(["next", "previous", "custom"]).optional(),
   customZipSize: z.coerce.number().min(1).optional(),
@@ -54,7 +54,7 @@ const formSchema = z.object({
     }).optional(),
   }).optional(),
 }).superRefine((data, ctx) => {
-  if (data.ageMin !== undefined && data.ageMax !== undefined && data.ageMax < data.ageMin) {
+  if (data.ageMin !== null && data.ageMax !== null && data.ageMax < data.ageMin) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
       message: "Maximum age must be >= minimum age",
@@ -532,11 +532,11 @@ export default function Filters({ handleFilterChange, handleLocationChange, tota
   const [searchValue, setSearchValue] = useState("");
   const [stateOptions, setStateOptions] = useState(getStateOptions());
   const containerRef = useRef<HTMLDivElement>(null);
-  const prevValuesRef = useRef<FilterFormValues>({});
+  const [isChangedSinceLastApply, setIsChangedSinceLastApply] = useState(false);
 
   const initialFormValues: FilterFormValues = {
-    ageMin: 0,
-    ageMax: 0,
+    ageMin: null,
+    ageMax: null,
     city: "",
     zipCodeLoading: undefined,
     customZipSize: currentZipSize || 25,
@@ -554,7 +554,6 @@ export default function Filters({ handleFilterChange, handleLocationChange, tota
   });
 
   const [lastAppliedFilters, setLastAppliedFilters] = useState<TrackedFilterState>(getInitialTrackedState());
-  const [isChangedSinceLastApply, setIsChangedSinceLastApply] = useState(false);
 
   const form = useForm<FilterFormValues>({
     resolver: zodResolver(formSchema),
@@ -566,11 +565,13 @@ export default function Filters({ handleFilterChange, handleLocationChange, tota
     return filterStateSearchItems(stateOptions, searchValue);
   }, [stateOptions, searchValue]);
 
-  useEffect(() => {
-    const currentValues = form.getValues();
+  const watchedFormValues = form.watch(); // Watch all form values for the useEffect
 
-    setIsChangedSinceLastApply(!_isEqual(currentValues, prevValuesRef.current));
-  }, [form.watch()]);
+  useEffect(() => {
+    const { selectedStateCodes, ...comparableLastApplied } = lastAppliedFilters;
+    const changed = !_isEqual(watchedFormValues, comparableLastApplied);
+    setIsChangedSinceLastApply(changed);
+  }, [watchedFormValues, lastAppliedFilters, setIsChangedSinceLastApply]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -584,10 +585,10 @@ export default function Filters({ handleFilterChange, handleLocationChange, tota
 
   const onSubmit = (data: FilterFormValues) => {
     const updatedFilters: FilterOptions = {};
-    if(data.ageMin) {
+    if(data.ageMin !== null) {
       updatedFilters.ageMin = data.ageMin;
     }
-    if(data.ageMax) {
+    if(data.ageMax !== null) {
       updatedFilters.ageMax = data.ageMax;
     }
   
@@ -682,7 +683,7 @@ export default function Filters({ handleFilterChange, handleLocationChange, tota
   }
 
   if(_isEqual(Object.keys(locationData), ["from", "size"])) {
-    handleReset();
+    handleReset(false);
   } else {
     handleLocationChange(locationData);
   }
@@ -705,14 +706,16 @@ export default function Filters({ handleFilterChange, handleLocationChange, tota
   
   const isButtonAreaVisible = form.formState.isDirty || selectedStates.length > 0 || isChangedSinceLastApply;
 
-  const handleReset = () => {
+  const handleReset = (alsoResetLastAppliedFilters?: boolean) => {
     form.reset(initialFormValues);
     setStateOptions(getStateOptions());
     setSearchValue("");
     handleZipCodeReset();
-    
-    setLastAppliedFilters(getInitialTrackedState());
     setIsChangedSinceLastApply(false);
+    if(alsoResetLastAppliedFilters === true) {
+      console.log("resetting last applied filters");
+      setLastAppliedFilters(getInitialTrackedState());
+    }
   };
 
   return (
@@ -768,7 +771,7 @@ export default function Filters({ handleFilterChange, handleLocationChange, tota
                 render={({ field }) => (
                   <FormItem className="flex-1">
                     <FormControl>
-                      <Input type="number" placeholder="Min" {...field} className="text-sm" id="ageMin" />
+                      <Input type="number" placeholder="Min" {...field} value={field.value === null ? "" : field.value} className="text-sm" id="ageMin" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -780,7 +783,7 @@ export default function Filters({ handleFilterChange, handleLocationChange, tota
                 render={({ field }) => (
                   <FormItem className="flex-1">
                     <FormControl>
-                      <Input type="number" placeholder="Max" {...field} className="text-sm" id="ageMax" />
+                      <Input type="number" placeholder="Max" {...field} value={field.value === null ? "" : field.value} className="text-sm" id="ageMax" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -794,7 +797,7 @@ export default function Filters({ handleFilterChange, handleLocationChange, tota
           </div>
 
           <div className={cn("flex", isButtonAreaVisible ? "justify-between" : "justify-center")}>
-            {isButtonAreaVisible && <Button type="button" onClick={handleReset} variant="outline">Reset</Button>}
+            {isButtonAreaVisible && <Button type="button" onClick={() => handleReset(true)} variant="outline">Reset</Button>}
             <Button type="submit" disabled={!isChangedSinceLastApply}>Apply Filters</Button>
           </div>
         </form>
