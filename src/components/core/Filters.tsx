@@ -480,6 +480,7 @@ function ZipCodeLoadingRadioGroup({ currentZipSize, totalZipCodes, form, zipCode
                       value={field.value}
                       className="space-y-2"
                       id="zipCodeLoading"
+                      name="zipCodeLoading"
                     >
                       {zipCodeFrom + currentZipSize < totalZipCodes && (
                         <div className="flex items-center space-x-2">

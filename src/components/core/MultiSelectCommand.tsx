@@ -76,7 +76,7 @@ function MultiSelectCommandInner<TItem extends BaseItem>(
           key={key}
           className="flex items-center space-x-2 cursor-pointer"
         >
-          <Checkbox id={key} checked={isCurrentlySelected} className="cursor-pointer" />
+          <Checkbox id={key} checked={isCurrentlySelected} className="cursor-pointer" name={key}/>
           <label htmlFor={key} className="flex-1">
             <CommandItem
               key={key}
