@@ -1,7 +1,7 @@
 import { SortByOptions } from "@/models/interfaces";
 import { Button } from "../ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuTrigger } from "../ui/dropdown-menu";
-import { Funnel } from "lucide-react";
+import { ArrowUpDown } from "lucide-react";
 
 export default function SortBy(props: {currentValue: SortByOptions, setCurrentValue: (value: SortByOptions) => void}) {
   const { currentValue, setCurrentValue } = props;
@@ -9,7 +9,7 @@ export default function SortBy(props: {currentValue: SortByOptions, setCurrentVa
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline">
-          <Funnel className="w-4 h-4" />
+          <ArrowUpDown className="w-4 h-4" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
