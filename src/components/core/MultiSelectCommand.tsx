@@ -39,6 +39,7 @@ export interface MultiSelectCommandProps<TItem extends BaseItem> {
   commandClassName?: string;
   dropdownContainerClassName?: string;
   ref?: React.ForwardedRef<HTMLDivElement>;
+  id: string;
 }
 
 function MultiSelectCommandInner<TItem extends BaseItem>(
@@ -61,6 +62,7 @@ function MultiSelectCommandInner<TItem extends BaseItem>(
     onItemToggle,
     commandClassName,
     dropdownContainerClassName,
+    id,
   } = props;
 
   const renderItems = (items: TItem[], isSelectedGroup: boolean) => {
@@ -102,6 +104,7 @@ function MultiSelectCommandInner<TItem extends BaseItem>(
       shouldFilter={false} // Causes issues with sorting when enabled.
     >
       <CommandInput
+        id={id}
         placeholder={placeholder}
         onFocus={onFocus}
         value={searchValue}

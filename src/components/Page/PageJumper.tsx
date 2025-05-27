@@ -44,7 +44,7 @@ type FormValues = z.infer<typeof formSchema>;
               name="page"
               render={({ field }) => (
                 <FormItem className="flex items-center gap-2">
-                  <FormLabel className="text-sm font-medium">Go to page</FormLabel>
+                  <FormLabel htmlFor="page" className="text-sm font-medium">Go to page</FormLabel>
                   <FormControl>
                     <Input 
                       id="page"

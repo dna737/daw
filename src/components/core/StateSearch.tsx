@@ -12,6 +12,7 @@ interface StateSearchProps {
   onFocus: () => void;
   onSearchValueChange: (value: string) => void;
   onStateSelection: (code: string) => void;
+  id: string;
 }
 
 const StateSearch = forwardRef<HTMLDivElement, StateSearchProps>(
@@ -24,6 +25,7 @@ const StateSearch = forwardRef<HTMLDivElement, StateSearchProps>(
       onFocus,
       onSearchValueChange,
       onStateSelection,
+      id,
     },
     ref
   ) => {
@@ -40,6 +42,7 @@ const StateSearch = forwardRef<HTMLDivElement, StateSearchProps>(
     return (
       <div>
         <MultiSelectCommand<StateOption>
+          id={id}
           ref={ref}
           isFocused={isFocused}
           searchValue={searchValue}

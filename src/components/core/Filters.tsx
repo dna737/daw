@@ -535,8 +535,8 @@ export default function Filters({ handleFilterChange, handleLocationChange, tota
   const prevValuesRef = useRef<FilterFormValues>({});
 
   const initialFormValues: FilterFormValues = {
-    ageMin: undefined,
-    ageMax: undefined,
+    ageMin: 0,
+    ageMax: 0,
     city: "",
     zipCodeLoading: undefined,
     customZipSize: currentZipSize || 25,
@@ -728,14 +728,14 @@ export default function Filters({ handleFilterChange, handleLocationChange, tota
           {totalZipCodes > 0 && <ZipCodeLoadingRadioGroup currentZipSize={currentZipSize} totalZipCodes={totalZipCodes} form={form} zipCodeFrom={zipCodeFrom} />}
 
           <div className="space-y-2">
-            <FormLabel>City</FormLabel>
+            <FormLabel htmlFor="city">City</FormLabel>
             <FormField
               control={form.control}
               name="city"
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <Input placeholder="Enter city name" {...field} className="text-sm" />
+                    <Input placeholder="Enter city name" {...field} className="text-sm" id="city"/>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -744,9 +744,10 @@ export default function Filters({ handleFilterChange, handleLocationChange, tota
           </div>
 
           <div className="space-y-2">
-            <FormLabel>States</FormLabel>
+            <FormLabel htmlFor="states">States</FormLabel>
             <div ref={containerRef} className="relative">
               <StateSearch
+                id="states"
                 isFocused={isFocused}
                 searchValue={searchValue}
                 availableStates={availableStates}
@@ -759,7 +760,7 @@ export default function Filters({ handleFilterChange, handleLocationChange, tota
           </div>
 
           <div className="space-y-2">
-            <FormLabel>Age Range</FormLabel>
+            <FormLabel htmlFor="ageMin" >Age Range</FormLabel>
             <div className="flex gap-2">
               <FormField
                 control={form.control}
@@ -767,7 +768,7 @@ export default function Filters({ handleFilterChange, handleLocationChange, tota
                 render={({ field }) => (
                   <FormItem className="flex-1">
                     <FormControl>
-                      <Input type="number" placeholder="Min" {...field} className="text-sm" />
+                      <Input type="number" placeholder="Min" {...field} className="text-sm" id="ageMin" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -779,7 +780,7 @@ export default function Filters({ handleFilterChange, handleLocationChange, tota
                 render={({ field }) => (
                   <FormItem className="flex-1">
                     <FormControl>
-                      <Input type="number" placeholder="Max" {...field} className="text-sm" />
+                      <Input type="number" placeholder="Max" {...field} className="text-sm" id="ageMax" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
