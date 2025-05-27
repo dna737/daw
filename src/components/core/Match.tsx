@@ -8,6 +8,7 @@ import { Button } from "../ui/button";
 import { Link } from "react-router";
 import ReactConfetti from 'react-confetti';
 import { useMatch } from "../hooks";
+import { Home, Star } from "lucide-react";
 
 export default function Matches() {
 
@@ -48,8 +49,11 @@ export default function Matches() {
         <div className="flex gap-2">
           {links.map((link) => (
             <Link to={link.path} key={link.name}>
-              <Button variant="outline" className={cn(link.className, "cursor-pointer")}>
-                {link.name}
+              <Button variant="outline" className={cn(link.className, "cursor-pointer flex items-center gap-1")}>
+                <span className="sm:hidden">
+                  {link.name === "Home" ? <Home className="w-4 h-4" /> : <Star className="w-4 h-4" />}
+                </span>
+                <span className="hidden sm:inline">{link.name}</span>
               </Button>
             </Link>
           ))}

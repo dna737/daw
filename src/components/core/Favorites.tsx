@@ -3,6 +3,7 @@ import { DogCard, Header, NoFavorites } from ".";
 import { useLikedDogs, useDog, useZipCodes } from "../hooks";
 import { Link } from "react-router";
 import { Button } from "../ui/button";
+import { Home, Heart } from "lucide-react";
 
 export default function Favorites() {
   const { likedDogs, handleLikeChange } = useLikedDogs();
@@ -20,8 +21,11 @@ export default function Favorites() {
         <div className="flex gap-2">
           {links.map((link) => (
             <Link to={link.path} key={link.name}>
-              <Button variant="outline" className={cn(link.className, "cursor-pointer")}>
-                {link.name}
+              <Button variant="outline" className={cn(link.className, "cursor-pointer flex items-center gap-1")}>
+                <span className="sm:hidden">
+                  {link.name === "Home" ? <Home className="w-4 h-4" /> : <Heart className="w-4 h-4" />}
+                </span>
+                <span className="hidden sm:inline">{link.name}</span>
               </Button>
             </Link>
           ))}
